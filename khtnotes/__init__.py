@@ -80,7 +80,7 @@ class Note(QObject):
         return self._data
     def _set_text(self, text):
         self._data = text
-        self.on_data.emit()
+        self.onDataChanged.emit()
 
     def _get_title(self):
         return self._title
@@ -111,7 +111,7 @@ class Note(QObject):
     def _get_human_timestamp(self):
     	return self._human_timestamp
     	
-    on_data = Signal()
+    onDataChanged = Signal()
     on_title = Signal()
     on_uuid = Signal()
     on_timestamp = Signal()
@@ -119,7 +119,7 @@ class Note(QObject):
     on_ready = Signal()    
     on_human_timestamp = Signal()
     human_timestamp = Property(unicode, _get_human_timestamp, notify=on_human_timestamp)
-    data = Property(unicode, _get_text, _set_text, notify=on_data)
+    data = Property(unicode, _get_text, _set_text, notify=onDataChanged)
     title = Property(unicode, _get_title, _set_title, notify=on_title)
     uuid = Property(unicode, _get_uuid, _set_uuid, notify=on_uuid)
     timestamp = Property(int, _get_timestamp, _set_timestamp, notify=on_timestamp)
@@ -188,4 +188,4 @@ class KhtNotes(QApplication):
         self.view.showFullScreen()
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())                  
+    sys.exit(KhtNotes().exec_())                   
