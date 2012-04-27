@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=net.khertan.khtnotes
+Exec=/opt/khtnotes/__init__.py
+
