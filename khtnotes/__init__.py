@@ -24,6 +24,7 @@ import datetime
   
 from settings import Settings
 from note import Note
+from sync import Sync
 #from document import Document
 
 __author__ = 'Benoit HERVIER (Khertan)'
@@ -98,10 +99,12 @@ class KhtNotes(QApplication):
         self.notesController = NotesControler()
         self.notesModel = NotesModel()
         self.note = Note()
+        self.syncer = Sync()
         self.rootContext = self.view.rootContext()
         self.rootContext.setContextProperty("argv", sys.argv)
         self.rootContext.setContextProperty("__version__", __version__)
         self.rootContext.setContextProperty("Settings", Settings())
+        self.rootContext.setContextProperty("Sync", self.syncer)
         self.rootContext.setContextProperty("QmlDirReaderWriter", QmlDirReaderWriter())
         self.rootContext.setContextProperty('notesController', self.notesController)
         self.rootContext.setContextProperty('notesModel', self.notesModel)
@@ -110,6 +113,7 @@ class KhtNotes(QApplication):
                 os.path.join(os.path.dirname(__file__), 'qml',  'main.qml')))
         self.rootObject = self.view.rootObject()
         self.note.on_error.connect(self.rootObject.onError)
+        self.syncer.on_error.connect(self.rootObject.onError)
         self.view.showFullScreen()
 
 if __name__ == '__main__':

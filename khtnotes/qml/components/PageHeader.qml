@@ -14,7 +14,7 @@ import com.nokia.meego 1.0
 
         Text{
             id:headerlabel
-            anchors.right: parent.right
+            anchors.right: busyindicatorsmall.left
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 10
@@ -23,4 +23,20 @@ import com.nokia.meego 1.0
             color:"white"
             text:'KhtNotes'
         }
-    }
+        
+     BusyIndicator {
+             id: busyindicatorsmall
+                     platformStyle: BusyIndicatorStyle { size: "medium"; spinnerFrames: "image://theme/spinnerinverted"}
+                             running: Sync.running ? true : false;
+                                     opacity: Sync.running ? 1.0 : 0.0;
+                                             anchors.right: header.right
+                                                 //anchors.top: parent.top
+                                                 //anchors.bottom: parent.bottom
+                                                 anchors.rightMargin: 10                                                 
+                                                 //verticalAligment: parent.verticalCenter
+                                                  anchors.verticalCenter: header.verticalCenter
+                                                 }
+                                                 
+                                                 
+                                                 
+                                                     }

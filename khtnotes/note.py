@@ -22,11 +22,13 @@ import sys
 import os
 import datetime
 import uuid
+import markdown2
 
 class Note(QObject):
     ''' A class representing a note '''
 
     NOTESPATH = os.path.expanduser('~/.khtnotes')
+    DELETEDNOTESPATH = os.path.expanduser('~/.khtnotes/deleted')
 
     def __init__(self, uid=None):
         QObject.__init__(self)
@@ -57,6 +59,14 @@ class Note(QObject):
            print e
            self.on_error.emit(str(e))
  
+    def rm(self,):
+        if not os.path.exists(self.DELETEDNOTESPATH):
+            os.mkdir(self.DELETEDNOTESPATH)
+        os.rename(os.path.join(self.NOTESPATH, self._uuid), os.path.join(self.DELETEDNOTESPATH, self._uuid))
+        
+    def overwrite_timestamp(self, timestamp):
+        os.utime(os.path.join(self.NOTESPATH, self._uuid), (timestamp, timestamp))
+        
     @Slot(unicode)        
     def load(self, uid=None):
         auid = self._uuid
@@ -96,7 +106,15 @@ class Note(QObject):
                         self._set_ready(True)
             except Exception, e:
                 print e
-                
+
+    @Slot(unicode, result=unicode)
+    def previewMarkdown(self, text):
+        ''' Generate a markdown preview'''
+        try:
+           return markdown2.markdown(self._stripTags(text))
+        except:
+           return text
+           
     def _get_text(self):
         return self._data
     def _set_text(self, text):

@@ -74,7 +74,11 @@ Page {
                  textFormat: TextEdit.AutoText
                  font { bold: false; family: Settings.fontFamily; pixelSize: Settings.fontSize;}
                  onTextChanged: { modified = true;}
-         }
+    Component.onDestruction: {
+            if (uuid !== '') {
+                        saveFile(); }
+                            }
+                                     }
          
          onOpacityChanged: {
            if (flick.opacity == 1.0) modified = false;
@@ -92,8 +96,6 @@ Page {
         MenuLayout {
             MenuItem { text: qsTr("About"); onClicked: about.open()}
             MenuItem { text: qsTr("MarkDown Preview"); onClicked: pageStack.push(previewPage, {atext:textEditor.text}); }
-//            MenuItem { text: qsTr("Save"); onClicked: saveFile()}
-            /*MenuItem { text: qsTr("Preferences"); onClicked: notYetAvailableBanner.show(); }*/
         }
     }
 

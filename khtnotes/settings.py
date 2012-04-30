@@ -50,14 +50,18 @@ class Settings(QObject):
           self.config.set('Sync',option, value)
         else:
           self.config.set('Display',option, value)
-
+        
+        # Writing our configuration file to 'example.cfg'
+        with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') as configfile:
+            self.config.write(configfile)
+            
     @Slot(unicode, result=unicode)
     def get(self,option):
         try:
             return self.config.get('Display',option)
         except:
             try:
-                return self.config.get('Display',option)
+                return self.config.get('Sync',option)
             except:
                 return '' 
 
@@ -70,12 +74,16 @@ class Settings(QObject):
     def _get_syncLogin(self,):
         return self.get('login')
     def _get_syncPassword(self,):
+        print 'get_syncPassword', self.get('password')
         return self.get('password')
     def _set_syncUrl(self, url):
         self._set('url', url)
     def _set_syncLogin(self, login):
         self._set('login', login)
+    def _set_syncPassword(self,):
+        pass
     def _set_syncPassword(self, password):
+        print 'set_syncPassword', password, type(password)
         self._set('password', password)
  
     on_fontSize = Signal()

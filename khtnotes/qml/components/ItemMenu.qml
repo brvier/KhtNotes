@@ -6,8 +6,7 @@ Menu {
     id: itemMenu
     visualParent: pageStack
 
-    property string filePath
-    property string fileName
+    property string uuid
   
     MenuLayout {
         MenuItem {
@@ -17,7 +16,7 @@ Menu {
         MenuItem {
             text: qsTr("Delete")
             onClicked: {
-              deleteQueryDialog.filepath = filePath;
+              deleteQueryDialog.uuid = uuid;
               deleteQueryDialog.open();
             }
         }

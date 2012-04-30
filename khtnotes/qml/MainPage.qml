@@ -81,9 +81,8 @@ Page {
                     //    }
                     }
                     onPressAndHold: {
-                       /* itemMenu.filePath = filePath;
-                        itemMenu.fileName = fileName;
-                        itemMenu.open(); */
+                        itemMenu.uuid = model.uuid;
+                        itemMenu.open();
                    }
                 }
             }
