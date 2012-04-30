@@ -12,6 +12,7 @@ Page {
 
     onUuidChanged: {
         if (uuid !== '') {
+            console.log('onUuidChanged:'+uuid)
             Note.load(uuid)
             modified = false;
             flick.returnToBounds();
@@ -19,13 +20,15 @@ Page {
     }
 
     function exitFile() {
+        uuid = '';
         modified = false;
         pageStack.pop();
     }
 
     function saveFile() {
-        Note.write(textEditor.text);
-        modified = false;
+        if (textEditor.text!='') {
+            Note.write(textEditor.text);        
+            modified = false; }
     }
 
     PageHeader {
@@ -64,8 +67,8 @@ Page {
                  id: textEditor
                  anchors.top: parent.top
                  text: Note.data
-                 height: Math.max (flick.height + 4, implicitHeight, editPage.height - header.height)
-                 width: (wrapMode == TextEdit.NoWrap) ? Math.max(flick.width +4,  textFalseEditor.paintedWidth + 28) : flick.width + 4
+                 height: Math.max (implicitHeight, flick.height + 4, editPage.height, 720)
+                 width:  flick.width + 4
                  wrapMode: TextEdit.WordWrap
                  inputMethodHints: Qt.ImhAutoUppercase | Qt.ImhPredictiveText;
                  textFormat: TextEdit.AutoText
@@ -101,8 +104,8 @@ Page {
             platformIconId: "toolbar-back"
             anchors.left: (parent === undefined) ? undefined : parent.left
             onClicked: {
-                   if (modified == true ) unsavedDialog.open();
-                   else exitFile();
+                   saveFile();
+                   exitFile();
                    }
         }
 

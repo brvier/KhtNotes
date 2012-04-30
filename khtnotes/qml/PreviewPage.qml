@@ -50,7 +50,7 @@ Page {
                  width: Math.max(flick.width, implicitWidth) //previewPage.width + 4
                  wrapMode: TextEdit.NoWrap
                  textFormat: TextEdit.RichText
-                 text: Document.previewMarkdown(atext)
+                 text: Note.previewMarkdown(atext)
                  font { bold: false; family: "Nokia Pure Text"; pixelSize: 18;}
          }
      }

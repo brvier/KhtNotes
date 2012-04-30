@@ -13,14 +13,18 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
 
+import os
 import urllib2
+import urllib
 import json
 import threading
 from PySide.QtCore import QObject, Slot, Signal, Property
+from note import Note
 
 URL = 'http://khertan.net/khtnotes/sync.php'
 LOGIN = 'demo'
 PASSWORD = 'demo'
+NOTESPATH = os.path.expanduser('~/.khtnotes')
 
 class Syncer(QObject):
   '''Sync class'''
@@ -39,14 +43,37 @@ class Syncer(QObject):
     self.thread = threading.Thread(target=self._sync)
     self.thread.start()
 
+  def _get_data(self):
+    
+    data = {}
+    index = {}
+    
+    path = os.path.expanduser('~/.khtnotes/')
+    for root, dirs, files in os.walk(path):
+        notes = [Note(uuid=file) for file in files]    
+   
+    for note in notes:
+        index[note.uuid] = {'timestamp':note.timestamp,
+                            'title':note.title,}
+        data[note.uuid] = json.dumps({"entry-id":note.uuid,"entry-content":note.data})
+
+    data['index'] = json.dumps(index)
+    return data
+    return json.dumps(data, separators=(',',':'))
+        
   def _sync(self):
     ''' Sync the notes'''
     passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
     passman.add_password(None, self._url, self._login, self._password)
     authhandler = urllib2.HTTPBasicAuthHandler(passman)
-    opener = urllib2.build_opener(authhandler)
+    opener = urllib2.build_opener(authhandler)    
     urllib2.install_opener(opener)
-    jsoncontent = json.load(urllib2.urlopen(self._url))
+
+    data = urllib.urlencode(self._get_data())
+#    req = urllib2.Request(self._url, self._get_data())
+    response = urllib2.urlopen(self._url, data)
+    
+    jsoncontent = json.load(response)
 
     print jsoncontent    
 
@@ -72,4 +99,4 @@ class Syncer(QObject):
 
 if __name__ == '__main__':
   s = Syncer('http://khertan.net/khtnotes/sync.php', 'demo', 'demo')
-  s.launch() 
+  s.launch()  

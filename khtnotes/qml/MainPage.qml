@@ -7,8 +7,11 @@ import 'common.js' as Common
 Page {
     tools: mainTools
 
-    signal refresh();   
-        
+    function  refresh() {        
+         notesView.model.reload();
+    }
+    
+    
     PageHeader {
          id: header
          title: 'KhtNotes'
@@ -96,6 +99,9 @@ Page {
     onStatusChanged: {
          if (status == PageStatus.Active) {
               //folderModel.nameFilters = '*';
+              if (pageStack.currentPage.objectName == 'fileBrowserPage') {
+                                        pageStack.currentPage.refresh();}
+                                        
          }
     }
 

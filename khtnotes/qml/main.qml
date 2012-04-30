@@ -31,6 +31,12 @@ PageStackWindow {
     ToolBarLayout {
         id: mainTools
         visible: true
+
+        ToolIcon {
+            platformIconId: "toolbar-add" 
+            anchors.left: (parent === undefined) ? undefined : parent.left 
+            onClicked: pageStack.push(fileEditPage, {uuid:'new'});
+        }
         ToolIcon {
             platformIconId: "toolbar-view-menu"
             anchors.right: (parent === undefined) ? undefined : parent.right
@@ -60,15 +66,7 @@ PageStackWindow {
         visualParent: pageStack
         MenuLayout {
             MenuItem { text: qsTr("About"); onClicked: about.open()}
-            MenuItem { text: qsTr("New File"); onClicked: {
-                       pageStack.push(newFilePage, {filePath: fileBrowserPage.currentFolder});
-                       }
-            }
-            MenuItem { text: qsTr("New Folder");onClicked: {
-                       pageStack.push(newFolderPage, {filePath: fileBrowserPage.currentFolder});
-                       }
-            }
-            /*MenuItem { text: qsTr("Preferences"); onClicked: notYetAvailableBanner.show(); }*/
+            MenuItem { text: qsTr("Preferences"); onClicked: notYetAvailableBanner.show(); }
         }
     }
 
@@ -148,7 +146,7 @@ PageStackWindow {
                                  script: {
                                  console.log('objectName:'+pageStack.currentPage.objectName);
                                  if (pageStack.currentPage.objectName == 'fileBrowserPage') {
-                                 pageStack.currentPage.refresh();}
+                                 	pageStack.currentPage.refresh();}
                                  }       }
                   }
             ]
