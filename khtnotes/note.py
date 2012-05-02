@@ -71,11 +71,6 @@ class Note(QObject):
             self.on_error.emit(str(e))
             
     def overwrite_timestamp(self, timestamp):
-        print type(timestamp), timestamp
-        if type(timestamp) == unicode:
-            if len(timestamp) <= 14:
-                timestamp = '%s.%s' % (timestamp[:9] , timestamp[10:]) 
-            timestamp = float(timestamp)
         os.utime(os.path.join(self.NOTESPATH, self._uuid), (timestamp, timestamp))
         
     @Slot(unicode)        
