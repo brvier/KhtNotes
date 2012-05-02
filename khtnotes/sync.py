@@ -21,6 +21,7 @@ import threading
 from PySide.QtCore import QObject, Slot, Signal, Property
 from note import Note
 from settings import Settings
+import decimal
 
 class Sync(QObject):
   '''Sync class'''
@@ -46,18 +47,29 @@ class Sync(QObject):
     delnotes = [file for file in os.listdir(Note.DELETEDNOTESPATH) if os.path.isfile(os.path.join(Note.DELETEDNOTESPATH, file))]
 
     for note in notes:
+        print 'note.timestamp:',note.timestamp
         index[note.uuid] = {'timestamp':note.timestamp,
                             'title':note.title,}
         data[note.uuid] = json.dumps({"entry-id":note.uuid,"entry-content":note.data})
 
     for noteuuid in delnotes:
-        index[noteuuid] = {'timestamp':'0',
+        index[noteuuid] = {'timestamp':0,
                             'title':'',}                            
         data[noteuuid] = json.dumps({"entry-id":noteuuid,"entry-content":''})
         
     data['index'] = json.dumps(index)
-    return data
-        
+    return (data, index, notes, delnotes)
+
+  def _timestamp_fix(self,timestamp):
+    ''' Fix the timestamp to be conform to py timestamp '''
+    if type(timestamp) == unicode:
+        if len(timestamp) <= 14:
+           timestamp = '%s.%s' % (timestamp[:9], timestamp[10:])
+    if type(timestamp) == float:
+        timestamp = unicode(timestamp)
+    return decimal.Decimal(timestamp)
+        #timestamp = decimal(timestamp)
+    
   def _sync(self):
     ''' Sync the notes'''
     
@@ -70,38 +82,43 @@ class Sync(QObject):
         opener = urllib2.build_opener(authhandler)    
         urllib2.install_opener(opener)
 
-        local_data = self._get_data()
+        local_data,local_index, local_notes , local_delnotes = self._get_data()
         response = urllib2.urlopen(settings.syncUrl, urllib.urlencode(local_data))
 
-        remote_data = json.load(response)
-
+        response = response.read()
+        print 'Response:', response
+        remote_data = json.loads(response)
         remote_index = remote_data['index']
         remote_entries = remote_data['entries']
         
+        #As server sync reply only what should exit we delete what don't exist on server
+        [Note(uid).rm() for uid in [note.uuid for note in local_notes] if uid not in remote_index]        
+
         for rindex in remote_index:
             #remote_index = json.loads(rindex)
             ridata = remote_index[rindex]
-            
-            if rindex in local_data.keys():
-                if ridata['timestamp'] == 0 : #Remote entry has been deleted, remove the local too
+            remote_timestamp = self._timestamp_fix(ridata['timestamp'])
+            local_timestamp = self._timestamp_fix(local_index[rindex]['timestamp'])
+            if rindex in local_index:
+                if remote_timestamp == 0 : #Remote entry has been deleted, remove the local too
                     Note(rindex).rm()
-                elif os.path.exists(os.path.join(Note.DELETEDNOTESPATH,rindex)): #Local entry has been deleted, remove local entry too
-                    pass
-                elif ridata['timestamp'] > local_data[rindex]:# Remote entry is newer, get it
+                    print 'DEBUG: delete:', rindex
+                elif os.path.exists(os.path.join(Note.DELETEDNOTESPATH,rindex)): #Local entry has been deleted, remove lo   
+                    print 'Exists in deleted folder'
+                elif remote_timestamp > local_timestamp: # Remote entry is newer, get it                    
+                    print 'DEBUG remote entry newer : ' , remote_entries[rindex]
+                    print 'timestamp:', remote_timestamp, '(', type(remote_timestamp), '),', local_timestamp, ':(', type(local_timestamp), ')'
                     note = Note(uid=rindex)
-                    print 'DEBUG remote data keys:', remote_entries[rindex]
                     note.write(remote_entries[rindex]['entry-content'])
-                    note.overwrite_timestamp(float(ridata['timestamp']))
-                elif ridata['timestamp'] == local_data[rindex]:# Local entry is already the latest, don't get it
-                    pass
-                else : # Local entry is newer, don't get it
-                    pass
+                    note.overwrite_timestamp(remote_timestamp)
+                elif remote_timestamp < local_timestamp: # Local entry is newer, don't get it
+                    print 'DEBUG: Local entry newer:', remote_timestamp, '(', type(remote_timestamp), '),', local_timestamp, ':(', type(local_timestamp), ')'
+                else:
+                    print 'DEBUG: Local entry same timestamp'
             else:    # Else we store it
                 note = Note(uid=rindex)
-                print 'DEBUG remote data keys:', remote_entries[rindex]
-                note.write(remote_entries[rindex]['entry-content'])
-                print int(ridata['timestamp'])
-                note.overwrite_timestamp(float(ridata['timestamp']))
+                note.write(remote_entries[rindex]['entry-content']) 
+                note.overwrite_timestamp(remote_timestamp)
  
 
     except Exception, e:
@@ -131,4 +148,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
   s = Sync()
-  s.launch()   
+  s.launch()    
