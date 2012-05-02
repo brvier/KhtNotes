@@ -41,23 +41,19 @@ class Sync(QObject):
     
     data = {}
     index = {}    
-    notes = []
-    delnotes = []
     
-    for root, dirs, files in os.walk(Note.NOTESPATH):
-        notes = [Note(uid=file) for file in files]  
-        
-    for root, dirs, files in os.walk(Note.DELETEDNOTESPATH):
-        delnotes = [Note(uid=file) for file in files]  
-        
+    notes = [Note(uid=file) for file in os.listdir(Note.NOTESPATH) if os.path.isfile(os.path.join(Note.NOTESPATH, file))]        
+    delnotes = [file for file in os.listdir(Note.DELETEDNOTESPATH) if os.path.isfile(os.path.join(Note.DELETEDNOTESPATH, file))]
+
     for note in notes:
         index[note.uuid] = {'timestamp':note.timestamp,
                             'title':note.title,}
         data[note.uuid] = json.dumps({"entry-id":note.uuid,"entry-content":note.data})
-    for note in delnotes:
-        index[note.uuid] = {'timestamp':'0',
-                            'title':note.title,}                            
-        data[note.uuid] = json.dumps({"entry-id":note.uuid,"entry-content":''})
+
+    for noteuuid in delnotes:
+        index[noteuuid] = {'timestamp':'0',
+                            'title':'',}                            
+        data[noteuuid] = json.dumps({"entry-id":noteuuid,"entry-content":''})
         
     data['index'] = json.dumps(index)
     return data

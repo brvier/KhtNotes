@@ -20,6 +20,7 @@ from PySide.QtOpenGL import QGLWidget
 
 import sys
 import os
+import os.path
 import datetime
   
 from settings import Settings
@@ -31,15 +32,13 @@ __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
 __version__ = '0.0.1'
 
-NOTESPATH = os.path.expanduser('~/.khtnotes')
-
 class QmlDirReaderWriter(QObject):
    ''' A class for manipulating file and directory from Qml'''
    def __init__(self, ):
        QObject.__init__(self)
-       if not os.path.exists(NOTESPATH):
+       if not os.path.exists(Note.NOTESPATH):
            try:
-               os.mkdir(NOTESPATH)
+               os.mkdir(Note.NOTESPATH)
            except Exception,e:
                print 'Can t create note storage folder', str(e)
                
@@ -54,10 +53,7 @@ class NotesModel(QAbstractListModel):
         self.loadData()
          
     def loadData(self,):
-        path = os.path.expanduser('~/.khtnotes/')
-        for root, dirs, files in os.walk(path):
-            print 'loadData:', files
-            self._notes = [Note(uid=file) for file in files]                
+        self._notes = [Note(uid=file) for file in os.listdir(Note.NOTESPATH) if os.path.isfile(os.path.join(Note.NOTESPATH,file))]                
         self._notes.sort(key=lambda note: note.timestamp, reverse=True)
             
     def rowCount(self, parent=QModelIndex()):

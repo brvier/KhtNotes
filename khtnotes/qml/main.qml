@@ -121,17 +121,14 @@ PageStackWindow {
     QueryDialog {
         property string uuid
         id: deleteQueryDialog
-        icon: Qt.resolvedUrl('../icons/khtsimpletext.png')
+        icon: Qt.resolvedUrl('../icons/khtnotes.png')
         titleText: "Delete"
         message: "Are you sure you want to delete this note ?"
         acceptButtonText: qsTr("Delete")
         rejectButtonText: qsTr("Cancel")
         onAccepted: {
-                if (!(Note(uuid).rm())) {
-                    errorBanner.text = 'An error occur while deleting item';
-                    errorBanner.show();
-                }
-                else {fileBrowserPage.refresh();}
+                Note.rm(uuid);
+                fileBrowserPage.refresh();
         }
     }
 

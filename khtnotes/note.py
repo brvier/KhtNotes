@@ -58,12 +58,18 @@ class Note(QObject):
        except Exception, e:
            print e
            self.on_error.emit(str(e))
- 
-    def rm(self,):
-        if not os.path.exists(self.DELETEDNOTESPATH):
-            os.mkdir(self.DELETEDNOTESPATH)
-        os.rename(os.path.join(self.NOTESPATH, self._uuid), os.path.join(self.DELETEDNOTESPATH, self._uuid))
-        
+
+    @Slot(unicode)
+    def rm(self, uuid = None):
+        if uuid != None:
+            self._uuid = uuid
+        try:
+            if not os.path.exists(self.DELETEDNOTESPATH):
+               os.mkdir(self.DELETEDNOTESPATH)
+            os.rename(os.path.join(self.NOTESPATH, self._uuid), os.path.join(self.DELETEDNOTESPATH, self._uuid))
+        except Exception, e:
+            self.on_error.emit(str(e))
+            
     def overwrite_timestamp(self, timestamp):
         os.utime(os.path.join(self.NOTESPATH, self._uuid), (timestamp, timestamp))
         
