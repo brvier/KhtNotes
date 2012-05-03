@@ -71,7 +71,12 @@ class Note(QObject):
             self.on_error.emit(str(e))
             
     def overwrite_timestamp(self, timestamp):
-        os.utime(os.path.join(self.NOTESPATH, self._uuid), (timestamp, timestamp))
+        try:
+            os.utime(os.path.join(self.NOTESPATH, self._uuid), (timestamp, timestamp))
+        except OverflowError, overflow:
+            import time
+            os.utime(os.path.join(self.NOTESPATH, self._uuid), (time.time(), time.time()))
+        
         
     @Slot(unicode)        
     def load(self, uid=None):

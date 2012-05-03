@@ -30,7 +30,7 @@ from sync import Sync
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '0.0.1'
+__version__ = '1.0.0'
 
 class QmlDirReaderWriter(QObject):
    ''' A class for manipulating file and directory from Qml'''
@@ -42,7 +42,12 @@ class QmlDirReaderWriter(QObject):
            except Exception,e:
                print 'Can t create note storage folder', str(e)
                
-
+       if not os.path.exists(Note.DELETEDNOTESPATH):
+           try:
+               os.mkdir(Note.DELETEDNOTESPATH)
+           except Exception,e:
+               print 'Can t create note delete storage folder', str(e)
+               
 class NotesModel(QAbstractListModel):
     COLUMNS = ('title', 'timestamp', 'uuid')
  

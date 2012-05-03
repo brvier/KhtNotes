@@ -36,6 +36,9 @@ import com.nokia.meego 1.0
                                                  //verticalAligment: parent.verticalCenter
                                                   anchors.verticalCenter: header.verticalCenter
                                                  }
+                                                 onOpacityChanged:{
+                                                    if (opacity === 0.0) {pageStack.currentPage.refresh();}
+                                                 }
                                                  
                                                  
                                                  

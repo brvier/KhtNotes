@@ -45,7 +45,7 @@ if __name__ == "__main__":
     p.author=__author__
     p.maintainer=__author__    
     p.email=__mail__
-    p.depends = "python, python-pyside.qtgui, python-pyside.qtdeclarative, python-pyside.qtcore"
+    p.depends = "python, python-pyside.qtgui, python-pyside.qtdeclarative, python-pyside.qtcore, python-pyside.qtopengl"
     p.suggests = ""
     p.section="user/office"
     p.arch="armel"
@@ -69,7 +69,6 @@ if __name__ == "__main__":
         files.append(prefix)
 
     p['/usr/share/dbus-1/services'] = ['khtnotes.service',]
-    p['/usr/share/pixmaps'] = ['khtnotes.png',]
     p['/usr/share/icons/blanco/80x80/apps'] = ['khtnotes.png',]
     p['/usr/share/applications'] = ['khtnotes.desktop',]
     p["/opt"] = files
