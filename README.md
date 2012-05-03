@@ -2,6 +2,8 @@
 
 is a note taking application designed for Harmattan with sync feature and markdown preview.
 
+Sync feature works with [HTML5-Notepad][9]
+
 Some screenshots :
 
 ![KhtNotes Screenshot 1][4]
@@ -17,3 +19,4 @@ Of course for more informations (source, bugtracker, ...) : [KhtNotes][7]
 [6]:http://khertan.net/medias/khtnotes_screenshot_3.png
 [7]:http://khertan.net/KhtNotes   
 [8]:http://khertan.net/medias/khtnotes_screenshot_3.png 
+[9]:https://github.com/khertan/HTML5-Notepad-with-Sync
