@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     p=pypackager.PyPackager("khtnotes")
     p.display_name = 'KhtNotes'
-    p.version = khtsimpletext.__version__
+    p.version = khtnotes.__version__
     p.buildversion = __build__
     p.description="A note taking application for Harmattan devices (n950, n9) with sync feature and markdown preview."
     p.upgrade_description=__upgrade__
