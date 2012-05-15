@@ -75,10 +75,11 @@ class NotesModel(QAbstractListModel):
 
     @Slot()
     def reload(self):
-        print 'reload'
+        self.beginResetModel()
         self.loadData()
-        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(
-                                                       len(self._notes), len(NotesModel.COLUMNS)))
+        self.endResetModel()
+        #self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(
+        #                                               len(self._notes), len(NotesModel.COLUMNS)))
             
 class NotesControler(QObject):
     @Slot(QObject)
