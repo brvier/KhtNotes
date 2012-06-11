@@ -61,7 +61,7 @@ if __name__ == "__main__":
     p.postinst = """"""
 
     #Src
-    srcpath = '/home/user/MyDocs/Projects/khtnotes/khtnotes'
+    srcpath = '/home/user/MyDocs/Projects/KhtNotes/khtnotes'
     for root, dirs, fs in os.walk(srcpath):
       for f in fs:
         prefix = os.path.relpath(os.path.join(root,f),(os.path.dirname(srcpath)))
