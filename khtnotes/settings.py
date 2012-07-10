@@ -22,7 +22,7 @@ import os
 
 class Settings(QObject):
     '''Config object'''
-    
+
     def __init__(self,):
         QObject.__init__(self,)
         self.config = ConfigParser.ConfigParser()
@@ -50,11 +50,11 @@ class Settings(QObject):
           self.config.set('Sync',option, value)
         else:
           self.config.set('Display',option, value)
-        
+
         # Writing our configuration file to 'example.cfg'
         with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') as configfile:
             self.config.write(configfile)
-            
+
     @Slot(unicode, result=unicode)
     def get(self,option):
         try:
@@ -63,7 +63,7 @@ class Settings(QObject):
             try:
                 return self.config.get('Sync',option)
             except:
-                return '' 
+                return ''
 
     def _get_fontSize(self,):
         return int(self.get('fontsize'))
@@ -85,7 +85,7 @@ class Settings(QObject):
     def _set_syncPassword(self, password):
         print 'set_syncPassword', password, type(password)
         self._set('password', password)
- 
+
     on_fontSize = Signal()
     on_fontFamily = Signal()
     on_syncUrl = Signal()
