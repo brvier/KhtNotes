@@ -22,7 +22,7 @@ import sys
 import os
 import os.path
 import datetime
-  
+
 from settings import Settings
 from note import Note
 from sync import Sync
@@ -41,29 +41,42 @@ class QmlDirReaderWriter(QObject):
                os.mkdir(Note.NOTESPATH)
            except Exception,e:
                print 'Can t create note storage folder', str(e)
-               
+
        if not os.path.exists(Note.DELETEDNOTESPATH):
            try:
                os.mkdir(Note.DELETEDNOTESPATH)
            except Exception,e:
                print 'Can t create note delete storage folder', str(e)
-               
+
 class NotesModel(QAbstractListModel):
     COLUMNS = ('title', 'timestamp', 'uuid')
- 
+
     def __init__(self, ):
         self._notes = {}
-        QAbstractListModel.__init__(self)        
+        QAbstractListModel.__init__(self)
         self.setRoleNames(dict(enumerate(NotesModel.COLUMNS)))
+
+        if not os.path.exists(Note.NOTESPATH):
+            try:
+                os.mkdir(Note.NOTESPATH)
+            except Exception,e:
+                print 'Can t create note storage folder', str(e)
+
+        if not os.path.exists(Note.DELETEDNOTESPATH):
+            try:
+                os.mkdir(Note.DELETEDNOTESPATH)
+            except Exception,e:
+               print 'Can t create note delete storage folder', str(e)
+
         self.loadData()
-         
+
     def loadData(self,):
-        self._notes = [Note(uid=file) for file in os.listdir(Note.NOTESPATH) if os.path.isfile(os.path.join(Note.NOTESPATH,file))]                
+        self._notes = [Note(uid=file) for file in os.listdir(Note.NOTESPATH) if os.path.isfile(os.path.join(Note.NOTESPATH,file))]
         self._notes.sort(key=lambda note: note.timestamp, reverse=True)
-            
+
     def rowCount(self, parent=QModelIndex()):
         return len(self._notes)
- 
+
     def data(self, index, role):
         if index.isValid() and role == NotesModel.COLUMNS.index('title'):
             return self._notes[index.row()].title
@@ -80,13 +93,13 @@ class NotesModel(QAbstractListModel):
         self.endResetModel()
         #self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(
         #                                               len(self._notes), len(NotesModel.COLUMNS)))
-            
+
 class NotesControler(QObject):
     @Slot(QObject)
     def noteSelected(self, wrapper):
         print 'User clicked on:', wrapper._notes.title, ' uuid : ', wrapper._notes.uuid
 
-        
+
 class KhtNotes(QApplication):
     ''' Application class '''
     def __init__(self):
@@ -119,4 +132,4 @@ class KhtNotes(QApplication):
         self.view.showFullScreen()
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())                      
+    sys.exit(KhtNotes().exec_())
