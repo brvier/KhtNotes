@@ -36,18 +36,19 @@ class Settings(QObject):
         self.config.add_section('Display')
         self.config.set('Display', 'fontsize', '18')
         self.config.set('Display', 'fontfamily', 'Nokia Pure Text')
-        self.config.add_section('Sync')
-        self.config.set('Sync', 'url', 'https://khertan.net/khtnotes/sync.php')
-        self.config.set('Sync', 'login', 'demo')
-        self.config.set('Sync', 'password', 'demo')
+        self.config.add_section('Webdav')
+        self.config.set('Webdav', 'host', 'https://khertan.net/')
+        self.config.set('Webdav', 'login', 'demo')
+        self.config.set('Webdav', 'passwd', 'demo')
+        self.config.set('Webdav', 'basePath', '/owncloud/files/webdav.php')
 
         # Writing our configuration file to 'example.cfg'
         with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') as configfile:
             self.config.write(configfile)
 
     def _set(self,option, value):
-        if option in ('url', 'login', 'password'):
-          self.config.set('Sync',option, value)
+        if option in ('host', 'login', 'password', 'basePath'):
+          self.config.set('Webdav',option, value)
         else:
           self.config.set('Display',option, value)
 
@@ -61,7 +62,7 @@ class Settings(QObject):
             return self.config.get('Display',option)
         except:
             try:
-                return self.config.get('Sync',option)
+                return self.config.get('Webdav',option)
             except:
                 return ''
 
@@ -69,31 +70,34 @@ class Settings(QObject):
         return int(self.get('fontsize'))
     def _get_fontFamily(self,):
         return self.get('fontfamily')
-    def _get_syncUrl(self,):
-        return self.get('url')
-    def _get_syncLogin(self,):
+    def _get_webdavHost(self,):
+        return self.get('host')
+    def _get_webdavLogin(self,):
         return self.get('login')
-    def _get_syncPassword(self,):
-        print 'get_syncPassword', self.get('password')
-        return self.get('password')
-    def _set_syncUrl(self, url):
-        self._set('url', url)
-    def _set_syncLogin(self, login):
+    def _get_webdavPasswd(self,):
+        return self.get('passwd')
+    def _get_webdavBasePath(self,):
+        return self.get('basePath')
+    def _set_webdavHost(self, url):
+        self._set('host', url)
+    def _set_webdavLogin(self, login):
         self._set('login', login)
-    def _set_syncPassword(self,):
+    def _set_webdavPasswd(self,):
         pass
-    def _set_syncPassword(self, password):
-        print 'set_syncPassword', password, type(password)
-        self._set('password', password)
-
+    def _set_webdavPasswd(self, password):
+        self._set('passwd', password)
+    def _set_webdavBasePath(self, path):
+        self._set('basePath', path)
     on_fontSize = Signal()
     on_fontFamily = Signal()
-    on_syncUrl = Signal()
-    on_syncLogin = Signal()
-    on_syncPassword = Signal()
+    on_webdavHost = Signal()
+    on_webdavLogin = Signal()
+    on_webdavPasswd = Signal()
+    on_webdavBasePath = Signal()
 
     fontSize = Property(int, _get_fontSize, notify=on_fontSize)
     fontFamily = Property(unicode, _get_fontFamily, notify=on_fontFamily)
-    syncUrl = Property(unicode, _get_syncUrl, _set_syncUrl, notify=on_syncUrl)
-    syncLogin = Property(unicode, _get_syncLogin, _set_syncLogin, notify=on_syncLogin)
-    syncPassword = Property(unicode, _get_syncPassword, _set_syncPassword, notify=on_syncPassword)
+    webdavHost = Property(unicode, _get_webdavHost, _set_webdavHost, notify=on_webdavHost)
+    webdavLogin = Property(unicode, _get_webdavLogin, _set_webdavLogin, notify=on_webdavLogin)
+    webdavPasswd = Property(unicode, _get_webdavPasswd, _set_webdavPasswd, notify=on_webdavPasswd)
+    webdavBasePath = Property(unicode, _get_webdavBasePath, _set_webdavBasePath, notify=on_webdavBasePath)

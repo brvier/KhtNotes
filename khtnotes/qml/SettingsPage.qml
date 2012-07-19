@@ -41,8 +41,8 @@ Page {
                 anchors.rightMargin: 10
 
                 Label {
-                    id: syncServerUrlLabel
-                    text: qsTr("Sync server URL :")
+                    id: hostLabel
+                    text: qsTr("WebDav Host :")
                     anchors.left: parent.left
                     anchors.leftMargin: 10
                     anchors.right: parent.right
@@ -53,15 +53,36 @@ Page {
                 }
 
                 TextField {
-                     id: syncServerUrl
-                     text:Settings.syncUrl
-                     placeholderText: "https://khertan.net/khtnotes/sync.php"
+                     id: host
+                     text:Settings.webdavHost
+                     placeholderText: "https://khertan.net"
                      anchors.left: parent.left
                      anchors.leftMargin: 10
                      anchors.right: parent.right
                      anchors.rightMargin: 10
-                     onTextChanged: {Settings.syncUrl = syncServerUrl.text;}
+                     onTextChanged: {Settings.webdavHost = host.text;}
 
+                }
+
+                Label {
+                    id: pathLabel
+                    text: qsTr('Path :')
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    horizontalAlignment: Text.AlignHCenter
+                 }
+
+                 TextField {
+                    id: path
+                    text:Setting.webdavBasePath
+                    placeholderText: '/owncloud/files/webdav.php'
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    onTextChanged: {Settings.webdavBasePath = path.text;}
                 }
 
                 Label {
@@ -76,12 +97,12 @@ Page {
 
                 TextField {
                      id: login
-                     text: Settings.syncLogin
+                     text: Settings.webdavLogin
                      anchors.left: parent.left
                      anchors.leftMargin: 10
                      anchors.right: parent.right
                      anchors.rightMargin: 10
-                     onTextChanged: {Settings.syncLogin = login.text;}
+                     onTextChanged: {Settings.webdavLogin = login.text;}
 
                 }
 
@@ -99,12 +120,12 @@ Page {
                 TextField {
                      id: password
                      echoMode: TextInput.PasswordEchoOnEdit
-                     text:Settings.syncPassword
+                     text:Settings.webdavPasswd
                      anchors.left: parent.left
                      anchors.leftMargin: 10
                      anchors.right: parent.right
                      anchors.rightMargin: 10
-                     onTextChanged: {if (password.text !== '') Settings.syncPassword = password.text; } // Test if non null due to nasty bug on qml echoMode
+                     onTextChanged: {if (password.text !== '') Settings.webdavPasswd = password.text; } // Test if non null due to nasty bug on qml echoMode
 
                 }
             }
