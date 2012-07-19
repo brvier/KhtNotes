@@ -105,10 +105,10 @@ class Sync(QObject):
           self._remote_delete(webdavConnection, filename)
       #Updated
       for filename in set(index_remote).intersection(set(index_local)):
-        if index_remote[filename]>index_remote[filename]:
+        if index_remote[filename]>index_local[filename]:
           self._download(webdavConnection, filename)
-        elif index_remote[filename]<index_remote[filename]:
-          self._upload(webdavConnection, filename)
+        elif index_remote[filename]<index_local[filename]:
+          self._upload(webdavConnection, filename)        
         #Else we are already uptodate
       #New remote
       for filename in set(index_remote) - (set(index_local)):
@@ -118,14 +118,22 @@ class Sync(QObject):
         self._upload(webdavConnection, filename)
 
       self._unlock(webdavConnection)
+    self._set_running(False)
+
 
   def _upload(self, webdavConnection, filename):
-    #TODO
+    #TODO set modification time
     print 'DEBUG: Upload', filename
+    webdavConnection.path = self._get_notes_path() + filename
+    fh = open(os.path.join(Note.NOTESPATH, filename), 'rb')
+    webdavConnection.uploadFile(fh) 
+    fh.close()
 
   def _download(self, webdavConnection, filename):
-    #TODO
+    #TODO set modification time
     print 'DEBUG: Download', filename
+    webdavConnection.path = self._get_notes_path() + filename
+    webdavConnection.downloadFile(os.path.join(Note.NOTESPATH, filename)) 
 
   def _remote_delete(self, webdavConnection, filename):
     #TODO
@@ -212,4 +220,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
   s = Sync()
-  s.launch()
+  s.launch() 
