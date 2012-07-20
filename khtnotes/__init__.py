@@ -14,14 +14,14 @@
 ## GNU General Public License for more details.
 
 from PySide.QtGui import QApplication
-from PySide.QtCore import QUrl, Slot, QObject, Property, Signal, QAbstractListModel, QModelIndex
+from PySide.QtCore import QUrl, Slot, QObject, \
+                          QAbstractListModel, QModelIndex
 from PySide import QtDeclarative
 from PySide.QtOpenGL import QGLWidget
 
 import sys
 import os
 import os.path
-import datetime
 
 from settings import Settings
 from note import Note
@@ -32,21 +32,23 @@ __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
 __version__ = '1.0.0'
 
-class QmlDirReaderWriter(QObject):
-   ''' A class for manipulating file and directory from Qml'''
-   def __init__(self, ):
-       QObject.__init__(self)
-       if not os.path.exists(Note.NOTESPATH):
-           try:
-               os.mkdir(Note.NOTESPATH)
-           except Exception,e:
-               print 'Can t create note storage folder', str(e)
 
-       if not os.path.exists(Note.DELETEDNOTESPATH):
-           try:
-               os.mkdir(Note.DELETEDNOTESPATH)
-           except Exception,e:
-               print 'Can t create note delete storage folder', str(e)
+class QmlDirReaderWriter(QObject):
+    ''' A class for manipulating file and directory from Qml'''
+    def __init__(self, ):
+        QObject.__init__(self)
+        if not os.path.exists(Note.NOTESPATH):
+            try:
+                os.mkdir(Note.NOTESPATH)
+            except Exception, e:
+                print 'Can t create note storage folder', str(e)
+
+        if not os.path.exists(Note.DELETEDNOTESPATH):
+            try:
+                os.mkdir(Note.DELETEDNOTESPATH)
+            except Exception, e:
+                print 'Can t create note delete storage folder', str(e)
+
 
 class NotesModel(QAbstractListModel):
     COLUMNS = ('title', 'timestamp', 'uuid')
@@ -59,19 +61,21 @@ class NotesModel(QAbstractListModel):
         if not os.path.exists(Note.NOTESPATH):
             try:
                 os.mkdir(Note.NOTESPATH)
-            except Exception,e:
+            except Exception, e:
                 print 'Can t create note storage folder', str(e)
 
         if not os.path.exists(Note.DELETEDNOTESPATH):
             try:
                 os.mkdir(Note.DELETEDNOTESPATH)
-            except Exception,e:
-               print 'Can t create note delete storage folder', str(e)
+            except Exception, e:
+                print 'Can t create note delete storage folder', str(e)
 
         self.loadData()
 
     def loadData(self,):
-        self._notes = [Note(uid=file) for file in os.listdir(Note.NOTESPATH) if os.path.isfile(os.path.join(Note.NOTESPATH,file))]
+        self._notes = [Note(uid=file) \
+                       for file in os.listdir(Note.NOTESPATH) \
+                       if os.path.isfile(os.path.join(Note.NOTESPATH, file))]
         self._notes.sort(key=lambda note: note.timestamp, reverse=True)
 
     def rowCount(self, parent=QModelIndex()):
@@ -91,13 +95,13 @@ class NotesModel(QAbstractListModel):
         self.beginResetModel()
         self.loadData()
         self.endResetModel()
-        #self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(
-        #                                               len(self._notes), len(NotesModel.COLUMNS)))
+
 
 class NotesControler(QObject):
     @Slot(QObject)
     def noteSelected(self, wrapper):
-        print 'User clicked on:', wrapper._notes.title, ' uuid : ', wrapper._notes.uuid
+        print 'User clicked on:', \
+            wrapper._notes.title, ' uuid : ', wrapper._notes.uuid
 
 
 class KhtNotes(QApplication):
@@ -120,12 +124,14 @@ class KhtNotes(QApplication):
         self.rootContext.setContextProperty("__version__", __version__)
         self.rootContext.setContextProperty("Settings", Settings())
         self.rootContext.setContextProperty("Sync", self.syncer)
-        self.rootContext.setContextProperty("QmlDirReaderWriter", QmlDirReaderWriter())
-        self.rootContext.setContextProperty('notesController', self.notesController)
+        self.rootContext.setContextProperty("QmlDirReaderWriter",
+                                             QmlDirReaderWriter())
+        self.rootContext.setContextProperty('notesController',
+                                             self.notesController)
         self.rootContext.setContextProperty('notesModel', self.notesModel)
-        self.rootContext.setContextProperty('Note',self.note)
+        self.rootContext.setContextProperty('Note', self.note)
         self.view.setSource(QUrl.fromLocalFile(
-                os.path.join(os.path.dirname(__file__), 'qml',  'main.qml')))
+                os.path.join(os.path.dirname(__file__), 'qml', 'main.qml')))
         self.rootObject = self.view.rootObject()
         self.note.on_error.connect(self.rootObject.onError)
         self.syncer.on_error.connect(self.rootObject.onError)
