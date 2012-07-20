@@ -156,7 +156,7 @@ class Sync(QObject):
             lupdated = [filename for filename \
                                in (set(local_filenames).\
                                intersection(lastsync_local_filename)) \
-                               if remote_filenames[filename] \
+                               if local_filenames[filename] \
                                   != lastsync_local_filename[filename]]
             for filename in set(rupdated) - set(lupdated):
                 self._download(webdavConnection, filename)
@@ -268,10 +268,10 @@ class Sync(QObject):
                         for (resource, properties) \
                         in webdavConnection.listResources().items()])
         print 'DEBUG _get_remote_filenames:', index
-        #Cleaning a bit :)
-        for filename in index.keys():
-            self._remote_delete(webdavConnection, filename)
-        #index = self._get_remote_filenames(webdavConnection)        
+        #Cleaning a bit for test:)
+        #for filename in index.keys():
+        #    self._remote_delete(webdavConnection, filename)
+        #index = self._get_remote_filenames(webdavConnection)
         return index
 
     def _get_local_filenames(self):
@@ -308,4 +308,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
     s = Sync()
-    s.launch() 
+    s.launch()

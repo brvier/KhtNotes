@@ -75,7 +75,9 @@ class NotesModel(QAbstractListModel):
     def loadData(self,):
         self._notes = [Note(uid=file) \
                        for file in os.listdir(Note.NOTESPATH) \
-                       if os.path.isfile(os.path.join(Note.NOTESPATH, file))]
+                       if (os.path.isfile(os.path.join(Note.NOTESPATH, file)))
+                       and (file != '.index.sync')]
+
         self._notes.sort(key=lambda note: note.timestamp, reverse=True)
 
     def rowCount(self, parent=QModelIndex()):
