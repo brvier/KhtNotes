@@ -77,7 +77,8 @@ Page {
                     onPositionChanged: background.opacity = 0.0;
 
                     onClicked: {
-                             pageStack.push(fileEditPage, { uuid: model.uuid });
+                             Note.load(model.uuid)
+                             pageStack.push(fileEditPage, { modified: false});
                     //    }
                     }
                     onPressAndHold: {

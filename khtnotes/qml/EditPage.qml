@@ -7,28 +7,18 @@ Page {
     tools: editTools
     id: editPage
 
-    property string uuid;
     property bool modified;
 
-    onUuidChanged: {
-        if (uuid !== '') {
-            console.log('onUuidChanged:'+uuid)
-            Note.load(uuid)
-            modified = false;
-            flick.returnToBounds();
-            }
-    }
-
     function exitFile() {
-        uuid = '';
         modified = false;
         pageStack.pop();
     }
 
     function saveFile() {
-        if (textEditor.text!='') {
-            Note.write(textEditor.text);        
-            modified = false; }
+        if ((modified == true)) {
+            return Note.write(textEditor.text);
+        }
+        return true
     }
 
     PageHeader {
@@ -74,11 +64,9 @@ Page {
                  textFormat: TextEdit.AutoText
                  font { bold: false; family: Settings.fontFamily; pixelSize: Settings.fontSize;}
                  onTextChanged: { modified = true;}
-    Component.onDestruction: {
-            if (uuid !== '') {
+                 Component.onDestruction: {
                         saveFile(); }
-                            }
-                                     }
+             }
          
          onOpacityChanged: {
            if (flick.opacity == 1.0) modified = false;
@@ -106,8 +94,8 @@ Page {
             platformIconId: "toolbar-back"
             anchors.left: (parent === undefined) ? undefined : parent.left
             onClicked: {
-                   saveFile();
-                   exitFile();
+                   if (saveFile() == true)
+                      exitFile();
                    }
         }
 

@@ -108,8 +108,8 @@ class Sync(QObject):
             local_filenames = self._get_local_filenames()
 
             #Compare with last sync index
-            lastsync_remote_filename, \
-            lastsync_local_filename = self._get_lastsync_filenames()
+            lastsync_remote_filenames, \
+            lastsync_local_filenames = self._get_lastsync_filenames()
 
             #Sync intelligency (or not)
             #It use a local index with timestamp of the server files
@@ -122,7 +122,30 @@ class Sync(QObject):
             #   so an owncloud apps isn t acceptable
 
 
-            #TODO: manage deleted
+            #Delete remote file deleted
+            for filename in set(lastsync_remote_filenames) \
+                            - set(remote_filenames):
+                if filename in local_filenames.keys():
+                    if lastsync_remote_filenames[filename] \
+                       >= local_filenames[filename]:
+                        self._local_delete(filename)
+                    else:
+                        #Else we have a conflict local file is newer than
+                        #deleted one
+                        self._conflictServer(webdavConnection, filename)
+
+            #Delete local file deleted
+            for filename in set(lastsync_local_filenames) \
+                            - set(local_filenames):
+                if filename in remote_filenames:
+                    if lastsync_local_filenames[filename] \
+                       >= remote_filenames[filename]:
+                        self._remote_delete(webdavConnection, filename)
+                    else:
+                        #We have a conflict remote file is newer than what
+                        #we try to delete
+                        self._conflictLocal(webdavConnection, filename)
+
             ###Get updated remote
             ###fremote_deleted = set(lastsync_filename) - set(remote_filenames)
 
@@ -130,7 +153,7 @@ class Sync(QObject):
 
             #What to do with new remote file
             for filename in set(remote_filenames) \
-                            - set(lastsync_remote_filename):
+                            - set(lastsync_remote_filenames):
                 if not filename in local_filenames.keys():
                     self._download(webdavConnection, filename)
                 else:
@@ -140,7 +163,7 @@ class Sync(QObject):
 
             #What to do with new local file
             for filename in set(local_filenames) \
-                            - set(lastsync_local_filename):
+                            - set(lastsync_local_filenames):
                 if not filename in remote_filenames.keys():
                     self._upload(webdavConnection, filename)
                 else:
@@ -150,14 +173,14 @@ class Sync(QObject):
             #Check what's updated remotly
             rupdated = [filename for filename \
                                in (set(remote_filenames).\
-                               intersection(lastsync_remote_filename)) \
+                               intersection(lastsync_remote_filenames)) \
                                if remote_filenames[filename] \
-                                  != lastsync_remote_filename[filename]]
+                                  != lastsync_remote_filenames[filename]]
             lupdated = [filename for filename \
                                in (set(local_filenames).\
-                               intersection(lastsync_local_filename)) \
+                               intersection(lastsync_local_filenames)) \
                                if local_filenames[filename] \
-                                  != lastsync_local_filename[filename]]
+                                  != lastsync_local_filenames[filename]]
             for filename in set(rupdated) - set(lupdated):
                 self._download(webdavConnection, filename)
             for filename in set(lupdated) - set(rupdated):
@@ -239,7 +262,7 @@ class Sync(QObject):
         print 'DEBUG: remote_delete', filename
 
     def _local_delete(self, filename):
-        #TODO
+        os.rm(os.path.join(Note.NOTESPATH, filename))
         print 'DEBUG: locale_delete', filename
 
     def _unlock(self, filename):

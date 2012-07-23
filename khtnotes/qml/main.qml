@@ -38,8 +38,8 @@ PageStackWindow {
         ToolIcon {
             platformIconId: "toolbar-add" 
   //          anchors.left: (parent === undefined) ? undefined : parent.left 
-            onClicked: pageStack.push(fileEditPage, {uuid:'new'});
-        }
+            onClicked: {Note.load('');pageStack.push(fileEditPage, {modified:'false'});
+        }}
 
         ToolIcon {
                     platformIconId: Sync.running ? 'toolbar-mediacontrol-stop' : 'toolbar-refresh';

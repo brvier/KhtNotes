@@ -76,7 +76,7 @@ Page {
 
                  TextField {
                     id: path
-                    text:Setting.webdavBasePath
+                    text:Settings.webdavBasePath
                     placeholderText: '/owncloud/files/webdav.php'
                     anchors.left: parent.left
                     anchors.leftMargin: 10
