@@ -17,7 +17,6 @@ from PySide.QtCore import Slot, QObject, Signal, Property
 
 import os
 import datetime
-import uuid
 import markdown2
 
 
@@ -51,7 +50,7 @@ class Note(QObject):
             if self._uuid:
                 print 'content deleted, try to delete note'
                 self.rm(self._uuid)
-            return Tru, title
+            return True
 
         title = data.split('\n', 1)[0]
         print 'write:title:', title
@@ -101,10 +100,7 @@ class Note(QObject):
         if uuid:
             self._uuid = uuid
         try:
-            if not os.path.exists(self.DELETEDNOTESPATH):
-                os.mkdir(self.DELETEDNOTESPATH)
-            os.rename(os.path.join(self.NOTESPATH, self._uuid),
-                     os.path.join(self.DELETEDNOTESPATH, self._uuid))
+            os.remove(os.path.join(self.NOTESPATH, self._uuid))
         except Exception, e:
             self.on_error.emit(str(e))
 

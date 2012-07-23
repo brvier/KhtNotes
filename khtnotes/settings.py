@@ -14,9 +14,7 @@
 ## GNU General Public License for more details.
 
 import ConfigParser
-from PySide.QtGui import QApplication
-from PySide.QtCore import QUrl, Slot, QObject, Property, Signal
-from PySide import QtDeclarative
+from PySide.QtCore import Slot, QObject, Property, Signal
 
 import os
 
@@ -82,8 +80,6 @@ class Settings(QObject):
         self._set('host', url)
     def _set_webdavLogin(self, login):
         self._set('login', login)
-    def _set_webdavPasswd(self,):
-        pass
     def _set_webdavPasswd(self, password):
         self._set('passwd', password)
     def _set_webdavBasePath(self, path):

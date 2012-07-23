@@ -196,10 +196,11 @@ class Sync(QObject):
             #Build and write index
             self._write_index(webdavConnection)
 
-            #Unlock the collection
+            #Un_lock the collection
             self._unlock(webdavConnection)
 
         self._set_running(False)
+        self.on_finished.emit()
 
     def _conflictServer(self, webdavConnection, filename):
         '''Priority to local'''
@@ -262,7 +263,7 @@ class Sync(QObject):
         print 'DEBUG: remote_delete', filename
 
     def _local_delete(self, filename):
-        os.rm(os.path.join(Note.NOTESPATH, filename))
+        os.remove(os.path.join(Note.NOTESPATH, filename))
         print 'DEBUG: locale_delete', filename
 
     def _unlock(self, filename):
@@ -325,6 +326,7 @@ class Sync(QObject):
         self._running = b
         self.on_running.emit()
 
+    on_finished = Signal()
     on_error = Signal(unicode)
     on_running = Signal()
     running = Property(bool, _get_running, _set_running, notify=on_running)

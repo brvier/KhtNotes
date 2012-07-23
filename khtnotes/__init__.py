@@ -137,6 +137,7 @@ class KhtNotes(QApplication):
         self.rootObject = self.view.rootObject()
         self.note.on_error.connect(self.rootObject.onError)
         self.syncer.on_error.connect(self.rootObject.onError)
+        self.syncer.on_fishished(self.notesController.reload)
         self.view.showFullScreen()
 
 if __name__ == '__main__':

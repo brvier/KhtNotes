@@ -7,7 +7,7 @@ import 'common.js' as Common
 Page {
     tools: mainTools
 
-    function  refresh() {        
+    function refresh() {        
          notesView.model.reload();
     }
     
@@ -98,7 +98,6 @@ Page {
 
     onStatusChanged: {
          if (status == PageStatus.Active) {
-              //folderModel.nameFilters = '*';
               if (pageStack.currentPage.objectName == 'fileBrowserPage') {
                                         pageStack.currentPage.refresh();}
                                         
