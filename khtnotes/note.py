@@ -32,34 +32,73 @@ class Note(QObject):
         QObject.__init__(self)
         self._title = u'Untitled'
         self._data = u''
-        self._uuid = uid
+        self._uuid = u''
         self._timestamp = None
         self._ready = False
-        self._human_timestamp = ''
+        self._human_timestamp = u''
         print 'INIT:', uid
-        if uid != None:
-            self._uuid = uid
-            self.load()
+        if uid:
+            self.load(uid)
 
-    @Slot(unicode)
+    @Slot(unicode, result=bool)
     def write(self, data):
         ''' Write the document to a file '''
         print 'write:', self._uuid
+
+        #Deleted content
+        if data == '':
+            #if exist only
+            if self._uuid:
+                print 'content deleted, try to delete note'
+                self.rm(self._uuid)
+            return Tru, title
+
+        title = data.split('\n', 1)[0]
+        print 'write:title:', title
+        if title != self._title:
+            #It s a rename of the note
+            print 'Note is renammed'
+            new_path = os.path.join(self.NOTESPATH,
+                                    title + '.txt')
+            if os.path.exists(new_path):
+                self.on_error.emit(u'Note title already exists')
+                return False
+            if self._uuid:
+                os.rename(os.path.join(self.NOTESPATH, self._uuid), \
+                          new_path)
+            self._uuid = title + '.txt'
+
+        if not self._uuid:
+            self._uuid = title + '.txt'
+
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
             with open(path, 'wb') as fh:
-                fh.write(data.encode('utf-8'))
+                data = data.split('\n')
+                if len(data)>=2:
+                    fh.write(data[1])
+                else:
+                    fh.write('')
                 self._set_timestamp(os.stat(path).st_mtime)
                 self._set_title(self._data.split('\n', 1)[0])
-                self.onDataChanged.emit()
+                #self.onDataChanged.emit()
                 print path, ' written'
         except Exception, e:
             print e
             self.on_error.emit(str(e))
+            return False
+        return True
+
+    @Slot(unicode)
+    def exists(self, uuid):
+        if os.path.exists(os.path.join(self.NOTESPATH, uuid + '.txt')):
+            return True
+        else:
+            return False
 
     @Slot(unicode)
     def rm(self, uuid=None):
-        if uuid != None:
+        if uuid:
             self._uuid = uuid
         try:
             if not os.path.exists(self.DELETEDNOTESPATH):
@@ -82,17 +121,17 @@ class Note(QObject):
     @Slot(unicode)
     def load(self, uid=None):
         if uid:
-            if (uid != ''):
-                self._set_uuid(uid)
-
-        if (uid == 'new'):
-            self._set_uuid(unicode(uuid.uuid4().int))
-            self._set_title('')
-            self._set_text('')
+            self._uuid=uid
+            print 'Load:', self._uuid
+        else:
+            index = 0
+            path = os.path.join(self.NOTESPATH, 'Untitled')
+            while (os.path.exists(path + unicode(index)+'.txt')):
+              index =+ 1
+            self._set_uuid('')
+            self._set_title('Untitled' + unicode(index))
+            self._set_text('Untitled' + unicode(index))
             self._set_ready(True)
-        if (self._uuid == None):
-            print 'LOAD:', self._uuid
-            self._set_uuid(unicode(uuid.uuid4().int))
 
         if (self._uuid != None):
             try:
@@ -100,14 +139,9 @@ class Note(QObject):
                 print 'path: ', path
                 with open(path, 'rb') as fh:
                     try:
-                        self._set_text(unicode(fh.read(), 'utf-8'))
-                        print self._data
-                        if self._data == '':
-                            self._set_timestamp(0)
-                            self._set_title('')
-                        else:
-                            self._set_timestamp(os.stat(path).st_mtime)
-                            self._set_title(self._data.split('\n', 1)[0])
+                        self._set_text(os.path.splitext(self._uuid)[0] + '\n' + unicode(fh.read(), 'utf-8'))
+                        self._set_timestamp(os.stat(path).st_mtime)
+                        self._set_title(self._data.split('\n', 1)[0])
                         self._set_ready(True)
                     except Exception, e:
                         print e

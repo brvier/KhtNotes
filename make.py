@@ -38,12 +38,12 @@ if __name__ == "__main__":
 
     p=pypackager.PyPackager("khtnotes")
     p.display_name = 'KhtNotes'
-    p.version = khtnotes.__version__
+    p.version = khtnotes.__version__+'.0'
     p.buildversion = __build__
     p.description="A note taking application for Harmattan devices (n950, n9) with sync feature and markdown preview."
     p.upgrade_description=__upgrade__
     p.author=__author__
-    p.maintainer=__author__    
+    p.maintainer=__author__
     p.email=__mail__
     p.depends = "python, python-pyside.qtgui, python-pyside.qtdeclarative, python-pyside.qtcore, python-pyside.qtopengl"
     p.suggests = ""
@@ -72,6 +72,6 @@ if __name__ == "__main__":
     p['/usr/share/icons/blanco/80x80/apps'] = ['khtnotes.png',]
     p['/usr/share/applications'] = ['khtnotes.desktop',]
     p["/opt"] = files
-    
+
     print p.generate(build_binary=True,build_src=False)
-    print p.generate(build_binary=False,build_src=True)    
+    print p.generate(build_binary=False,build_src=True)
