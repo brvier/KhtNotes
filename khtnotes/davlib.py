@@ -35,7 +35,7 @@ class HTTPProtocolChooser(httplib.HTTPSConnection):
             self.default_port = 443
         else:
             self.default_port = 80
-            
+
         apply(httplib.HTTPSConnection.__init__, (self,) + args, kw)
 
     def connect(self):
@@ -333,4 +333,3 @@ class DAV(HTTPConnectionAuth):
         response = self.lock(url, owner, timeout, depth)
         response.parse_lock_response()
         return response.locktoken
-    
