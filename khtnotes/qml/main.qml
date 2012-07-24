@@ -38,7 +38,7 @@ PageStackWindow {
         ToolIcon {
             platformIconId: "toolbar-add" 
   //          anchors.left: (parent === undefined) ? undefined : parent.left 
-            onClicked: {Note.load('');pageStack.push(fileEditPage, {modified:'false'});
+            onClicked: {Note.create();pageStack.push(fileEditPage, {modified:'false'});
         }}
 
         ToolIcon {
@@ -78,6 +78,10 @@ PageStackWindow {
         MenuLayout {
             MenuItem { text: qsTr("About"); onClicked: about.open()}
             MenuItem { text: qsTr("Preferences"); onClicked: pageStack.push(settingsPage); }
+            MenuItem { text: qsTr("Report a bug");onClicked: {
+                         Qt.openUrlExternally('https://github.com/khertan/KhtNotes/issues/new');
+                    }
+            }
         }
     }
 

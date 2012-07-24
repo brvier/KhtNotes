@@ -43,12 +43,6 @@ class QmlDirReaderWriter(QObject):
             except Exception, e:
                 print 'Can t create note storage folder', str(e)
 
-        if not os.path.exists(Note.DELETEDNOTESPATH):
-            try:
-                os.mkdir(Note.DELETEDNOTESPATH)
-            except Exception, e:
-                print 'Can t create note delete storage folder', str(e)
-
 
 class NotesModel(QAbstractListModel):
     COLUMNS = ('title', 'timestamp', 'uuid')
@@ -63,12 +57,6 @@ class NotesModel(QAbstractListModel):
                 os.mkdir(Note.NOTESPATH)
             except Exception, e:
                 print 'Can t create note storage folder', str(e)
-
-        if not os.path.exists(Note.DELETEDNOTESPATH):
-            try:
-                os.mkdir(Note.DELETEDNOTESPATH)
-            except Exception, e:
-                print 'Can t create note delete storage folder', str(e)
 
         self.loadData()
 

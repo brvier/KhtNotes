@@ -19,7 +19,7 @@ import os.path
 import os
 import threading
 from PySide.QtCore import QObject, Slot, Signal, Property
-from note import Note
+from note import Note, getValidFilename
 from settings import Settings
 import time
 import json
@@ -272,7 +272,7 @@ class Sync(QObject):
     def _download(self, webdavConnection, filename, time_delta):
         self.logger.debug('download: %s' % filename)
         webdavConnection.path = self._get_notes_path() + filename
-        lpath = os.path.join(Note.NOTESPATH, filename)
+        lpath = os.path.join(Note.NOTESPATH, getValidFilename(filename))
         webdavConnection.downloadFile(lpath)
         mtime = time.mktime(webdavConnection.readStandardProperties().getLastModified()) - time_delta
         os.utime(lpath, (-1, mtime))

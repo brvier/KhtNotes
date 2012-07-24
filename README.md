@@ -12,7 +12,6 @@ Some screenshots :
 Of course for more informations (source, bugtracker, ...) : [KhtNotes][7]
 
 Todos :  
-  * Filter out invalid caracters for filename
   * Add a report bug menu
 
 [4]:http://khertan.net/medias/khtnotes_screenshot_1.png
