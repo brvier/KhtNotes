@@ -26,7 +26,6 @@ import os.path
 from settings import Settings
 from note import Note
 from sync import Sync
-#from document import Document
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'

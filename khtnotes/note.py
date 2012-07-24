@@ -22,8 +22,10 @@ import string
 
 FILENAME_CHARS = "-_. %s%s" % (string.ascii_letters, string.digits)
 
+
 def getValidFilename(filename):
     return ''.join(car for car in filename if car in FILENAME_CHARS)
+
 
 class Note(QObject):
     ''' A class representing a note '''
@@ -45,7 +47,7 @@ class Note(QObject):
     def create(self):
         index = 0
         path = os.path.join(self.NOTESPATH, 'Untitled')
-        while (os.path.exists('%s %s.txt' % (path,  unicode(index)))):
+        while (os.path.exists('%s %s.txt' % (path, unicode(index)))):
             index = index + 1
         self._set_title('Untitled %s' % unicode(index))
         self._set_text('Untitled %s' % unicode(index))
@@ -88,14 +90,13 @@ class Note(QObject):
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
             with open(path, 'wb') as fh:
-                data = data.split('\n',1)
-                if len(data)>=2:
+                data = data.split('\n', 1)
+                if len(data) >= 2:
                     fh.write(data[1])
                 else:
                     fh.write('')
                 self._set_timestamp(os.stat(path).st_mtime)
                 self._set_title(self._data.split('\n', 1)[0])
-                #self.onDataChanged.emit()
                 print path, ' written'
         except Exception, e:
             print e
@@ -132,14 +133,6 @@ class Note(QObject):
 
     @Slot(unicode)
     def load(self, uid):
-            #index = 0
-            #path = os.path.join(self.NOTESPATH, 'Untitled ')
-            #while (os.path.exists('%s %s.txt' % (path,  unicode(index)))):
-            #  index =+ 1
-            #self._set_uuid('Untitled %s.txt' % unicode(index))
-            #self._set_title('Untitled %s' % unicode(index))
-            #self._set_text('Untitled %s' % unicode(index))
-            #self._set_ready(True)
         self._uuid = uid
 
         if (self._uuid):
@@ -148,7 +141,8 @@ class Note(QObject):
                 print 'path: ', path
                 with open(path, 'rb') as fh:
                     try:
-                        self._set_text(os.path.splitext(self._uuid)[0] + '\n' + unicode(fh.read(), 'utf-8'))
+                        self._set_text(os.path.splitext(self._uuid)[0] \
+                                    + '\n' + unicode(fh.read(), 'utf-8'))
                         self._set_timestamp(os.stat(path).st_mtime)
                         self._set_title(self._data.split('\n', 1)[0])
                         self._set_ready(True)
@@ -165,7 +159,7 @@ class Note(QObject):
         try:
             return markdown2.markdown(text)
         except Exception, e:
-            print type(e),':',e
+            print type(e), ':', e
             return text
 
     def _get_text(self):

@@ -1,17 +1,23 @@
 #KhtNotes
 
 **Sources :** [Git Repository][1]  
-**Bug Tracker :** [Bug Tracker][3]
+**Bug Tracker :** [Bug Tracker][3]  
 **Licence :** GPLv3
 
-KhtNotes is a note taking application for Harmattan devices (n950, n9). KhtNotes provide sync of notes with ownCloud, and permit to previem markdown syntax
+KhtNotes is a note taking application for Harmattan devices (n950, n9). Provide sync of notes with ownCloud, and permit to preview markdown syntax
 Synchronization is made for [Owncloud][9] webdav, but should work with any other webdav server.
+
+Features:
+
+  * Sync with ownCloud or other webdav server
+  * Preview markdown syntax
+  * File are stored as text file, so you can directly edit them in ownCloud or via a mounted webdav point and a text editor.
 
 Some screenshots :
 
-![KhtNotes Screenshot 1][4]
-![KhtNotes Screenshot 2][5]
-![KhtNotes Screenshot 3][6]
+![KhtNotes Screenshot 1][4]  
+![KhtNotes Screenshot 2][5]  
+![KhtNotes Screenshot 3][6]  
 
 [1]:http://github.com/khertan/KhtNotes/
 [3]:http://github.com/khertan/KhtNotes/issues
