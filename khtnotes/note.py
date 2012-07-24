@@ -73,7 +73,7 @@ class Note(QObject):
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
             with open(path, 'wb') as fh:
-                data = data.split('\n')
+                data = data.split('\n',1)
                 if len(data)>=2:
                     fh.write(data[1])
                 else:
@@ -84,6 +84,7 @@ class Note(QObject):
                 print path, ' written'
         except Exception, e:
             print e
+            raise e
             self.on_error.emit(str(e))
             return False
         return True
