@@ -30,7 +30,8 @@ from khtnotes import __version__
 __build__ = '1'
 __author__ = "Benoît HERVIER (khertan)"
 __mail__ = "khertan@khertan.net"
-__upgrade__ = '''First public release'''
+__upgrade__ = '''1.1: First public release
+1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview'''
 
 if __name__ == "__main__":
     try:

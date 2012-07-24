@@ -161,8 +161,7 @@ class Sync(QObject):
                 if filename in remote_filenames:
                     if lastsync_local_filenames[filename] \
                        >= remote_filenames[filename]:
-                        self._remote_delete(webdavConnection, filename, \
-                                            time_delta)
+                        self._remote_delete(webdavConnection, filename)
                     else:
                         #We have a conflict remote file is newer than what
                         #we try to delete
