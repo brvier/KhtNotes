@@ -80,10 +80,10 @@ class Note(QObject):
             if self._uuid:
                 os.rename(os.path.join(self.NOTESPATH, self._uuid), \
                           new_path)
-            self._uuid = getValidFilename(title + '.txt')
+            self._uuid = getValidFilename(title.strip() + '.txt')
 
         if not self._uuid:
-            self._uuid = getValidFilename(title + '.txt')
+            self._uuid = getValidFilename(title.strip() + '.txt')
 
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
