@@ -52,7 +52,7 @@ Page {
                  height: Math.max (850, implicitHeight)
                  width: Math.max(flick.width, implicitWidth) //previewPage.width + 4
                  readOnly: true
-                 wrapMode: TextEdit.NoWrap
+                 wrapMode: TextEdit.WordWrap
                  textFormat: TextEdit.RichText
                  text: Note.previewMarkdown(atext)
                  font { bold: false; family: "Nokia Pure Text"; pixelSize: 18;}
