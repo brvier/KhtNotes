@@ -18,26 +18,41 @@ from PySide.QtCore import Slot, QObject, Signal, Property
 import os
 import datetime
 import markdown2
+import string
 
+FILENAME_CHARS = "-_. %s%s" % (string.ascii_letters, string.digits)
+
+def getValidFilename(filename):
+    return ''.join(car for car in filename if car in FILENAME_CHARS)
 
 class Note(QObject):
     ''' A class representing a note '''
 
     NOTESPATH = os.path.join(os.path.expanduser('~'), '.khtnotes')
-    DELETEDNOTESPATH = os.path.join(os.path.expanduser('~'),
-                                    '.khtnotes', 'deleted')
 
     def __init__(self, uid=None):
         QObject.__init__(self)
         self._title = u'Untitled'
         self._data = u''
-        self._uuid = u''
         self._timestamp = None
         self._ready = False
         self._human_timestamp = u''
         print 'INIT:', uid
         if uid:
             self.load(uid)
+
+    @Slot()
+    def create(self):
+        index = 0
+        path = os.path.join(self.NOTESPATH, 'Untitled')
+        while (os.path.exists('%s %s.txt' % (path,  unicode(index)))):
+            index = index + 1
+        self._set_title('Untitled %s' % unicode(index))
+        self._set_text('Untitled %s' % unicode(index))
+        self._set_ready(True)
+
+    def valideFilename(self, filename):
+        return ''.join(car for car in filename if car in FILENAME_CHARS)
 
     @Slot(unicode, result=bool)
     def write(self, data):
@@ -65,10 +80,10 @@ class Note(QObject):
             if self._uuid:
                 os.rename(os.path.join(self.NOTESPATH, self._uuid), \
                           new_path)
-            self._uuid = title + '.txt'
+            self._uuid = getValidFilename(title + '.txt')
 
         if not self._uuid:
-            self._uuid = title + '.txt'
+            self._uuid = getValidFilename(title + '.txt')
 
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
@@ -116,19 +131,16 @@ class Note(QObject):
             print overflow
 
     @Slot(unicode)
-    def load(self, uid=None):
-        if uid:
-            self._uuid=uid
-            print 'Load:', self._uuid
-        else:
-            index = 0
-            path = os.path.join(self.NOTESPATH, 'Untitled ')
-            while (os.path.exists('%s %s.txt' % (path,  unicode(index)))):
-              index =+ 1
-            self._set_uuid('Untitled %s.txt' % unicode(index))
-            self._set_title('Untitled %s' % unicode(index))
-            self._set_text('Untitled %s' % unicode(index))
-            self._set_ready(True)
+    def load(self, uid):
+            #index = 0
+            #path = os.path.join(self.NOTESPATH, 'Untitled ')
+            #while (os.path.exists('%s %s.txt' % (path,  unicode(index)))):
+            #  index =+ 1
+            #self._set_uuid('Untitled %s.txt' % unicode(index))
+            #self._set_title('Untitled %s' % unicode(index))
+            #self._set_text('Untitled %s' % unicode(index))
+            #self._set_ready(True)
+        self._uuid = uid
 
         if (self._uuid):
             try:
