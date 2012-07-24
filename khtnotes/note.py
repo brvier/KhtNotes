@@ -34,9 +34,10 @@ class Note(QObject):
 
     def __init__(self, uid=None):
         QObject.__init__(self)
-        self._title = u'Untitled'
+        self._title = None
         self._data = u''
         self._timestamp = None
+        self._uuid = None
         self._ready = False
         self._human_timestamp = u''
         print 'INIT:', uid
@@ -49,7 +50,6 @@ class Note(QObject):
         path = os.path.join(self.NOTESPATH, 'Untitled')
         while (os.path.exists('%s %s.txt' % (path, unicode(index)))):
             index = index + 1
-        self._set_title('Untitled %s' % unicode(index))
         self._set_text('Untitled %s' % unicode(index))
         self._set_ready(True)
 
@@ -71,7 +71,7 @@ class Note(QObject):
 
         title = data.split('\n', 1)[0]
         print 'write:title:', title
-        if title != self._title:
+        if (title != self._title) and self._title:
             #It s a rename of the note
             print 'Note is renammed'
             new_path = os.path.join(self.NOTESPATH,
