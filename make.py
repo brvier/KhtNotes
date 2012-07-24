@@ -40,7 +40,7 @@ if __name__ == "__main__":
     p.display_name = 'KhtNotes'
     p.version = khtnotes.__version__+'.0'
     p.buildversion = __build__
-    p.description="A note taking application for Harmattan devices (n950, n9) with sync feature and markdown preview."
+    p.description="A note taking application for Harmattan devices (n950, n9). KhtNotes provide sync of notes with ownCloud, and permit to previem markdown syntax"
     p.upgrade_description=__upgrade__
     p.author=__author__
     p.maintainer=__author__
@@ -74,4 +74,4 @@ if __name__ == "__main__":
     p["/opt"] = files
 
     print p.generate(build_binary=True,build_src=False)
-    print p.generate(build_binary=False,build_src=True)
+    print p.generate(build_binary=False,build_src=True)  
