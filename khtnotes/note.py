@@ -122,15 +122,15 @@ class Note(QObject):
             print 'Load:', self._uuid
         else:
             index = 0
-            path = os.path.join(self.NOTESPATH, 'Untitled')
-            while (os.path.exists(path + unicode(index)+'.txt')):
+            path = os.path.join(self.NOTESPATH, 'Untitled ')
+            while (os.path.exists('%s %s.txt' % (path,  unicode(index)))):
               index =+ 1
-            self._set_uuid('')
-            self._set_title('Untitled' + unicode(index))
-            self._set_text('Untitled' + unicode(index))
+            self._set_uuid('Untitled %s.txt' % unicode(index))
+            self._set_title('Untitled %s' % unicode(index))
+            self._set_text('Untitled %s' % unicode(index))
             self._set_ready(True)
 
-        if (self._uuid != None):
+        if (self._uuid):
             try:
                 path = os.path.join(self.NOTESPATH, str(self._uuid))
                 print 'path: ', path
@@ -151,8 +151,9 @@ class Note(QObject):
     def previewMarkdown(self, text):
         ''' Generate a markdown preview'''
         try:
-            return markdown2.markdown(self._stripTags(text))
-        except:
+            return markdown2.markdown(text)
+        except Exception, e:
+            print type(e),':',e
             return text
 
     def _get_text(self):

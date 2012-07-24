@@ -18,6 +18,9 @@ Page {
         pageStack.pop();
     }
 
+    onAtextChanged: {
+        textEditor.text = Note.previewMarkdown(atext)
+    }
     /*function previewText() {    
         textEditor.text = Document.previewMarkdown(text);
     }*/
@@ -48,6 +51,7 @@ Page {
                  id: textEditor
                  height: Math.max (850, implicitHeight)
                  width: Math.max(flick.width, implicitWidth) //previewPage.width + 4
+                 readOnly: true
                  wrapMode: TextEdit.NoWrap
                  textFormat: TextEdit.RichText
                  text: Note.previewMarkdown(atext)
