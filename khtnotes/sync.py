@@ -15,6 +15,7 @@
 
 from webdav.WebdavClient import *
 from webdav.logger import _defaultLoggerName
+
 import os.path
 import os
 import threading

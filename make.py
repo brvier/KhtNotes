@@ -22,8 +22,10 @@ from glob import glob
 from datetime import datetime
 import socket
 
-import khtnotes
 import pypackager
+sys.path.append('khtnotes')
+
+from khtnotes import __version__
 
 __build__ = '1'
 __author__ = "Benoît HERVIER (khertan)"
@@ -35,10 +37,9 @@ if __name__ == "__main__":
         os.chdir(os.path.dirname(sys.argv[0]))
     except:
         pass
-
     p=pypackager.PyPackager("khtnotes")
     p.display_name = 'KhtNotes'
-    p.version = khtnotes.__version__+'.0'
+    p.version = __version__+'.0'
     p.buildversion = __build__
     p.description="A note taking application for Harmattan devices (n950, n9). KhtNotes provide sync of notes with ownCloud, and permit to previem markdown syntax"
     p.upgrade_description=__upgrade__
@@ -74,4 +75,4 @@ if __name__ == "__main__":
     p["/opt"] = files
 
     print p.generate(build_binary=True,build_src=False)
-    print p.generate(build_binary=False,build_src=True)  
+    print p.generate(build_binary=False,build_src=True)
