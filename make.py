@@ -31,7 +31,9 @@ __build__ = '1'
 __author__ = "Benoît HERVIER (khertan)"
 __mail__ = "khertan@khertan.net"
 __upgrade__ = '''1.1: First public release
-1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview'''
+1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
+1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
+1.4: Better use of harmattan invoker'''
 
 if __name__ == "__main__":
     try:
@@ -59,8 +61,10 @@ if __name__ == "__main__":
     p.changelog =  p.upgrade_description
     p.maemo_flags = 'visible'
     p.meego_desktop_entry_filename = '/usr/share/applications/khtnotes.desktop'
+    p.createDigsigsums = True
     files = []
-    p.postinst = """"""
+    p.postinst = '''#!/bin/sh
+chmod +x /opt/khtnotes/__init__.py'''
 
     #Src
     srcpath = '/home/user/MyDocs/Projects/KhtNotes/khtnotes'

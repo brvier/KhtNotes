@@ -51,6 +51,8 @@ class Note(QObject):
         while (os.path.exists('%s %s.txt' % (path, unicode(index)))):
             index = index + 1
         self._set_text('Untitled %s' % unicode(index))
+        self._title = None
+        self._uuid = None
         self._set_ready(True)
 
     def valideFilename(self, filename):
