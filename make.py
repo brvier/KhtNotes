@@ -28,7 +28,8 @@ __mail__ = "khertan@khertan.net"
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
-1.4: Better use of harmattan invoker'''
+1.4: Better use of harmattan invoker
+1.5: Avoid double loading of initial list on startup and fix wrong logger call in sync'''
 
 if __name__ == "__main__":
     try:
@@ -66,7 +67,7 @@ chmod +x /opt/khtnotes/__init__.py'''
     for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__), p.name)):
       for f in fs:
         files.append(os.path.join(root, f))
-    
+
     p['/usr/share/dbus-1/services'] = ['khtnotes.service',]
     p['/usr/share/icons/blanco/80x80/apps'] = ['khtnotes.png',]
     p['/usr/share/applications'] = ['khtnotes.desktop',]

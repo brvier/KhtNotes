@@ -29,7 +29,7 @@ from sync import Sync
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '1.4'
+__version__ = '1.5'
 
 
 class QmlDirReaderWriter(QObject):
