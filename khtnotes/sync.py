@@ -206,11 +206,11 @@ class Sync(QObject):
             for filename in set(lupdated).intersection(rupdated):
                 if int(remote_filenames[filename]) \
                  > int(local_filenames[filename]):
-                    self.logger('Updated conflictLocal: %s' % filename)
+                    self.logger.debug('Updated conflictLocal: %s' % filename)
                     self._conflictLocal(webdavConnection, filename, time_delta)
                 elif int(remote_filenames[filename]) \
                  < int(local_filenames[filename]):
-                    self.logger('Updated conflictServer: %s' % filename)
+                    self.logger.debug('Updated conflictServer: %s' % filename)
                     self._conflictServer(webdavConnection, filename, time_delta)
                 else:
                     self.logger.debug('Up to date: %s' % filename)

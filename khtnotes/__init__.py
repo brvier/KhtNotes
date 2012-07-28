@@ -57,7 +57,7 @@ class NotesModel(QAbstractListModel):
             except Exception, e:
                 print 'Can t create note storage folder', str(e)
 
-        self.loadData()
+        #self.loadData()
 
     def loadData(self,):
         self._notes = [Note(uid=file) \
