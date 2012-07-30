@@ -227,16 +227,16 @@ class Sync(QObject):
     def _conflictServer(self, webdavConnection, filename, time_delta):
         '''Priority to local'''
         self.logger.debug('conflictServer: %s' % filename)
-        self._move(webdavConnection, filename, filename + '.Conflict')
-        self._download(webdavConnection, filename + '.Conflict', time_delta)
+        self._move(webdavConnection, filename, os.path.splitext(filename) + '.Conflict.txt')
+        self._download(webdavConnection, os.path.splitext(filename) + '.Conflict.txt', time_delta)
         self._upload(webdavConnection, filename, time_delta)
 
     def _conflictLocal(self, webdavConnection, filename, time_delta):
         '''Priority to server'''
         self.logger.debug('conflictLocal: %s', filename)
         os.rename(os.path.join(Note.NOTESPATH, filename),
-            os.path.join(Note.NOTESPATH, filename + '.Conflict'))
-        self._upload(webdavConnection, filename + '.Conflict', time_delta)
+            os.path.join(Note.NOTESPATH, os.path.splitext(filename) + '.Conflict.txt'))
+        self._upload(webdavConnection, os.path.splitext(filename) + '.Conflict.txt', time_delta)
         self._download(webdavConnection, filename, time_delta)
 
     def _get_lastsync_filenames(self):
