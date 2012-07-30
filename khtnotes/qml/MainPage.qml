@@ -110,7 +110,7 @@ Page {
 
                     onClicked: {
                              Note.load(model.uuid)
-                             pageStack.push(fileEditPage, { modified: false});
+                             pageStack.push(Qt.createComponent(Qt.resolvedUrl("EditPage.qml")), { modified: false});
                     //    }
                     }
                     onPressAndHold: {

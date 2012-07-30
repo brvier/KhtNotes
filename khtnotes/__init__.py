@@ -98,18 +98,10 @@ class NotesModel(QAbstractListModel):
 
     @Slot()
     def reload(self):
-        print 'reload called'
         self.beginResetModel()
         self.loadData()
         self._filterNotes()
         self.endResetModel()
-
-
-class NotesControler(QObject):
-    @Slot(QObject)
-    def noteSelected(self, wrapper):
-        print 'User clicked on:', \
-            wrapper._notes.title, ' uuid : ', wrapper._notes.uuid
 
 
 class KhtNotes(QApplication):
@@ -123,7 +115,6 @@ class KhtNotes(QApplication):
         self.view = QtDeclarative.QDeclarativeView()
         self.glw = QGLWidget()
         self.view.setViewport(self.glw)
-        self.notesController = NotesControler()
         self.notesModel = NotesModel()
         self.note = Note()
         self.syncer = Sync()
@@ -134,8 +125,6 @@ class KhtNotes(QApplication):
         self.rootContext.setContextProperty("Sync", self.syncer)
         self.rootContext.setContextProperty("QmlDirReaderWriter",
                                              QmlDirReaderWriter())
-        self.rootContext.setContextProperty('notesController',
-                                             self.notesController)
         self.rootContext.setContextProperty('notesModel', self.notesModel)
         self.rootContext.setContextProperty('Note', self.note)
         self.view.setSource(QUrl.fromLocalFile(

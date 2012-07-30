@@ -21,11 +21,8 @@ Page {
     onAtextChanged: {
         textEditor.text = Note.previewMarkdown(atext)
     }
-    /*function previewText() {    
-        textEditor.text = Document.previewMarkdown(text);
-    }*/
         
-        PageHeader {
+    PageHeader {
          id: header
          title: 'KhtNotes'
     }

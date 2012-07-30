@@ -14,19 +14,7 @@ PageStackWindow {
         objectName: 'fileBrowserPage'
     }
 
-
-    EditPage {
-        id: fileEditPage
-    }
-
-    PreviewPage {
-        id: previewPage
-    }
-
-    SettingsPage {
-        id: settingsPage
-    }
-
+    
     ItemMenu {
         id: itemMenu
     }
@@ -37,19 +25,16 @@ PageStackWindow {
 
         ToolIcon {
             platformIconId: "toolbar-add" 
-  //          anchors.left: (parent === undefined) ? undefined : parent.left 
-            onClicked: {Note.create();pageStack.push(fileEditPage, {modified:'false'});
+            onClicked: {Note.create();pageStack.push(Qt.createComponent(Qt.resolvedUrl("EditPage.qml")), {modified:'false'});
         }}
 
         ToolIcon {
-                    platformIconId: Sync.running ? 'toolbar-mediacontrol-stop' : 'toolbar-refresh';
-                        //        anchors.right: (parent === undefined) ? undefined : parent.right
-                                    onClicked: Sync.launch();
+            platformIconId: Sync.running ? 'toolbar-mediacontrol-stop' : 'toolbar-refresh';
+            onClicked: Sync.launch();
                                             }
                                             
         ToolIcon {
             platformIconId: "toolbar-view-menu"
-    //        anchors.right: (parent === undefined) ? undefined : parent.right
             onClicked: (myMenu.status === DialogStatus.Closed) ? myMenu.open() : myMenu.close()
         }
     }
@@ -77,7 +62,7 @@ PageStackWindow {
         visualParent: pageStack
         MenuLayout {
             MenuItem { text: qsTr("About"); onClicked: about.open()}
-            MenuItem { text: qsTr("Preferences"); onClicked: pageStack.push(settingsPage); }
+            MenuItem { text: qsTr("Preferences"); onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("SettingsPage.qml"))); }
             MenuItem { text: qsTr("Report a bug");onClicked: {
                          Qt.openUrlExternally('https://github.com/khertan/KhtNotes/issues/new');
                     }

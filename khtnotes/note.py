@@ -17,7 +17,6 @@ from PySide.QtCore import Slot, QObject, Signal, Property
 
 import os
 import datetime
-import markdown2
 import string
 
 FILENAME_CHARS = "-_. %s%s" % (string.ascii_letters, string.digits)
@@ -158,8 +157,10 @@ class Note(QObject):
     @Slot(unicode, result=unicode)
     def previewMarkdown(self, text):
         ''' Generate a markdown preview'''
+        import markdown2
         try:
             return markdown2.markdown(text)
+            print 'Preview markdown called'
         except Exception, e:
             print type(e), ':', e
             return text

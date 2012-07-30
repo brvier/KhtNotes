@@ -13,9 +13,6 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the
 ## GNU General Public License for more details.
 
-from webdav.WebdavClient import *
-from webdav.logger import _defaultLoggerName
-
 import os.path
 import os
 import threading
@@ -59,6 +56,10 @@ class Sync(QObject):
 
     def _sync(self):
         '''Sync the notes with a webdav server'''
+        from webdav.WebdavClient import *
+        from webdav.logger import _defaultLoggerName
+
+
         #Read Settings
         settings = Settings()
         self.webdavHost = settings.webdavHost

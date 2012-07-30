@@ -61,9 +61,18 @@ if __name__ == "__main__":
     p.createDigsigsums = True
     files = []
     p.postinst = '''#!/bin/sh
-chmod +x /opt/khtnotes/__init__.py'''
+chmod +x /opt/khtnotes/__init__.py
+pycompile -O /opt/khtnotes/*.py'''
     p.createDigsigsums = True
 
+    #Remove pyc and pyo
+    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, '*.pyc')):
+        os.remove(filepath)
+    #Remove pyc and pyo
+    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, '*.pyo')):
+        os.remove(filepath)
+
+        
     #Src
     for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__), p.name)):
       for f in fs:

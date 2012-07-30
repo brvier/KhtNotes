@@ -83,7 +83,7 @@ Page {
         visualParent: pageStack
         MenuLayout {
             MenuItem { text: qsTr("About"); onClicked: about.open()}
-            MenuItem { text: qsTr("MarkDown Preview"); onClicked: pageStack.push(previewPage, {atext:textEditor.text}); }
+            MenuItem { text: qsTr("MarkDown Preview"); onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("PreviewPage.qml")), {atext:textEditor.text}); }
         }
     }
 
