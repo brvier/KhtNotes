@@ -62,7 +62,8 @@ if __name__ == "__main__":
     files = []
     p.postinst = '''#!/bin/sh
 chmod +x /opt/khtnotes/__init__.py
-pycompile -O /opt/khtnotes/*.py'''
+pycompile -O /opt/khtnotes/*.py
+pycompile -O /opt/khtnotes/webdav/*.py'''
     p.createDigsigsums = True
 
     #Remove pyc and pyo
@@ -70,6 +71,12 @@ pycompile -O /opt/khtnotes/*.py'''
         os.remove(filepath)
     #Remove pyc and pyo
     for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, '*.pyo')):
+        os.remove(filepath)
+    #Remove pyc and pyo
+    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'webdav', '*.pyc')):
+        os.remove(filepath)
+    #Remove pyc and pyo
+    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'webdav', '*.pyo')):
         os.remove(filepath)
 
         
