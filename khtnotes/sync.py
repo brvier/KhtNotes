@@ -122,7 +122,7 @@ class Sync(QObject):
 
             #Get remote filenames and timestamps
             remote_filenames = \
-                self._get_remote_filenames(webdavConnection, time_delta)
+                self._get_remote_filenames(webdavConnection)
 
             #Get local filenames and timestamps
             local_filenames = self._get_local_filenames()
@@ -251,7 +251,7 @@ class Sync(QObject):
 
     def _write_index(self, webdavConnection, time_delta):
         '''Generate index for the last sync'''
-        index = (self._get_remote_filenames(webdavConnection, time_delta),
+        index = (self._get_remote_filenames(webdavConnection),
                  self._get_local_filenames())
         with open(os.path.join(Note.NOTESPATH, '.index.sync'), 'wb') as fh:
             json.dump(index, fh)
