@@ -29,7 +29,8 @@ __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
 1.4: Better use of harmattan invoker
-1.5: Avoid double loading of initial list on startup and fix wrong logger call in sync'''
+1.5: Avoid double loading of initial list on startup, fix wrong logger call 
+     in sync, optimization of startup time And add a search feature'''
 
 if __name__ == "__main__":
     try:

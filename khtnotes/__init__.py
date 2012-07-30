@@ -50,7 +50,9 @@ class NotesModel(QAbstractListModel):
         self._notes = {}
         QAbstractListModel.__init__(self)
         self.setRoleNames(dict(enumerate(NotesModel.COLUMNS)))
-
+        self._filter = None
+        self._filteredNotes = self._notes
+        
         if not os.path.exists(Note.NOTESPATH):
             try:
                 os.mkdir(Note.NOTESPATH)
@@ -59,6 +61,20 @@ class NotesModel(QAbstractListModel):
 
         #self.loadData()
 
+    @Slot(unicode)
+    def setFilterFixedString(self, search):
+        self._filter = search
+        self.beginResetModel()
+        self._filterNotes()
+        self.endResetModel()
+        
+    def _filterNotes(self):
+        if self._filter:
+            self._filteredNotes = [note for note in self._notes if self._filter.lower() in note.title.lower()]
+        else:
+            self._filteredNotes = self._notes
+        
+            
     def loadData(self,):
         self._notes = [Note(uid=file) \
                        for file in os.listdir(Note.NOTESPATH) \
@@ -66,23 +82,26 @@ class NotesModel(QAbstractListModel):
                        and (file != '.index.sync')]
 
         self._notes.sort(key=lambda note: note.timestamp, reverse=True)
+        
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self._notes)
+        return len(self._filteredNotes)
 
     def data(self, index, role):
         if index.isValid() and role == NotesModel.COLUMNS.index('title'):
-            return self._notes[index.row()].title
+            return self._filteredNotes[index.row()].title
         if index.isValid() and role == NotesModel.COLUMNS.index('timestamp'):
-            return self._notes[index.row()].human_timestamp
+            return self._filteredNotes[index.row()].human_timestamp
         if index.isValid() and role == NotesModel.COLUMNS.index('uuid'):
-            return self._notes[index.row()].uuid
+            return self._filteredNotes[index.row()].uuid
         return None
 
     @Slot()
     def reload(self):
+        print 'reload called'
         self.beginResetModel()
         self.loadData()
+        self._filterNotes()
         self.endResetModel()
 
 

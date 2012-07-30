@@ -16,13 +16,45 @@ Page {
          id: header
          title: 'KhtNotes'
     }
+            
+    TextField {
+        id: search
+        platformStyle: TextFieldStyle {
+            backgroundSelected: "image://theme/color6-meegotouch-textedit-background-selected"
+        }
+        placeholderText: "Search"
+        anchors { top: header.bottom; left: parent.left; right: parent.right }
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        anchors.topMargin: 10
+        inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase
+        onTextChanged: notesModel.setFilterFixedString(text)
 
+        Image {
+            anchors { top: parent.top; right: parent.right; margins: 5 }
+            smooth: true
+            fillMode: Image.PreserveAspectFit
+            source: search.text ? "image://theme/icon-m-input-clear" : "image://theme/icon-m-common-search"
+            height: parent.height - platformStyle.paddingMedium * 2
+            width: parent.height - platformStyle.paddingMedium * 2
+
+            MouseArea {
+                anchors.fill: parent
+                anchors.margins: -10 // Make area bigger then image
+                enabled: search.text
+                onClicked: search.text = ""
+            }
+        }
+    }
+    
     ListView {
         id: notesView
-        anchors.top: header.bottom
+        anchors.top: search.bottom
+        anchors.topMargin: 10
         anchors.bottom: parent.bottom
-        height: parent.height - header.height
+        height: search.height - header.height
         width: parent.width
+        clip: true
         z:1
         
         model: notesModel
@@ -87,8 +119,8 @@ Page {
                    }
                 }
             }
-	}        
-    }
+        }
+    }        
 
     ScrollDecorator {
         flickableItem: notesView
@@ -96,12 +128,13 @@ Page {
         platformStyle: ScrollDecoratorStyle {
         }}
 
-    onStatusChanged: {
+    /*onStatusChanged: {
          if (status == PageStatus.Active) {
               if (pageStack.currentPage.objectName == 'fileBrowserPage') {
+                                        console.log('onStatusChanged')
                                         pageStack.currentPage.refresh();}
                                         
          }
-    }
+    }*/
 
 }

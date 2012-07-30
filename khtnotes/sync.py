@@ -145,7 +145,7 @@ class Sync(QObject):
             for filename in set(lastsync_remote_filenames) \
                             - set(remote_filenames):
                 if filename in local_filenames.keys():
-                    if lastsync_remote_filenames[filename] \
+                    if (lastsync_remote_filenames[filename] - timedelta) \
                        >= local_filenames[filename]:
                         self._local_delete(filename)
                     else:
@@ -160,7 +160,7 @@ class Sync(QObject):
                             - set(local_filenames):
                 if filename in remote_filenames:
                     if lastsync_local_filenames[filename] \
-                       >= remote_filenames[filename]:
+                       >= (remote_filenames[filename] - timedelta):
                         self._remote_delete(webdavConnection, filename)
                     else:
                         #We have a conflict remote file is newer than what
@@ -204,11 +204,11 @@ class Sync(QObject):
             for filename in set(lupdated) - set(rupdated):
                 self._upload(webdavConnection, filename, time_delta)
             for filename in set(lupdated).intersection(rupdated):
-                if int(remote_filenames[filename]) \
+                if int(remote_filenames[filename] - timedelta) \
                  > int(local_filenames[filename]):
                     self.logger.debug('Updated conflictLocal: %s' % filename)
                     self._conflictLocal(webdavConnection, filename, time_delta)
-                elif int(remote_filenames[filename]) \
+                elif int(remote_filenames[filename] - timedetla) \
                  < int(local_filenames[filename]):
                     self.logger.debug('Updated conflictServer: %s' % filename)
                     self._conflictServer(webdavConnection, filename, time_delta)
@@ -310,12 +310,11 @@ class Sync(QObject):
             webdavConnection.addCollection(khtnotesPath)
         #TODO : Lock
 
-    def _get_remote_filenames(self, webdavConnection, time_delta):
+    def _get_remote_filenames(self, webdavConnection):
         '''Check Remote Index'''
         webdavConnection.path = self._get_notes_path()
         index = dict([(basename(resource),
-                        time.mktime(properties.getLastModified()) \
-                        - time_delta) \
+                        time.mktime(properties.getLastModified())) \
                         for (resource, properties) \
                         in webdavConnection.listResources().items()])
         try:
