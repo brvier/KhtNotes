@@ -66,7 +66,7 @@ class TomboyImporter(QObject):
                             unicode(index)))
 
                 note.uuid = uuid + '.txt'
-                note.write(handler._content.encode('utf-8'))
+                note.write(handler._content)
                 try:
                     from rfc3339.rfc3339 import strtotimestamp
                     mtime = strtotimestamp(handler._last_change)
@@ -81,6 +81,7 @@ class TomboyImporter(QObject):
                 print traceback.format_exc()
 
         self._set_running(False)
+        self.on_finished.emit()
 
     def _get_running(self):
         return self._running
@@ -148,10 +149,10 @@ class textHandler(ContentHandler):
         except Exception, err:
              import traceback
              print traceback.format_exc()
-             
-             
+
+
 if __name__ == '__main__':
     importer = TomboyImporter()
     importer.launch()
     while importer._running:
-        pass 
+        pass

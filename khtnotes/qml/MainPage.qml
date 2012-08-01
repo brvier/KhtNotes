@@ -109,7 +109,7 @@ Page {
                     onPositionChanged: background.opacity = 0.0;
 
                     onClicked: {
-                             Note.load(model.uuid)
+                             Note.load(model.uuid);
                              pageStack.push(Qt.createComponent(Qt.resolvedUrl("EditPage.qml")), { modified: false});
                     //    }
                     }

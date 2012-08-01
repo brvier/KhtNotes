@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '1.6'
+__version__ = '1.7'
 
 
 class QmlDirReaderWriter(QObject):
@@ -45,7 +45,7 @@ class QmlDirReaderWriter(QObject):
 
 
 class NotesModel(QAbstractListModel):
-    COLUMNS = ('title', 'timestamp', 'uuid')
+    COLUMNS = ('title', 'timestamp', 'uuid', 'index', 'note')
 
     def __init__(self, ):
         self._notes = {}
@@ -53,7 +53,7 @@ class NotesModel(QAbstractListModel):
         self.setRoleNames(dict(enumerate(NotesModel.COLUMNS)))
         self._filter = None
         self._filteredNotes = self._notes
-        
+
         if not os.path.exists(Note.NOTESPATH):
             try:
                 os.mkdir(Note.NOTESPATH)
@@ -68,33 +68,38 @@ class NotesModel(QAbstractListModel):
         self.beginResetModel()
         self._filterNotes()
         self.endResetModel()
-        
+
     def _filterNotes(self):
         if self._filter:
-            self._filteredNotes = [note for note in self._notes if self._filter.lower() in note.title.lower()]
+            self._filteredNotes = [note for note in self._notes \
+                                   if self._filter.lower() \
+                                   in note.title.lower()]
         else:
             self._filteredNotes = self._notes
-        
-            
+
+
     def loadData(self,):
-        self._notes = [Note(uid=file) \
+        self._notes = [Note(uid=file.decode('utf-8')) \
                        for file in os.listdir(Note.NOTESPATH) \
-                       if (os.path.isfile(os.path.join(Note.NOTESPATH, file)))
+                       if (os.path.isfile(os.path.join(Note.NOTESPATH, file))) \
                        and (file != '.index.sync')]
 
         self._notes.sort(key=lambda note: note.timestamp, reverse=True)
         
-
     def rowCount(self, parent=QModelIndex()):
         return len(self._filteredNotes)
 
     def data(self, index, role):
         if index.isValid() and role == NotesModel.COLUMNS.index('title'):
             return self._filteredNotes[index.row()].title
-        if index.isValid() and role == NotesModel.COLUMNS.index('timestamp'):
+        elif index.isValid() and role == NotesModel.COLUMNS.index('timestamp'):
             return self._filteredNotes[index.row()].human_timestamp
-        if index.isValid() and role == NotesModel.COLUMNS.index('uuid'):
+        elif index.isValid() and role == NotesModel.COLUMNS.index('uuid'):
             return self._filteredNotes[index.row()].uuid
+        elif index.isValid() and role == NotesModel.COLUMNS.index('index'):
+            return index.row()
+        elif index.isValid() and role == NotesModel.COLUMNS.index('data'):
+            return self._filteredNotes[index.row()].data
         return None
 
     @Slot()

@@ -31,7 +31,8 @@ __upgrade__ = '''1.1: First public release
 1.4: Better use of harmattan invoker
 1.5: Avoid double loading of initial list on startup, fix wrong logger call 
      in sync, optimization of startup time And add a search feature
- 1.6: Add Tomboy/Conboy import feature'''
+1.6: Add Tomboy/Conboy import feature
+1.7: Improve unicode support (utf-8 and utf-16)'''
 
 if __name__ == "__main__":
     try:

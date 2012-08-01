@@ -17,13 +17,13 @@ from PySide.QtCore import Slot, QObject, Signal, Property
 
 import os
 import datetime
-import string
+import codecs
 
-FILENAME_CHARS = "-_. %s%s" % (string.ascii_letters, string.digits)
-
+INVALID_FILENAME_CHARS = '\/:*?"<>|'
 
 def getValidFilename(filename):
-    return ''.join(car for car in filename if car in FILENAME_CHARS)
+    return ''.join(car for car in filename \
+                if car not in INVALID_FILENAME_CHARS)
 
 
 class Note(QObject):
@@ -32,7 +32,7 @@ class Note(QObject):
     NOTESPATH = os.path.join(os.path.expanduser('~'), '.khtnotes')
 
     def __init__(self, uid=None):
-        QObject.__init__(self)
+        QObject.__init__(self, parent=None)
         self._title = None
         self._data = u''
         self._timestamp = None
@@ -53,13 +53,10 @@ class Note(QObject):
         self._uuid = None
         self._set_ready(True)
 
-    def valideFilename(self, filename):
-        return ''.join(car for car in filename if car in FILENAME_CHARS)
-
     @Slot(unicode, result=bool)
     def write(self, data):
         ''' Write the document to a file '''
-        
+
         #Deleted content
         if data == '':
             #if exist only
@@ -85,7 +82,7 @@ class Note(QObject):
 
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
-            with open(path, 'wb') as fh:
+            with codecs.open(path, 'w', 'utf_8') as fh:
                 data = data.split('\n', 1)
                 if len(data) >= 2:
                     fh.write(data[1])
@@ -94,8 +91,8 @@ class Note(QObject):
                 self._set_timestamp(os.stat(path).st_mtime)
                 self._set_title(self._data.split('\n', 1)[0])
         except Exception, e:
-            print e
-            raise e
+            import traceback
+            print traceback.format_exc()
             self.on_error.emit(str(e))
             return False
         return True
@@ -132,19 +129,29 @@ class Note(QObject):
 
         if (self._uuid):
             try:
-                path = os.path.join(self.NOTESPATH, str(self._uuid))
-                with open(path, 'rb') as fh:
+                path = os.path.join(self.NOTESPATH, self._uuid)
+                with codecs.open(path, 'r', 'utf_8') as fh:
                     try:
-                        self._set_text(os.path.splitext(self._uuid)[0] \
-                                    + '\n' + unicode(fh.read(), 'utf-8'))
+                        text = fh.read()
+                        if text.find('\0') > 0:
+                            #Probably utf-16 ... decode it to utf-8
+                            #as qml didn t support it well'
+                            text = text.decode('utf-16')
+                        title = os.path.splitext(self._uuid)[0]
+                        self._set_text(title \
+                                    + '\n' + text)
                         self._set_timestamp(os.stat(path).st_mtime)
                         self._set_title(self._data.split('\n', 1)[0])
                         self._set_ready(True)
                     except Exception, e:
                         print e
+                        import traceback
+                        print traceback.format_exc()
                         self.on_error.emit(str(e))
                         self._set_ready(True)
             except Exception, e:
+                import traceback
+                print traceback.format_exc()
                 print e
 
     @Slot(unicode, result=unicode)

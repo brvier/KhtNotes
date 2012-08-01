@@ -228,16 +228,16 @@ class Sync(QObject):
     def _conflictServer(self, webdavConnection, filename, time_delta):
         '''Priority to local'''
         self.logger.debug('conflictServer: %s' % filename)
-        self._move(webdavConnection, filename, os.path.splitext(filename) + '.Conflict.txt')
-        self._download(webdavConnection, os.path.splitext(filename) + '.Conflict.txt', time_delta)
+        self._move(webdavConnection, filename, os.path.splitext(filename)[0] + '.Conflict.txt')
+        self._download(webdavConnection, os.path.splitext(filename)[0] + '.Conflict.txt', time_delta)
         self._upload(webdavConnection, filename, time_delta)
 
     def _conflictLocal(self, webdavConnection, filename, time_delta):
         '''Priority to server'''
         self.logger.debug('conflictLocal: %s', filename)
         os.rename(os.path.join(Note.NOTESPATH, filename),
-            os.path.join(Note.NOTESPATH, os.path.splitext(filename) + '.Conflict.txt'))
-        self._upload(webdavConnection, os.path.splitext(filename) + '.Conflict.txt', time_delta)
+            os.path.join(Note.NOTESPATH, os.path.splitext(filename)[0] + '.Conflict.txt'))
+        self._upload(webdavConnection, os.path.splitext(filename)[0] + '.Conflict.txt', time_delta)
         self._download(webdavConnection, filename, time_delta)
 
     def _get_lastsync_filenames(self):
@@ -330,9 +330,9 @@ class Sync(QObject):
         return index
 
     def _get_local_filenames(self):
-        index = dict([(filename,
+        index = dict([(filename.decode('utf-8'),
                     round(os.path.getmtime( \
-                        os.path.join(Note.NOTESPATH, filename))))
+                        os.path.join(Note.NOTESPATH, filename.decode('utf-8')))))
                     for filename in os.listdir(Note.NOTESPATH)
                     if os.path.isfile(os.path.join(Note.NOTESPATH, filename))])
         try:

@@ -16,7 +16,9 @@ Page {
 
     function saveFile() {
         if ((modified == true)) {
-            return Note.write(textEditor.text);
+            modified = Note.write(textEditor.text) ? false : true;
+            fileBrowserPage.refresh();
+            return !modified;
         }
         return true
     }
