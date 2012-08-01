@@ -57,7 +57,7 @@ class Sync(QObject):
     def _sync(self):
         '''Sync the notes with a webdav server'''
         from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
-                                        parseDigestAuthInfo, authFailure
+                                        parseDigestAuthInfo
         from webdav.logger import _defaultLoggerName
 
 
@@ -104,7 +104,7 @@ class Sync(QObject):
                                                realm=info["realm"],
                                                qop=info["qop"],
                                                nonce=info["nonce"])
-                elif authFailure >= 2:
+                elif authFailures >= 2:
                     self.on_error.emit('Wrong login or password')
                     self.logger.error('Wrong login or password')
                 else:
