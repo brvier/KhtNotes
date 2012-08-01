@@ -56,7 +56,8 @@ class Sync(QObject):
 
     def _sync(self):
         '''Sync the notes with a webdav server'''
-        from webdav.WebdavClient import CollectionStorer, AuthorizationError
+        from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
+                                        parseDigestAuthInfo, authFailure
         from webdav.logger import _defaultLoggerName
 
 
@@ -107,7 +108,7 @@ class Sync(QObject):
                     self.on_error.emit('Wrong login or password')
                     self.logger.error('Wrong login or password')
                 else:
-                    self.logger.error('%s:%s' % (unicode(type(e)),\
+                    self.logger.error('%s:%s' % (unicode(type(err)),\
                                       unicode(err)))
                     self.on_error.emit(unicode(err) + ':' + unicode(err))
 
@@ -209,7 +210,7 @@ class Sync(QObject):
                  > int(local_filenames[filename]):
                     self.logger.debug('Updated conflictLocal: %s' % filename)
                     self._conflictLocal(webdavConnection, filename, time_delta)
-                elif int(remote_filenames[filename] - timedetla) \
+                elif int(remote_filenames[filename] - time_delta) \
                  < int(local_filenames[filename]):
                     self.logger.debug('Updated conflictServer: %s' % filename)
                     self._conflictServer(webdavConnection, filename, time_delta)
