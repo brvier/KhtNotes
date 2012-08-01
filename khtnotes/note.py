@@ -39,7 +39,6 @@ class Note(QObject):
         self._uuid = None
         self._ready = False
         self._human_timestamp = u''
-        print 'INIT:', uid
         if uid:
             self.load(uid)
 
@@ -60,21 +59,17 @@ class Note(QObject):
     @Slot(unicode, result=bool)
     def write(self, data):
         ''' Write the document to a file '''
-        print 'write:', self._uuid
-
+        
         #Deleted content
         if data == '':
             #if exist only
             if self._uuid:
-                print 'content deleted, try to delete note'
                 self.rm(self._uuid)
             return True
 
         title = data.split('\n', 1)[0]
-        print 'write:title:', title
         if (title != self._title) and self._title:
             #It s a rename of the note
-            print 'Note is renammed'
             new_path = os.path.join(self.NOTESPATH,
                                     title + '.txt')
             if os.path.exists(new_path):
@@ -98,7 +93,6 @@ class Note(QObject):
                     fh.write('')
                 self._set_timestamp(os.stat(path).st_mtime)
                 self._set_title(self._data.split('\n', 1)[0])
-                print path, ' written'
         except Exception, e:
             print e
             raise e
@@ -139,7 +133,6 @@ class Note(QObject):
         if (self._uuid):
             try:
                 path = os.path.join(self.NOTESPATH, str(self._uuid))
-                print 'path: ', path
                 with open(path, 'rb') as fh:
                     try:
                         self._set_text(os.path.splitext(self._uuid)[0] \
@@ -160,7 +153,6 @@ class Note(QObject):
         import markdown2
         try:
             return markdown2.markdown(text)
-            print 'Preview markdown called'
         except Exception, e:
             print type(e), ':', e
             return text

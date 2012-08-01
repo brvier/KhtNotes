@@ -123,6 +123,7 @@ Page {
     }        
 
     ScrollDecorator {
+        id: scrollDecorator
         flickableItem: notesView
         z:3
         platformStyle: ScrollDecoratorStyle {

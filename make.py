@@ -30,7 +30,8 @@ __upgrade__ = '''1.1: First public release
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
 1.4: Better use of harmattan invoker
 1.5: Avoid double loading of initial list on startup, fix wrong logger call 
-     in sync, optimization of startup time And add a search feature'''
+     in sync, optimization of startup time And add a search feature
+ 1.6: Add Tomboy/Conboy import feature'''
 
 if __name__ == "__main__":
     try:

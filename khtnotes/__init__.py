@@ -26,10 +26,11 @@ import os.path
 from settings import Settings
 from note import Note
 from sync import Sync
+from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '1.5'
+__version__ = '1.6'
 
 
 class QmlDirReaderWriter(QObject):
@@ -117,12 +118,14 @@ class KhtNotes(QApplication):
         self.view.setViewport(self.glw)
         self.notesModel = NotesModel()
         self.note = Note()
+        self.conboyImporter = TomboyImporter()
         self.syncer = Sync()
         self.rootContext = self.view.rootContext()
         self.rootContext.setContextProperty("argv", sys.argv)
         self.rootContext.setContextProperty("__version__", __version__)
         self.rootContext.setContextProperty("Settings", Settings())
         self.rootContext.setContextProperty("Sync", self.syncer)
+        self.rootContext.setContextProperty("Importer", self.conboyImporter)
         self.rootContext.setContextProperty("QmlDirReaderWriter",
                                              QmlDirReaderWriter())
         self.rootContext.setContextProperty('notesModel', self.notesModel)
@@ -130,10 +133,11 @@ class KhtNotes(QApplication):
         self.view.setSource(QUrl.fromLocalFile(
                 os.path.join(os.path.dirname(__file__), 'qml', 'main.qml')))
         self.rootObject = self.view.rootObject()
+        self.view.showFullScreen()
         self.note.on_error.connect(self.rootObject.onError)
         self.syncer.on_error.connect(self.rootObject.onError)
         self.syncer.on_finished.connect(self.notesModel.reload)
-        self.view.showFullScreen()
+        self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
     sys.exit(KhtNotes().exec_())

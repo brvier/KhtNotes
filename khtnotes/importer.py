@@ -17,7 +17,7 @@ import os.path
 import glob
 from xml.sax.handler import ContentHandler
 import xml.sax
-from note import Note
+from note import Note, getValidFilename
 import threading
 from PySide.QtCore import QObject, Signal, Slot, \
                           Property
@@ -39,19 +39,20 @@ class TomboyImporter(QObject):
     def _import(self):
         self.noteList = {}
         for infile in glob.glob( \
-            os.path.join(os.path.expanduser('~/.conboy'), '*.note') ):
+            os.path.join(os.path.expanduser('~/.conboy'), '*.note')):
             try:
                 parser = xml.sax.make_parser()
                 handler = textHandler()
                 parser.setContentHandler(handler)
                 parser.parse(infile)
             except Exception, err:
-                print err
+                import traceback
+                print traceback.format_exc()
+
             try:
-                print handler._content
                 note = Note()
                 uuid = handler._content.split('\n', 1)[0].strip(' \t\r\n')
-                uuid = note.valideFilename(uuid)
+                uuid = getValidFilename(uuid)
                 path = os.path.join(note.NOTESPATH, uuid)
                 if os.path.exists(path + '.txt'):
                     index = 2
@@ -65,9 +66,20 @@ class TomboyImporter(QObject):
                             unicode(index)))
 
                 note.uuid = uuid + '.txt'
-                note.write(handler._content)
+                note.write(handler._content.encode('utf-8'))
+                try:
+                    from rfc3339.rfc3339 import strtotimestamp
+                    mtime = strtotimestamp(handler._last_change)
+                    lpath = os.path.join(Note.NOTESPATH, note.uuid)
+                    os.utime(lpath, (-1, mtime))
+                except Exception, err:
+                    import traceback
+                    print traceback.format_exc()
+
             except Exception, err:
-                print err
+                import traceback
+                print traceback.format_exc()
+
         self._set_running(False)
 
     def _get_running(self):
@@ -85,13 +97,16 @@ class TomboyImporter(QObject):
 class textHandler(ContentHandler):
     def __init__(self):
         ContentHandler.__init__(self)
-        self._content = ""
-        self._title = ""
+        self._content = u''
+        self._title = u''
+        self._last_change = u''
         self._selector = None
         self._list_level = 0
 
     def startElement(self, element,attributes):
         if (element == 'note-content') and (self._selector == None):
+            self._selector = element
+        elif (element == 'last-change-date') and (self._selector == None):
             self._selector = element
         elif (element == 'title') and (self._selector == None):
             self._selector = element
@@ -107,8 +122,8 @@ class textHandler(ContentHandler):
             self._content = self._content + '#'
         elif (element == 'size:large'):
             self._content = self._content + '##'
-        else:
-            print 'Element:', element
+        #else:
+        #   print 'Element:', element
 
     def endElement(self, element):
         if (element == self._selector):
@@ -119,15 +134,22 @@ class textHandler(ContentHandler):
             self._content = self._content + '**'
         elif element == 'italic':
             self._content = self._content + '*'
-        else:
-            print 'End Element:', element
+        #else:
+        #    print 'End Element:', element
 
     def characters(self, ch):
-        if self._selector == 'note-content':
-            self._content = self._content + unicode(ch)
-        elif self._selector == 'title':
-            self._title = self._title + unicode(ch)
-
+        try:
+            if self._selector == 'note-content':
+                self._content = self._content + unicode(ch)
+            elif self._selector == 'title':
+                self._title = self._title + unicode(ch)
+            elif self._selector == 'last-change-date':
+                self._last_change = self._last_change + unicode(ch)
+        except Exception, err:
+             import traceback
+             print traceback.format_exc()
+             
+             
 if __name__ == '__main__':
     importer = TomboyImporter()
     importer.launch()

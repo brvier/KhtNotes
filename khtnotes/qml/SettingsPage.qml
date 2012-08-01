@@ -30,16 +30,30 @@ Page {
             anchors.right: parent.right
             
             contentWidth: parent.width
-            contentHeight: prefs.height + 60
+            contentHeight: syncSettingsLabel.height + syncSettings.height + importLabel.height + conboyImportButton.height + 100
 
+            Label {
+                id: syncSettingsLabel
+                text: qsTr("<b>Sync settings</b>")
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                anchors.topMargin: 20
+                anchors.top: parent.top
+                
+            }
+                
             Column {
-                id: prefs
+                id: syncSettings
                 spacing: 10
                 anchors.left: parent.left
                 anchors.leftMargin: 10
                 anchors.right: parent.right
                 anchors.rightMargin: 10
-
+                anchors.top: syncSettingsLabel.bottom
+                anchors.topMargin: 10
+                
                 Label {
                     id: hostLabel
                     text: qsTr("WebDav Host :")
@@ -128,7 +142,45 @@ Page {
                      onTextChanged: {if (password.text !== '') Settings.webdavPasswd = password.text; } // Test if non null due to nasty bug on qml echoMode
 
                 }
+                
+                
             }
+                
+             Label {
+                id: importLabel
+                text: qsTr("<b>Import</b>")
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                anchors.top: syncSettings.bottom
+                anchors.topMargin: 30
+            }
+            
+                        
+            Button {
+                id: conboyImportButton
+                width: 200; height: 50
+                text: "Conboy / Tomboy"
+                anchors.top: importLabel.bottom
+                anchors.topMargin: 20
+                anchors.left: parent.left
+                anchors.leftMargin: 20
+                anchors.right: busyindicatorImport.left
+                anchors.rightMargin: 20
+                onClicked: { Importer.launch(); }
+            }
+            
+            BusyIndicator {
+                id: busyindicatorImport
+                platformStyle: BusyIndicatorStyle { size: "medium"; spinnerFrames: "image://theme/spinner"}
+                running: Importer.running ? true : false;
+                opacity: Importer.running ? 1.0 : 0.0;
+                anchors.right: parent.right
+                anchors.rightMargin: 20
+                anchors.verticalCenter: conboyImportButton.verticalCenter
+            }  
+                 
         }
 
 
