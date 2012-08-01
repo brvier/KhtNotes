@@ -56,7 +56,7 @@ class Sync(QObject):
 
     def _sync(self):
         '''Sync the notes with a webdav server'''
-        from webdav.WebdavClient import *
+        from webdav.WebdavClient import CollectionStorer, AuthorizationError
         from webdav.logger import _defaultLoggerName
 
 
