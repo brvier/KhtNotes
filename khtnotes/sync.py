@@ -147,7 +147,7 @@ class Sync(QObject):
             for filename in set(lastsync_remote_filenames) \
                             - set(remote_filenames):
                 if filename in local_filenames.keys():
-                    if (lastsync_remote_filenames[filename] - time_delta) \
+                    if ((lastsync_remote_filenames[filename] - time_delta) +1) \
                        >= local_filenames[filename]:
                         self._local_delete(filename)
                     else:
@@ -162,7 +162,7 @@ class Sync(QObject):
                             - set(local_filenames):
                 if filename in remote_filenames:
                     if lastsync_local_filenames[filename] \
-                       >= (remote_filenames[filename] - time_delta):
+                       >= ((remote_filenames[filename] - time_delta) - 1):
                         self._remote_delete(webdavConnection, filename)
                     else:
                         #We have a conflict remote file is newer than what
