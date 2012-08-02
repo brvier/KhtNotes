@@ -85,7 +85,7 @@ class NotesModel(QAbstractListModel):
                        and (file != '.index.sync')]
 
         self._notes.sort(key=lambda note: note.timestamp, reverse=True)
-        
+
     def rowCount(self, parent=QModelIndex()):
         return len(self._filteredNotes)
 
@@ -136,7 +136,7 @@ class KhtNotes(QApplication):
         self.rootContext.setContextProperty('notesModel', self.notesModel)
         self.rootContext.setContextProperty('Note', self.note)
         self.view.setSource(QUrl.fromLocalFile(
-                os.path.join(os.path.dirname(__file__), 'qml', 'main.qml')))
+                os.path.join(os.path.dirname(__file__), 'qml', 'Harmattan_main.qml')))
         self.rootObject = self.view.rootObject()
         self.view.showFullScreen()
         self.note.on_error.connect(self.rootObject.onError)
