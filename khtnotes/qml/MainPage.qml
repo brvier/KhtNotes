@@ -110,7 +110,12 @@ Page {
 
                     onClicked: {
                              Note.load(model.uuid);
-                             pageStack.push(Qt.createComponent(Qt.resolvedUrl("EditPage.qml")), { modified: false});
+                            
+                             var editingPage = Qt.createComponent(Qt.resolvedUrl("EditPage.qml"));
+                             //editingPage.textEditor.text = Note.data
+                             //editingPage.setData()
+                             pageStack.push(editingPage, {text: Note.data,
+                                                          modified: false});
                     //    }
                     }
                     onPressAndHold: {

@@ -8,6 +8,7 @@ Page {
     id: editPage
 
     property bool modified;
+    property alias text: textEditor.text;
 
     function exitFile() {
         modified = false;
@@ -16,11 +17,14 @@ Page {
 
     function saveFile() {
         if ((modified == true)) {
-            modified = Note.write(textEditor.text) ? false : true;
-            fileBrowserPage.refresh();
-            return !modified;
+            if (Note.write(textEditor.text)) {
+                modified = false;
+                fileBrowserPage.refresh();
+                return true;
+            }
+            else {return false;}
         }
-        return true
+        return true;
     }
 
     PageHeader {
@@ -58,21 +62,18 @@ Page {
              TextArea {
                  id: textEditor
                  anchors.top: parent.top
-                 text: Note.data
+                 //text: Note.data
                  height: Math.max (implicitHeight, flick.height + 4, editPage.height, 720)
                  width:  flick.width + 4
                  wrapMode: TextEdit.WordWrap
                  inputMethodHints: Qt.ImhAutoUppercase | Qt.ImhPredictiveText;
                  textFormat: TextEdit.AutoText
                  font { bold: false; family: Settings.fontFamily; pixelSize: Settings.fontSize;}
-                 onTextChanged: { modified = true;}
+                 onTextChanged: { modified = true; console.log('text changed')}
                  Component.onDestruction: {
                         saveFile(); }
+                 //Note.onReady: {modifier = false; console.log('note ready changed');}
              }
-         
-         onOpacityChanged: {
-           if (flick.opacity == 1.0) modified = false;
-         }
      }
 
     ScrollDecorator {
@@ -108,5 +109,4 @@ Page {
         }
     }
 }
-
 

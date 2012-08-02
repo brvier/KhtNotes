@@ -169,6 +169,7 @@ class Note(QObject):
 
     def _set_text(self, text):
         self._data = text
+        print 'emit DataChanged'
         self.onDataChanged.emit()
 
     def _get_title(self):
