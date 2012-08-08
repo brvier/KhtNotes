@@ -229,16 +229,23 @@ class Sync(QObject):
     def _conflictServer(self, webdavConnection, filename, time_delta):
         '''Priority to local'''
         self.logger.debug('conflictServer: %s' % filename)
-        self._move(webdavConnection, filename, os.path.splitext(filename)[0] + '.Conflict.txt')
-        self._download(webdavConnection, os.path.splitext(filename)[0] + '.Conflict.txt', time_delta)
+        self._move(webdavConnection, \
+                   filename, os.path.splitext(filename)[0]\
+                   + '.Conflict.txt')
+        self._download(webdavConnection,\
+                       os.path.splitext(filename)[0]\
+                       + '.Conflict.txt', time_delta)
         self._upload(webdavConnection, filename, time_delta)
 
     def _conflictLocal(self, webdavConnection, filename, time_delta):
         '''Priority to server'''
         self.logger.debug('conflictLocal: %s', filename)
         os.rename(os.path.join(Note.NOTESPATH, filename),
-            os.path.join(Note.NOTESPATH, os.path.splitext(filename)[0] + '.Conflict.txt'))
-        self._upload(webdavConnection, os.path.splitext(filename)[0] + '.Conflict.txt', time_delta)
+            os.path.join(Note.NOTESPATH, \
+            os.path.splitext(filename)[0] + '.Conflict.txt'))
+        self._upload(webdavConnection, \
+                     os.path.splitext(filename)[0]\
+                     + '.Conflict.txt', time_delta)
         self._download(webdavConnection, filename, time_delta)
 
     def _get_lastsync_filenames(self):
@@ -257,6 +264,16 @@ class Sync(QObject):
                  self._get_local_filenames())
         with open(os.path.join(Note.NOTESPATH, '.index.sync'), 'wb') as fh:
             json.dump(index, fh)
+
+    def _rm_remote_index(self,):
+        '''Delete the remote index stored locally'''
+        try:
+            with open(os.path.join(Note.NOTESPATH, '.index.sync'), 'rb') as fh:
+                index = json.load(fh)
+            with open(os.path.join(Note.NOTESPATH, '.index.sync'), 'wb') as fh:
+                json.dump(({},index[1]), fh)
+        except:
+            raise
 
     def _move(self, webdavConnection, src, dst):
         '''Move/Rename a note on webdav'''
@@ -307,10 +324,20 @@ class Sync(QObject):
 
     def _check_khtnotes_folder_and_lock(self, webdavConnection):
         '''Check that khtnotes folder exists on webdav'''
-        khtnotesPath = self._get_notes_path()
-        if not khtnotesPath in webdavConnection.listResources().keys():
-            webdavConnection.addCollection(khtnotesPath)
-        #TODO : Lock
+        try:
+            print 'check khtnotes'
+            khtnotesPath = self._get_notes_path()
+            if not khtnotesPath in webdavConnection.listResources().keys():
+                webdavConnection.addCollection( \
+                    os.path.basename(khtnotesPath[:-1]) + '/')
+                #So here it s a new share, and if have old index file
+                #locally notes will be lose
+                self._rm_remote_index()
+            #TODO : Lock
+        except Exception, err:
+            import traceback
+            print traceback.format_exc()
+            raise
 
     def _get_remote_filenames(self, webdavConnection):
         '''Check Remote Index'''

@@ -66,7 +66,7 @@ Page {
         id: editMenu
         visualParent: pageStack
         MenuLayout {
-            MenuItem { text: qsTr("About"); onClicked: about.open()}
+            MenuItem { text: qsTr("About"); onClicked: pushAbout()}
          }
     }
 

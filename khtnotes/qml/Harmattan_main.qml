@@ -61,7 +61,7 @@ PageStackWindow {
         id: myMenu
         visualParent: pageStack
         MenuLayout {
-            MenuItem { text: qsTr("About"); onClicked: about.open()}
+            MenuItem { text: qsTr("About"); onClicked: pushAbout()}
             MenuItem { text: qsTr("Preferences"); onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_SettingsPage.qml"))); }
             MenuItem { text: qsTr("Report a bug");onClicked: {
                          Qt.openUrlExternally('https://github.com/khertan/KhtNotes/issues/new');
@@ -121,18 +121,22 @@ PageStackWindow {
         }
     }
 
-    // About Dialog
-    QueryDialog {
-                id: about
-                icon: Qt.resolvedUrl('../icons/khtnotes.png')
-                titleText: 'About KhtNotes'
-                message: 'Version ' + __version__ +
-                         '\nBy Benoît HERVIER (Khertan)\n' +
-                         '\nA note taking application with sync' +
-                         '\nfor MeeGo and Harmattan.\n' +
-                         'Licenced under GPLv3\n' +
-                         'Web Site : http://khertan.net/khtnotes'
-                }
+    function pushAbout() {
+        pageStack.push(Qt.createComponent(Qt.resolvedUrl("components/AboutPage.qml")),
+             {
+                          title : 'KhtNotes ' + __version__,
+                          iconSource: Qt.resolvedUrl('../icons/khtnotes.png'),
+                          slogan : 'Notes in your own cloud !',
+                          text : 
+                             'A note taking application with sync with owncloud for MeeGo and Harmattan.' +
+                             '\nWeb Site : http://khertan.net/khtnotes' +
+                             '\n\nBy Benoît HERVIER (Khertan)' +
+                             '\nLicenced under GPLv3' +
+                             '\n\nThanks to : ' +
+                             '\nRadek Novacek'
+             }
+             );
+    }
 
     //State used to detect when we should refresh view
     states: [

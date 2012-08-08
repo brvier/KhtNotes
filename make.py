@@ -29,11 +29,13 @@ __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
 1.4: Better use of harmattan invoker
-1.5: Avoid double loading of initial list on startup, fix wrong logger call 
+1.5: Avoid double loading of initial list on startup, fix wrong logger call
      in sync, optimization of startup time And add a search feature
 1.6: Add Tomboy/Conboy import feature
 1.7: Improve unicode support (utf-8 and utf-16)
-1.8: fix authFailure wrong import in sync'''
+1.8: fix authFailure wrong import in sync
+1.9: fix sync and improve delta sync diff
+1.10: Fix creation of KhtNotes folder on webdav and avoid lose of notes in case of notes if path is created'''
 
 if __name__ == "__main__":
     try:
@@ -82,7 +84,7 @@ pycompile -O /opt/khtnotes/webdav/*.py'''
     for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'webdav', '*.pyo')):
         os.remove(filepath)
 
-        
+
     #Src
     for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__), p.name)):
       for f in fs:

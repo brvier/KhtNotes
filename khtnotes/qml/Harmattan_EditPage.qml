@@ -85,7 +85,7 @@ Page {
         id: editMenu
         visualParent: pageStack
         MenuLayout {
-            MenuItem { text: qsTr("About"); onClicked: about.open()}
+            MenuItem { text: qsTr("About"); onClicked: pushAbout()}
             MenuItem { text: qsTr("MarkDown Preview"); onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_PreviewPage.qml")), {atext:textEditor.text}); }
         }
     }
