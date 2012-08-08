@@ -35,7 +35,7 @@ __upgrade__ = '''1.1: First public release
 1.7: Improve unicode support (utf-8 and utf-16)
 1.8: fix authFailure wrong import in sync
 1.9: fix sync and improve delta sync diff
-1.10: Fix creation of KhtNotes folder on webdav and avoid lose of notes in case of notes if path is created'''
+1.10: Fix creation of KhtNotes folder on webdav and avoid lose of notes in case of notes if path is created, improve sync and fix bugs on conflicting update'''
 
 if __name__ == "__main__":
     try:
