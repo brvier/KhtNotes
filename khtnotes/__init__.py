@@ -145,4 +145,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())
+    sys.exit(KhtNotes().exec_()) 

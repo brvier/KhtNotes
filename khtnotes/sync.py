@@ -118,110 +118,125 @@ class Sync(QObject):
             authFailures += 1
 
         if isConnected:
-            #Check that KhtNotes folder exists at root or create it and
-            #and lock Collections
-            self._check_khtnotes_folder_and_lock(webdavConnection)
+            try:
+                #Check that KhtNotes folder exists at root or create it and
+                #and lock Collections
+                self._check_khtnotes_folder_and_lock(webdavConnection)
 
-            #Get remote filenames and timestamps
-            remote_filenames = \
-                self._get_remote_filenames(webdavConnection)
+                #Get remote filenames and timestamps
+                remote_filenames = \
+                    self._get_remote_filenames(webdavConnection)
 
-            #Get local filenames and timestamps
-            local_filenames = self._get_local_filenames()
+                #Get local filenames and timestamps
+                local_filenames = self._get_local_filenames()
 
-            #Compare with last sync index
-            lastsync_remote_filenames, \
-            lastsync_local_filenames = self._get_lastsync_filenames()
+                #Compare with last sync index
+                lastsync_remote_filenames, \
+                lastsync_local_filenames = self._get_lastsync_filenames()
 
-            #Sync intelligency (or not)
-            #It use a local index with timestamp of the server files
-            #1/ As most webdav server didn t support setting
-            #   modification datetime on ressources
-            #2/ Main target is owncloud where webdavserver didn't
-            #   implent delta-v versionning
-            #3/ Notes should be editable in the owncloud interface
-            #   but i would like to support other webdav server
-            #   so an owncloud apps isn t acceptable
+                #Sync intelligency (or not)
+                #It use a local index with timestamp of the server files
+                #1/ As most webdav server didn t support setting
+                #   modification datetime on ressources
+                #2/ Main target is owncloud where webdavserver didn't
+                #   implent delta-v versionning
+                #3/ Notes should be editable in the owncloud interface
+                #   but i would like to support other webdav server
+                #   so an owncloud apps isn t acceptable
 
-            #Delete remote file deleted
-            for filename in set(lastsync_remote_filenames) \
-                            - set(remote_filenames):
-                if filename in local_filenames.keys():
-                    if ((lastsync_remote_filenames[filename] - time_delta) +1) \
-                       >= local_filenames[filename]:
-                        self._local_delete(filename)
+                #Delete remote file deleted
+                for filename in set(lastsync_remote_filenames) \
+                                - set(remote_filenames):
+                    if filename in local_filenames.keys():
+                        if ((lastsync_remote_filenames[filename] - time_delta) +1) \
+                           >= local_filenames[filename]:
+                            self._local_delete(filename)
+                        else:
+                            #Else we have a conflict local file is newer than
+                            #deleted one
+                            self.logger.debug('Delete conflictServer: %s' \
+                                              % filename)
+                            self._upload(webdavConnection, filename,\
+                                         None, time_delta)
+
+                #Delete local file deleted
+                for filename in set(lastsync_local_filenames) \
+                                - set(local_filenames):
+                    if filename in remote_filenames:
+                        if lastsync_local_filenames[filename] \
+                           >= ((remote_filenames[filename] - time_delta) - 1):
+                            self._remote_delete(webdavConnection, filename)
+                        else:
+                            #We have a conflict remote file is newer than what
+                            #we try to delete
+                            self.logger.debug('Delete conflictLocal: %s' % filename)
+                            self._download(webdavConnection, filename, \
+                                           None, time_delta)
+
+                #What to do with new remote file
+                for filename in set(remote_filenames) \
+                                - set(lastsync_remote_filenames):
+                    if not filename in local_filenames.keys():
+                        self._download(webdavConnection, filename, \
+                                       None, time_delta)
                     else:
-                        #Else we have a conflict local file is newer than
-                        #deleted one
-                        self.logger.debug('Delete conflictServer: %s' \
-                                          % filename)
-                        self._upload(webdavConnection, filename, time_delta)
+                        #Conflict : it s a new file so we haven't sync it yet
+                        self.logger.debug('New conflictServer: %s' % filename)
+                        self._conflictServer(webdavConnection, filename, time_delta)
 
-            #Delete local file deleted
-            for filename in set(lastsync_local_filenames) \
-                            - set(local_filenames):
-                if filename in remote_filenames:
-                    if lastsync_local_filenames[filename] \
-                       >= ((remote_filenames[filename] - time_delta) - 1):
-                        self._remote_delete(webdavConnection, filename)
+                #What to do with new local file
+                for filename in set(local_filenames) \
+                                - set(lastsync_local_filenames):
+                    if not filename in remote_filenames.keys():
+                        self._upload(webdavConnection, filename,\
+                                     None, time_delta)
                     else:
-                        #We have a conflict remote file is newer than what
-                        #we try to delete
-                        self.logger.debug('Delete conflictLocal: %s' % filename)
-                        self._download(webdavConnection, filename, time_delta)
+                        #Conflict : it s a new file so we haven't sync it yet
+                        self.logger.debug('New conflictLocal: %s' % filename)
+                        self._conflictLocal(webdavConnection, filename, time_delta)
 
-            #What to do with new remote file
-            for filename in set(remote_filenames) \
-                            - set(lastsync_remote_filenames):
-                if not filename in local_filenames.keys():
-                    self._download(webdavConnection, filename, time_delta)
-                else:
-                    #Conflict : it s a new file so we haven't sync it yet
-                    self.logger.debug('New conflictServer: %s' % filename)
-                    self._conflictServer(webdavConnection, filename, time_delta)
-
-            #What to do with new local file
-            for filename in set(local_filenames) \
-                            - set(lastsync_local_filenames):
-                if not filename in remote_filenames.keys():
-                    self._upload(webdavConnection, filename, time_delta)
-                else:
-                    #Conflict : it s a new file so we haven't sync it yet
-                    self.logger.debug('New conflictLocal: %s' % filename)
-                    self._conflictLocal(webdavConnection, filename, time_delta)
-
-            #Check what's updated remotly
-            rupdated = [filename for filename \
+                #Check what's updated remotly
+                rupdated = [filename for filename \
                                in (set(remote_filenames).\
                                intersection(lastsync_remote_filenames)) \
                                if remote_filenames[filename] \
                                   != lastsync_remote_filenames[filename]]
-            lupdated = [filename for filename \
+                lupdated = [filename for filename \
                                in (set(local_filenames).\
                                intersection(lastsync_local_filenames)) \
                                if local_filenames[filename] \
                                   != lastsync_local_filenames[filename]]
-            for filename in set(rupdated) - set(lupdated):
-                self._download(webdavConnection, filename, time_delta)
-            for filename in set(lupdated) - set(rupdated):
-                self._upload(webdavConnection, filename, time_delta)
-            for filename in set(lupdated).intersection(rupdated):
-                if int(remote_filenames[filename] - time_delta) \
-                 > int(local_filenames[filename]):
-                    self.logger.debug('Updated conflictLocal: %s' % filename)
-                    self._conflictLocal(webdavConnection, filename, time_delta)
-                elif int(remote_filenames[filename] - time_delta) \
-                 < int(local_filenames[filename]):
-                    self.logger.debug('Updated conflictServer: %s' % filename)
-                    self._conflictServer(webdavConnection, filename, time_delta)
-                else:
-                    self.logger.debug('Up to date: %s' % filename)
+                for filename in set(rupdated) - set(lupdated):
+                    self._download(webdavConnection, filename, \
+                                   None, time_delta)
+                for filename in set(lupdated) - set(rupdated):
+                    self._upload(webdavConnection, filename, \
+                                 None, time_delta)
+                for filename in set(lupdated).intersection(rupdated):
+                    if int(remote_filenames[filename] - time_delta) \
+                         > int(local_filenames[filename]):
+                        self.logger.debug('Updated conflictLocal: %s' % filename)
+                        self._conflictLocal(webdavConnection, filename, \
+                                            time_delta)
+                    elif int(remote_filenames[filename] - time_delta) \
+                     < int(local_filenames[filename]):
+                        self.logger.debug('Updated conflictServer: %s' \
+                                           % filename)
+                        self._conflictServer(webdavConnection, filename, \
+                                             time_delta)
+                    else:
+                        self.logger.debug('Up to date: %s' % filename)
 
-            #Build and write index
-            self._write_index(webdavConnection, time_delta)
+                #Build and write index
+                self._write_index(webdavConnection, time_delta)
 
-            #Un_lock the collection
-            self._unlock(webdavConnection)
+                #Un_lock the collection
+                self._unlock(webdavConnection)
+            except Exception, err:
+                import traceback
+                print traceback.format_exc()
+                self.on_error.emit(unicode(err))
+                self.logger.debug('Global sync error : %s' % unicode(err))
 
         self._set_running(False)
         self.on_finished.emit()
@@ -229,14 +244,18 @@ class Sync(QObject):
     def _conflictServer(self, webdavConnection, filename, time_delta):
         '''Priority to local'''
         self.logger.debug('conflictServer: %s' % filename)
-        self._move(webdavConnection, \
-                   filename, os.path.splitext(filename)[0]\
-                   + '.Conflict.txt')
+        #self._move(webdavConnection, \
+        #           filename, os.path.splitext(filename)[0]\
+        #           + '.Conflict.txt')
         self._download(webdavConnection,\
-                       os.path.splitext(filename)[0]\
-                       + '.Conflict.txt', time_delta)
-        self._upload(webdavConnection, filename, time_delta)
-
+                       filename, \
+                       os.path.splitext(filename)[0] + '.Conflict.txt', \
+                       time_delta)
+        self._upload(webdavConnection, filename, \
+                     None, time_delta)
+        self._upload(webdavConnection, os.path.splitext(filename[0]) + \
+                     '.Conflict.txt',
+                     None, time_delta)
     def _conflictLocal(self, webdavConnection, filename, time_delta):
         '''Priority to server'''
         self.logger.debug('conflictLocal: %s', filename)
@@ -245,8 +264,8 @@ class Sync(QObject):
             os.path.splitext(filename)[0] + '.Conflict.txt'))
         self._upload(webdavConnection, \
                      os.path.splitext(filename)[0]\
-                     + '.Conflict.txt', time_delta)
-        self._download(webdavConnection, filename, time_delta)
+                     + '.Conflict.txt', None, time_delta)
+        self._download(webdavConnection, filename, None, time_delta)
 
     def _get_lastsync_filenames(self):
         index = ({}, {})
@@ -281,22 +300,30 @@ class Sync(QObject):
         resource = webdavConnection.addResource(src)
         resource.move(self.webdavHost + self._get_notes_path() + dst)
 
-    def _upload(self, webdavConnection, filename, time_delta):
+    def _upload(self, webdavConnection, local_filename, \
+                      remote_filename, time_delta):
         #TODO set modification time on local file as it s not possible on remote
-        self.logger.debug('upload: %s' % filename)
+        if not remote_filename:
+            remote_filename = local_filename
+        self.logger.debug('Upload %s to %s' % \
+                          (local_filename, remote_filename))
         webdavConnection.path = self._get_notes_path()
-        resource = webdavConnection.addResource(filename)
-        lpath = os.path.join(Note.NOTESPATH, filename)
+        resource = webdavConnection.addResource(remote_filename)
+        lpath = os.path.join(Note.NOTESPATH, local_filename)
         with open(lpath, 'rb') as fh:
             resource.uploadFile(fh)
             mtime = time.mktime(resource.readStandardProperties() \
                     .getLastModified()) - time_delta
             os.utime(lpath, (-1, mtime))
 
-    def _download(self, webdavConnection, filename, time_delta):
-        self.logger.debug('download: %s' % filename)
-        webdavConnection.path = self._get_notes_path() + filename
-        lpath = os.path.join(Note.NOTESPATH, getValidFilename(filename))
+    def _download(self, webdavConnection, remote_filename,\
+                        local_filename ,time_delta):
+        if not local_filename:
+            local_filename = remote_filename
+        self.logger.debug('Download %s to %s' % \
+                          (remote_filename, local_filename))
+        webdavConnection.path = self._get_notes_path() + remote_filename
+        lpath = os.path.join(Note.NOTESPATH, getValidFilename(local_filename))
         webdavConnection.downloadFile(lpath)
         mtime = time.mktime(webdavConnection.readStandardProperties() \
                             .getLastModified()) - time_delta
