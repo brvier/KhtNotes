@@ -362,6 +362,7 @@ class Sync(QObject):
                 self._rm_remote_index()
             #TODO : Lock
         except Exception, err:
+            self.logger.error(unicode(err))
             import traceback
             print traceback.format_exc()
             raise
