@@ -62,17 +62,20 @@ Page {
              TextArea {
                  id: textEditor
                  anchors.top: parent.top
-                 //text: Note.data
                  height: Math.max (implicitHeight, flick.height + 4, editPage.height, 720)
                  width:  flick.width + 4
                  wrapMode: TextEdit.WordWrap
-                 inputMethodHints: Qt.ImhAutoUppercase | Qt.ImhPredictiveText;
-                 textFormat: TextEdit.AutoText
-                 font { bold: false; family: Settings.fontFamily; pixelSize: Settings.fontSize;}
+                 inputMethodHints: Qt.ImhAutoUppercase | Qt.ImhNoPredictiveText
+                 textFormat: TextEdit.StyledText
+                 font { bold: false; 
+                        family: Settings.fontFamily; 
+                        pixelSize:  Settings.fontSize;}
                  onTextChanged: { modified = true; console.log('text changed')}
                  Component.onDestruction: {
-                        saveFile(); }
-                 //Note.onReady: {modifier = false; console.log('note ready changed');}
+                        if (modified == true) {
+                            Note.write(textEditor.text);
+                        }
+                    }
              }
      }
 

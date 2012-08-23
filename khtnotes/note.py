@@ -15,15 +15,74 @@
 
 from PySide.QtCore import Slot, QObject, Signal, Property
 
+import re
 import os
 import datetime
 import codecs
+from markdown import markdown
 
 INVALID_FILENAME_CHARS = '\/:*?"<>|'
 
 def getValidFilename(filename):
     return ''.join(car for car in filename \
                 if car not in INVALID_FILENAME_CHARS)
+
+def _strongify(group):
+    return '<b>%s</b>' % group.group(0)
+
+def _emify(group):
+    return '<i>%s</i>' % group.group(0)
+
+def _linkify(group):
+     return '<font color="#00FF00">%s</font>' % group.group(0)
+
+def _colorize(text):
+    text = text.replace('\n', '<br>\n')
+    regexs =  (
+                (re.compile(r'(\*|_){2}(\s?)(.+?)(\s?)(\*|_){2}', re.MULTILINE|re.UNICODE), _strongify),
+                (re.compile(r'(?<!\*|_)(\*|_)(?!\*|_)(\s?)(.+?)(\s?)(?<!\*|_)(\*|_)(?!\*|_)', re.MULTILINE|re.UNICODE), _emify),
+                (re.compile(r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))([ \t]+(".*?"))?[ \t]*\)', re.MULTILINE|re.UNICODE), _linkify),
+              )
+    for regex, cb in regexs:
+        text = re.sub(regex, cb, text)
+
+    return  u'%s' % text
+
+    def _unescape(self,text):
+        def fixup(m):
+            text = m.group(0)
+            if text[:2] == "&#":
+                # character reference
+                try:
+                    if text[:3] == "&#x":
+                        return unichr(int(text[3:-1], 16))
+                    else:
+                        return unichr(int(text[2:-1]))
+                except ValueError, e:
+                    print e
+            else:
+                # named entity
+                try:
+                    text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                except KeyError, e:
+                    print e
+            return text # leave as is
+    return re.sub("&#?\w+;", fixup, text)
+
+
+    def _stripTags(self,content):
+        ''' Remove html text formating from a text'''
+        from BeautifulSoup import BeautifulSoup
+        content = content.replace('<p style=', '<pre style')
+        plainText = self._unescape(''.join(BeautifulSoup(content).body(text=True)))
+        if (plainText.startswith('\n')):
+            return plainText[1:]
+        return plainText
+
+
+def _uncolorize(text):
+    return self._stripTags(text)
+
 
 
 class Note(QObject):
@@ -56,13 +115,16 @@ class Note(QObject):
     @Slot(unicode, result=bool)
     def write(self, data):
         ''' Write the document to a file '''
-
+        print data
         #Deleted content
         if data == '':
             #if exist only
             if self._uuid:
                 self.rm(self._uuid)
             return True
+        else:
+            'Write data'
+            data = uncolorize(data)
 
         title = data.split('\n', 1)[0]
         if (title != self._title) and self._title:
@@ -141,7 +203,7 @@ class Note(QObject):
                         self._set_text(title \
                                     + '\n' + text)
                         self._set_timestamp(os.stat(path).st_mtime)
-                        self._set_title(self._data.split('\n', 1)[0])
+                        self._set_title(title)
                         self._set_ready(True)
                     except Exception, e:
                         print e
@@ -157,9 +219,8 @@ class Note(QObject):
     @Slot(unicode, result=unicode)
     def previewMarkdown(self, text):
         ''' Generate a markdown preview'''
-        import markdown2
         try:
-            return markdown2.markdown(text)
+            return markdown(text, extensions=['nb2lr',])
         except Exception, e:
             print type(e), ':', e
             return text
@@ -168,8 +229,7 @@ class Note(QObject):
         return self._data
 
     def _set_text(self, text):
-        self._data = text
-        print 'emit DataChanged'
+        self._data = _colorize(text)
         self.onDataChanged.emit()
 
     def _get_title(self):
@@ -221,3 +281,6 @@ class Note(QObject):
     timestamp = Property(int, _get_timestamp, _set_timestamp,
                                  notify=onTimestampChanged)
     ready = Property(bool, _get_ready, _set_ready, notify=onReadyChanged)
+
+if __name__ == '__main__':
+    print _colorize('Test\ntest **test**, test haha __test__, hahaha test__test__test and an other *test* [link](http://khertan.net/)')
