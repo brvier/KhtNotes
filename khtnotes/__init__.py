@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '1.10'
+__version__ = '2.0.0'
 
 
 class QmlDirReaderWriter(QObject):
@@ -145,4 +145,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_()) 
+    sys.exit(KhtNotes().exec_())

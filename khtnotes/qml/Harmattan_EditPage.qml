@@ -66,7 +66,7 @@ Page {
                  width:  flick.width + 4
                  wrapMode: TextEdit.WordWrap
                  inputMethodHints: Qt.ImhAutoUppercase | Qt.ImhNoPredictiveText
-                 textFormat: TextEdit.StyledText
+                 textFormat: TextEdit.RichText
                  font { bold: false; 
                         family: Settings.fontFamily; 
                         pixelSize:  Settings.fontSize;}

@@ -48,40 +48,40 @@ def _colorize(text):
 
     return  u'%s' % text
 
-    def _unescape(self,text):
-        def fixup(m):
-            text = m.group(0)
-            if text[:2] == "&#":
-                # character reference
-                try:
-                    if text[:3] == "&#x":
-                        return unichr(int(text[3:-1], 16))
-                    else:
-                        return unichr(int(text[2:-1]))
-                except ValueError, e:
-                    print e
-            else:
-                # named entity
-                try:
-                    text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-                except KeyError, e:
-                    print e
-            return text # leave as is
+def _unescape(text):
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError, e:
+                print e
+        else:
+            # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError, e:
+                print e
+        return text # leave as is
     return re.sub("&#?\w+;", fixup, text)
 
 
-    def _stripTags(self,content):
-        ''' Remove html text formating from a text'''
-        from BeautifulSoup import BeautifulSoup
-        content = content.replace('<p style=', '<pre style')
-        plainText = self._unescape(''.join(BeautifulSoup(content).body(text=True)))
-        if (plainText.startswith('\n')):
-            return plainText[1:]
-        return plainText
+def _stripTags(content):
+    ''' Remove html text formating from a text'''
+    from BeautifulSoup import BeautifulSoup
+    content = content.replace('<p style=', '<pre style').replace('<br />', '\n')
+    plainText = _unescape(''.join(BeautifulSoup(content).body(text=True)))
+    if (plainText.startswith('\n')):
+        return plainText[1:]
+    return plainText
 
 
 def _uncolorize(text):
-    return self._stripTags(text)
+    return _stripTags(text)
 
 
 
@@ -124,7 +124,7 @@ class Note(QObject):
             return True
         else:
             'Write data'
-            data = uncolorize(data)
+            data = _uncolorize(data)
 
         title = data.split('\n', 1)[0]
         if (title != self._title) and self._title:
