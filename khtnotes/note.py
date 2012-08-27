@@ -39,9 +39,9 @@ def _linkify(group):
 def _colorize(text):
     text = text.replace('\n', '<br>\n')
     regexs =  (
-                (re.compile(r'(\*|_){2}(\s?)(.+?)(\s?)(\*|_){2}', re.MULTILINE|re.UNICODE), _strongify),
-                (re.compile(r'(?<!\*|_)(\*|_)(?!\*|_)(\s?)(.+?)(\s?)(?<!\*|_)(\*|_)(?!\*|_)', re.MULTILINE|re.UNICODE), _emify),
-                (re.compile(r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))([ \t]+(".*?"))?[ \t]*\)', re.MULTILINE|re.UNICODE), _linkify),
+                (re.compile(r'(\*|_){2}(.+?)(\*|_){2}', re.UNICODE), _strongify),
+                (re.compile(r'(?<!\*|_)(\*|_)(?!\*|_)(.+?)(?<!\*|_)(\*|_)(?!\*|_)', re.UNICODE), _emify),
+                (re.compile(r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))([ \t]+(".*?"))?[ \t]*\)', re.UNICODE), _linkify),
               )
     for regex, cb in regexs:
         text = re.sub(regex, cb, text)
