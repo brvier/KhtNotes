@@ -65,12 +65,15 @@ if __name__ == "__main__":
     p.changelog =  p.upgrade_description
     p.maemo_flags = 'visible'
     p.meego_desktop_entry_filename = '/usr/share/applications/khtnotes.desktop'
-    p.createDigsigsums = True
     files = []
     p.postinst = '''#!/bin/sh
+echo "Giving permissions for apps to execute"
 chmod +x /opt/khtnotes/__init__.py
+echo "Precompiling KhtNotes"
 pycompile -O /opt/khtnotes/*.py
-pycompile -O /opt/khtnotes/webdav/*.py'''
+echo "Precompiling Webdav Lib"
+pycompile -O /opt/khtnotes/webdav/*.py
+exit 0'''
     p.createDigsigsums = True
 
     #Remove pyc and pyo
