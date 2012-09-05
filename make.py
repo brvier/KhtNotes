@@ -22,7 +22,7 @@ sys.path.append('khtnotes')
 
 from khtnotes import __version__
 
-__build__ = '1'
+__build__ = '2'
 __author__ = "Benoît HERVIER (khertan)"
 __mail__ = "khertan@khertan.net"
 __upgrade__ = '''1.1: First public release
