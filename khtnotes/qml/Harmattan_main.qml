@@ -129,11 +129,14 @@ PageStackWindow {
                           slogan : 'Notes in your own cloud !',
                           text : 
                              'A note taking application with sync with owncloud for MeeGo and Harmattan.' +
-                             '\nWeb Site : http://khertan.net/khtnotes' +
-                             '\n\nBy Benoît HERVIER (Khertan)' +
-                             '\nLicenced under GPLv3' +
-                             '\n\nThanks to : ' +
-                             '\nRadek Novacek'
+                             '<br>Web Site : http://khertan.net/khtnotes' +
+                             '<br><br>By Benoît HERVIER (Khertan)' +
+                             '<br><b>Licenced under GPLv3</b>' +
+                             '<br><br><b>Changelog : </b><br>' +
+                             __upgrade__ +
+                             '<br><br><b>Thanks to : </b>' +
+                             '<br>Radek Novacek' 
+                             
              }
              );
     }

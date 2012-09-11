@@ -142,6 +142,7 @@ class KhtNotes(QApplication):
         self.rootContext = self.view.rootContext()
         self.rootContext.setContextProperty("argv", sys.argv)
         self.rootContext.setContextProperty("__version__", __version__)
+        self.rootContext.setContextProperty("__upgrade__", __upgrade__.replace('\n','<br>'))
         self.rootContext.setContextProperty("Settings", Settings())
         self.rootContext.setContextProperty("Sync", self.syncer)
         self.rootContext.setContextProperty("Importer", self.conboyImporter)
@@ -159,4 +160,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())  
+    sys.exit(KhtNotes().exec_())

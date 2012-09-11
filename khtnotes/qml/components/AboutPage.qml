@@ -66,6 +66,7 @@ Page {
                     Label {
                         id: content
                         text: ''
+                        textFormat: Text.RichText
                         width: aboutPage.width
                         wrapMode: Text.WordWrap                        
                     }
