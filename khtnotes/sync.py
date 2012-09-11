@@ -38,7 +38,7 @@ class Sync(QObject):
         #logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
         self.logger = logger.getDefaultLogger()
         self._localDataFolder = Note.NOTESPATH
-        self._remoteDataFolder = 'KhtNotes/'
+        self._remoteDataFolder = 'KhtNotes'
 
     @Slot()
     def launch(self):
