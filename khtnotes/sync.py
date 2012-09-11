@@ -37,7 +37,7 @@ class Sync(QObject):
         self._running = False
         #logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
         self.logger = logger.getDefaultLogger()
-        self._localDataFolder = Note.NOTEPATH
+        self._localDataFolder = Note.NOTESPATH
         self._remoteDataFolder = 'KhtNotes/'
 
     @Slot()
@@ -64,14 +64,19 @@ class Sync(QObject):
         webdavLogin = settings.webdavLogin
         webdavPasswd = settings.webdavPasswd
         return webdavLogin, webdavPasswd
-        
+
     def createConnection(self, webdavLogin, webdavPasswd):
+        from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
+                                        parseDigestAuthInfo
+        from webdav.logger import _defaultLoggerName
+
         isConnected = False
         webdavConnection = CollectionStorer(self.webdavHost \
                                             + self.webdavBasePath,
                            validateResourceNames=False)
         logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
 
+        time_delta = None
         #Test KhtNotes folder and authenticate
         authFailures = 0
         while authFailures < 3:
@@ -114,9 +119,9 @@ class Sync(QObject):
                 self.on_error.emit(unicode(type(err2)) + ':' + unicode(err2))
                 self.logger.error(unicode(type(err2)) + ':' + unicode(err2))
             authFailures += 1
-            
+
             return (isConnected, webdavConnection, time_delta)
-        
+
     def _sync(self):
         '''Sync the notes with a webdav server'''
         from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
