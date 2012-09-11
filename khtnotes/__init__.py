@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.1'
+__version__ = '2.2'
 
 
 class QmlDirReaderWriter(QObject):

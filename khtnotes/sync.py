@@ -271,7 +271,7 @@ class Sync(QObject):
                        time_delta)
         self._upload(webdavConnection, filename, \
                      None, time_delta)
-        self._upload(webdavConnection, os.path.splitext(filename[0]) + \
+        self._upload(webdavConnection, os.path.splitext(filename)[0] + \
                      '.Conflict.txt',
                      None, time_delta)
     def _conflictLocal(self, webdavConnection, filename, time_delta):
