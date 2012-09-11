@@ -77,6 +77,7 @@ class Sync(QObject):
         logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
 
         time_delta = None
+
         #Test KhtNotes folder and authenticate
         authFailures = 0
         while authFailures < 3:
@@ -91,6 +92,7 @@ class Sync(QObject):
                     self.logger.debug('Time delta: %f' % time_delta)
                 except Exception, err:
                     time_delta = None
+                    print 'error parsing date', err
                     self.logger.error('Failed to parse datetime: %s:%s' \
                                     % (unicode(type(err)), unicode(err)))
                 isConnected = True
@@ -118,9 +120,9 @@ class Sync(QObject):
             except Exception, err2:
                 self.on_error.emit(unicode(type(err2)) + ':' + unicode(err2))
                 self.logger.error(unicode(type(err2)) + ':' + unicode(err2))
+                print unicode(type(err2)) + ':' + unicode(err2)
             authFailures += 1
-
-            return (isConnected, webdavConnection, time_delta)
+        return (isConnected, webdavConnection, time_delta)
 
     def _sync(self):
         '''Sync the notes with a webdav server'''
@@ -132,7 +134,7 @@ class Sync(QObject):
 
         #Create Connection
         isConnected, webdavConnection, time_delta = self.createConnection(webdavLogin, webdavPasswd)
-
+        print 'isConnected: ', isConnected
         if isConnected:
             try:
                 #Check that KhtNotes folder exists at root or create it and
@@ -361,9 +363,9 @@ class Sync(QObject):
     def _get_notes_path(self):
         khtnotesPath = self.webdavBasePath
         if not khtnotesPath.endswith('/'):
-            return khtnotesPath + '/' + self._remoteDataFolder
+            return khtnotesPath + '/' + self._remoteDataFolder + '/'
         else:
-            return khtnotesPath + self._remoteDataFolder
+            return khtnotesPath + self._remoteDataFolder +'/'
 
     def _check_khtnotes_folder_and_lock(self, webdavConnection):
         '''Check that khtnotes folder exists on webdav'''

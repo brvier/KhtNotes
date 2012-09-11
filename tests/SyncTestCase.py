@@ -27,7 +27,7 @@ class SyncTestCase(unittest.TestCase):
         self.sync._upload(self.webdavConnection, os.path.join(self.sync._localDataFolder, 'local1.txt'),\
                                 'remote1.txt', self.time_delta)
         self.sync._download(self.webdavConnection, 'remote1.txt', \
-                                    os.path.join(self.sync._localDataFolder, 'result1.txt'), self.time_delta)
+                            'result1.txt', self.time_delta)
 
         self.failUnless(filecmp.cmp(os.path.join(self.sync._localDataFolder, 'result1.txt'), os.path.join(self.sync._localDataFolder, 'local1.txt')), "File differs")
 
