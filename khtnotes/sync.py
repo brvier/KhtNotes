@@ -37,6 +37,8 @@ class Sync(QObject):
         self._running = False
         #logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
         self.logger = logger.getDefaultLogger()
+        self._localDataFolder = Note.NOTEPATH
+        self._remoteDataFolder = 'KhtNotes/'
 
     @Slot()
     def launch(self):
@@ -54,26 +56,22 @@ class Sync(QObject):
             self.on_running = False
             self.logger.error('%s:%s' % (unicode(type(err)), unicode(err)))
 
-    def _sync(self):
-        '''Sync the notes with a webdav server'''
-        from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
-                                        parseDigestAuthInfo
-        from webdav.logger import _defaultLoggerName
-
-
+    def readSettings(self,):
         #Read Settings
         settings = Settings()
         self.webdavHost = settings.webdavHost
         self.webdavBasePath = settings.webdavBasePath
         webdavLogin = settings.webdavLogin
         webdavPasswd = settings.webdavPasswd
-
-        #Create Connection
+        return webdavLogin, webdavPasswd
+        
+    def createConnection(self, webdavLogin, webdavPasswd):
         isConnected = False
         webdavConnection = CollectionStorer(self.webdavHost \
                                             + self.webdavBasePath,
                            validateResourceNames=False)
         logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
+
         #Test KhtNotes folder and authenticate
         authFailures = 0
         while authFailures < 3:
@@ -116,6 +114,19 @@ class Sync(QObject):
                 self.on_error.emit(unicode(type(err2)) + ':' + unicode(err2))
                 self.logger.error(unicode(type(err2)) + ':' + unicode(err2))
             authFailures += 1
+            
+            return (isConnected, webdavConnection, time_delta)
+        
+    def _sync(self):
+        '''Sync the notes with a webdav server'''
+        from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
+                                        parseDigestAuthInfo
+        from webdav.logger import _defaultLoggerName
+
+        webdavLogin, webdavPasswd = self.readSettings()
+
+        #Create Connection
+        isConnected, webdavConnection, time_delta = self.createConnection(webdavLogin, webdavPasswd)
 
         if isConnected:
             try:
@@ -259,8 +270,8 @@ class Sync(QObject):
     def _conflictLocal(self, webdavConnection, filename, time_delta):
         '''Priority to server'''
         self.logger.debug('conflictLocal: %s', filename)
-        os.rename(os.path.join(Note.NOTESPATH, filename),
-            os.path.join(Note.NOTESPATH, \
+        os.rename(os.path.join(self._localDataFolder, filename),
+            os.path.join(self._localDataFolder, \
             os.path.splitext(filename)[0] + '.Conflict.txt'))
         self._upload(webdavConnection, \
                      os.path.splitext(filename)[0]\
@@ -270,7 +281,7 @@ class Sync(QObject):
     def _get_lastsync_filenames(self):
         index = ({}, {})
         try:
-            with open(os.path.join(Note.NOTESPATH, '.index.sync'), 'rb') as fh:
+            with open(os.path.join(self._localDataFolder, '.index.sync'), 'rb') as fh:
                 index = json.load(fh)
         except (IOError, TypeError, ValueError), err:
             self.logger.debug('First sync detected or error: %s' % unicode(err))
@@ -281,15 +292,15 @@ class Sync(QObject):
         '''Generate index for the last sync'''
         index = (self._get_remote_filenames(webdavConnection),
                  self._get_local_filenames())
-        with open(os.path.join(Note.NOTESPATH, '.index.sync'), 'wb') as fh:
+        with open(os.path.join(self._localDataFolder, '.index.sync'), 'wb') as fh:
             json.dump(index, fh)
 
     def _rm_remote_index(self,):
         '''Delete the remote index stored locally'''
         try:
-            with open(os.path.join(Note.NOTESPATH, '.index.sync'), 'rb') as fh:
+            with open(os.path.join(self._localDataFolder, '.index.sync'), 'rb') as fh:
                 index = json.load(fh)
-            with open(os.path.join(Note.NOTESPATH, '.index.sync'), 'wb') as fh:
+            with open(os.path.join(self._localDataFolder, '.index.sync'), 'wb') as fh:
                 json.dump(({},index[1]), fh)
         except:
             raise
@@ -309,7 +320,7 @@ class Sync(QObject):
                           (local_filename, remote_filename))
         webdavConnection.path = self._get_notes_path()
         resource = webdavConnection.addResource(remote_filename)
-        lpath = os.path.join(Note.NOTESPATH, local_filename)
+        lpath = os.path.join(self._localDataFolder, local_filename)
         with open(lpath, 'rb') as fh:
             resource.uploadFile(fh)
             mtime = time.mktime(resource.readStandardProperties() \
@@ -323,7 +334,7 @@ class Sync(QObject):
         self.logger.debug('Download %s to %s' % \
                           (remote_filename, local_filename))
         webdavConnection.path = self._get_notes_path() + remote_filename
-        lpath = os.path.join(Note.NOTESPATH, getValidFilename(local_filename))
+        lpath = os.path.join(self._localDataFolder, getValidFilename(local_filename))
         webdavConnection.downloadFile(lpath)
         mtime = time.mktime(webdavConnection.readStandardProperties() \
                             .getLastModified()) - time_delta
@@ -335,7 +346,7 @@ class Sync(QObject):
         self.logger.debug('remote_delete: %s' % filename)
 
     def _local_delete(self, filename):
-        os.remove(os.path.join(Note.NOTESPATH, filename))
+        os.remove(os.path.join(self._localDataFolder, filename))
         self.logger.debug('local_delete: %s' % filename)
 
     def _unlock(self, filename):
@@ -345,9 +356,9 @@ class Sync(QObject):
     def _get_notes_path(self):
         khtnotesPath = self.webdavBasePath
         if not khtnotesPath.endswith('/'):
-            return khtnotesPath + '/KhtNotes/'
+            return khtnotesPath + '/' + self._remoteDataFolder
         else:
-            return khtnotesPath + 'KhtNotes/'
+            return khtnotesPath + self._remoteDataFolder
 
     def _check_khtnotes_folder_and_lock(self, webdavConnection):
         '''Check that khtnotes folder exists on webdav'''
@@ -388,9 +399,9 @@ class Sync(QObject):
     def _get_local_filenames(self):
         index = dict([(filename.decode('utf-8'),
                     round(os.path.getmtime( \
-                        os.path.join(Note.NOTESPATH, filename.decode('utf-8')))))
-                    for filename in os.listdir(Note.NOTESPATH)
-                    if os.path.isfile(os.path.join(Note.NOTESPATH, filename))])
+                        os.path.join(self._localDataFolder, filename.decode('utf-8')))))
+                    for filename in os.listdir(self._localDataFolder)
+                    if os.path.isfile(os.path.join(self._localDataFolder, filename))])
         try:
             del index['.index.sync']
         except KeyError:
