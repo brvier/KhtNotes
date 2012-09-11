@@ -134,13 +134,4 @@ Page {
         platformStyle: ScrollDecoratorStyle {
         }}
 
-    /*onStatusChanged: {
-         if (status == PageStatus.Active) {
-              if (pageStack.currentPage.objectName == 'fileBrowserPage') {
-                                        console.log('onStatusChanged')
-                                        pageStack.currentPage.refresh();}
-                                        
-         }
-    }*/
-
 }
