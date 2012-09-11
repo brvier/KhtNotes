@@ -31,6 +31,20 @@ from importer import TomboyImporter
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
 __version__ = '2.2'
+__upgrade__ = '''1.1: First public release
+1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
+1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
+1.4: Better use of harmattan invoker
+1.5: Avoid double loading of initial list on startup, fix wrong logger call
+     in sync, optimization of startup time And add a search feature
+1.6: Add Tomboy/Conboy import feature
+1.7: Improve unicode support (utf-8 and utf-16)
+1.8: fix authFailure wrong import in sync
+1.9: fix sync and improve delta sync diff
+1.10: Fix creation of KhtNotes folder on webdav and avoid lose of notes in case of notes if path is created, improve sync and fix bugs on conflicting update
+2.0: Formatted notes when markdown syntax is used
+2.1: Fix the formatting of notes
+2.2: Fix a bug in sync when a file conflict happen'''
 
 
 class QmlDirReaderWriter(QObject):
@@ -145,4 +159,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())
+    sys.exit(KhtNotes().exec_())  
