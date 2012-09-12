@@ -23,6 +23,7 @@ import time
 import json
 import logger
 import logging
+import md5util
 
 
 def basename(path):
@@ -126,10 +127,6 @@ class Sync(QObject):
 
     def _sync(self):
         '''Sync the notes with a webdav server'''
-        from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
-                                        parseDigestAuthInfo
-        from webdav.logger import _defaultLoggerName
-
         webdavLogin, webdavPasswd = self.readSettings()
 
         #Create Connection
@@ -262,28 +259,45 @@ class Sync(QObject):
     def _conflictServer(self, webdavConnection, filename, time_delta):
         '''Priority to local'''
         self.logger.debug('conflictServer: %s' % filename)
-        #self._move(webdavConnection, \
-        #           filename, os.path.splitext(filename)[0]\
-        #           + '.Conflict.txt')
+        lpath = os.path.join(self._localDataFolder, filename)
+        cpath = os.path.join(self._localDataFolder, \
+                os.path.splitext(filename)[0] + '.Conflict.txt')
+
         self._download(webdavConnection,\
                        filename, \
                        os.path.splitext(filename)[0] + '.Conflict.txt', \
                        time_delta)
-        self._upload(webdavConnection, filename, \
+
+        #Test if it s a real conflict
+        if md5util.md5sum(lpath) == md5util.md5sum(cpath):
+            os.rm(cpath)
+        else:
+            #Else duplicate, later we will try to merge
+            self._upload(webdavConnection, filename, \
                      None, time_delta)
-        self._upload(webdavConnection, os.path.splitext(filename)[0] + \
-                     '.Conflict.txt',
+            self._upload(webdavConnection, \
+                     os.path.splitext(filename)[0] + \
+                     '.Conflict.txt', \
                      None, time_delta)
+
     def _conflictLocal(self, webdavConnection, filename, time_delta):
         '''Priority to server'''
         self.logger.debug('conflictLocal: %s', filename)
-        os.rename(os.path.join(self._localDataFolder, filename),
-            os.path.join(self._localDataFolder, \
-            os.path.splitext(filename)[0] + '.Conflict.txt'))
-        self._upload(webdavConnection, \
+        lpath = os.path.join(self._localDataFolder, filename)
+        cpath = os.path.join(self._localDataFolder, \
+                os.path.splitext(filename)[0] + '.Conflict.txt')
+
+        os.rename(lpath, cpath)
+
+
+        #Test if it s a real conflict
+        if md5util.md5sum(lpath) == md5util.md5sum(cpath):
+            os.rm(cpath)
+        else:
+            self._upload(webdavConnection, \
                      os.path.splitext(filename)[0]\
                      + '.Conflict.txt', None, time_delta)
-        self._download(webdavConnection, filename, None, time_delta)
+            self._download(webdavConnection, filename, None, time_delta)
 
     def _get_lastsync_filenames(self):
         index = ({}, {})

@@ -22,7 +22,7 @@ sys.path.append('khtnotes')
 
 from khtnotes import __version__, __upgrade__
 
-__build__ = '2'
+__build__ = '1'
 __author__ = "Benoît HERVIER (khertan)"
 __mail__ = "khertan@khertan.net"
 
@@ -91,4 +91,4 @@ exit 0'''
     if not os.path.exists('dists'):
         os.mkdir('dists')
     for filepath in glob(p.name+'_'+p.version+'-'+p.buildversion+'*'):
-        os.rename(filepath, os.path.join(os.path.dirname(filepath), 'dists', os.path.basename(filepath))) 
+        os.rename(filepath, os.path.join(os.path.dirname(filepath), 'dists', os.path.basename(filepath)))

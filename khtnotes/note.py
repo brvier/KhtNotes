@@ -20,6 +20,7 @@ import os
 import datetime
 import codecs
 from markdown import markdown
+import htmlentitydefs
 
 INVALID_FILENAME_CHARS = '\/:*?"<>|'
 
