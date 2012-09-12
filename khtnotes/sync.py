@@ -360,15 +360,17 @@ class Sync(QObject):
               self._localDataFolder, '.merge.sync/')
             if os.path.exists(merge_dir):
                 shutil.rmtree(merge_dir)
-            else:
-                os.makedirs(merge_dir)
+
+            os.makedirs(merge_dir)
             for filename in glob.glob(os.path.join(self._localDataFolder,
               '*.txt')):
                 try:
                     if os.path.isfile(filename):
-                        shutil.copy2(filename, merge_dir)
+                        shutil.copy(filename,
+                                    os.path.join(merge_dir,
+                                                 os.path.basename(filename)))
                 except IOError, err:
-                    print err
+                    print err, 'filename:', filename, ' merge_dir:', merge_dir
 
     def _rm_remote_index(self,):
         '''Delete the remote index stored locally'''
