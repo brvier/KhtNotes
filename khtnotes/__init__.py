@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.2'
+__version__ = '2.3'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -44,7 +44,8 @@ __upgrade__ = '''1.1: First public release
 1.10: Fix creation of KhtNotes folder on webdav and avoid lose of notes in case of notes if path is created, improve sync and fix bugs on conflicting update
 2.0: Formatted notes when markdown syntax is used
 2.1: Fix the formatting of notes
-2.2: Fix a bug in sync when a file conflict happen'''
+2.2: Fix a bug in sync when a file conflict happen
+2.3: Avoid useless conflict'''
 
 
 class QmlDirReaderWriter(QObject):
