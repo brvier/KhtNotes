@@ -40,13 +40,14 @@ class Settings(QObject):
         self.config.set('Webdav', 'login', 'demo')
         self.config.set('Webdav', 'passwd', 'demo')
         self.config.set('Webdav', 'basePath', '/owncloud/files/webdav.php')
+        self.config.set('Webdav', 'autoMerge', 'true')
 
         # Writing our configuration file to 'example.cfg'
         with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') as configfile:
             self.config.write(configfile)
 
     def _set(self, option, value):
-        if option in ('host', 'login', 'password', 'basePath'):
+        if option in ('host', 'login', 'password', 'basePath', 'autoMerge'):
             self.config.set('Webdav', option, value)
         else:
             self.config.set('Display', option, value)
@@ -83,6 +84,12 @@ class Settings(QObject):
     def _get_webdavBasePath(self,):
         return self.get('basePath')
 
+    def _get_autoMerge(self,):
+        return self.get('autoMerge') == 'true'
+
+    def _set_autoMerge(self, b):
+        return self._set('autoMerge', 'true' if b else 'false')
+
     def _set_webdavHost(self, url):
         self._set('host', url)
 
@@ -100,6 +107,7 @@ class Settings(QObject):
     on_webdavLogin = Signal()
     on_webdavPasswd = Signal()
     on_webdavBasePath = Signal()
+    on_autoMerge = Signal()
 
     fontSize = Property(int, _get_fontSize, notify=on_fontSize)
     fontFamily = Property(unicode, _get_fontFamily, notify=on_fontFamily)
@@ -111,3 +119,5 @@ class Settings(QObject):
                          _set_webdavPasswd, notify=on_webdavPasswd)
     webdavBasePath = Property(unicode, _get_webdavBasePath, \
                         _set_webdavBasePath, notify=on_webdavBasePath)
+    autoMerge = Property(bool, _get_autoMerge, _set_autoMerge,
+                         notify=on_autoMerge)

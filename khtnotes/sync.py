@@ -64,7 +64,8 @@ class Sync(QObject):
         self.webdavBasePath = settings.webdavBasePath
         webdavLogin = settings.webdavLogin
         webdavPasswd = settings.webdavPasswd
-        return webdavLogin, webdavPasswd
+        useAutoMerge = settings.autoMerge
+        return webdavLogin, webdavPasswd, useAutoMerge
 
     def createConnection(self, webdavLogin, webdavPasswd):
         from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
@@ -127,7 +128,7 @@ class Sync(QObject):
 
     def _sync(self):
         '''Sync the notes with a webdav server'''
-        webdavLogin, webdavPasswd = self.readSettings()
+        webdavLogin, webdavPasswd, useAutoMerge = self.readSettings()
 
         #Create Connection
         isConnected, webdavConnection, time_delta = \
@@ -201,7 +202,8 @@ class Sync(QObject):
                         #Conflict : it s a new file so we haven't sync it yet
                         self.logger.debug('New conflictServer: %s' % filename)
                         self._conflictServer(webdavConnection,
-                                             filename, time_delta)
+                                             filename, time_delta,
+                                             useAutoMerge)
 
                 #What to do with new local file
                 for filename in set(local_filenames) \
@@ -213,7 +215,7 @@ class Sync(QObject):
                         #Conflict : it s a new file so we haven't sync it yet
                         self.logger.debug('New conflictLocal: %s' % filename)
                         self._conflictLocal(webdavConnection,
-                                            filename, time_delta)
+                                            filename, time_delta, useAutoMerge)
 
                 #Check what's updated remotly
                 rupdated = [filename for filename
@@ -238,13 +240,13 @@ class Sync(QObject):
                         self.logger.debug(
                                 'Updated conflictLocal: %s' % filename)
                         self._conflictLocal(webdavConnection, filename,
-                                            time_delta)
+                                            time_delta, useAutoMerge)
                     elif int(remote_filenames[filename] - time_delta) \
                      < int(local_filenames[filename]):
                         self.logger.debug('Updated conflictServer: %s'
                                            % filename)
                         self._conflictServer(webdavConnection, filename,
-                                             time_delta)
+                                             time_delta, useAutoMerge)
                     else:
                         self.logger.debug('Up to date: %s' % filename)
 
@@ -262,7 +264,8 @@ class Sync(QObject):
         self._set_running(False)
         self.on_finished.emit()
 
-    def _conflictServer(self, webdavConnection, filename, time_delta):
+    def _conflictServer(self, webdavConnection, filename,
+                        time_delta, useAutoMerge):
         '''Priority to local'''
         self.logger.debug('conflictServer: %s' % filename)
         lpath = os.path.join(self._localDataFolder, filename)
@@ -279,17 +282,15 @@ class Sync(QObject):
         if md5util.md5sum(lpath) == md5util.md5sum(cpath):
             os.remove(cpath)
         else:
-            self._mergeFiles(lpath, bpath, cpath)
-            os.remove(cpath)
-            self._upload(webdavConnection,
-                   filename, filename, time_delta)
-            #Else duplicate, later we will try to merge
-            #self._upload(webdavConnection, filename,
-            #         None, time_delta)
-            #self._upload(webdavConnection,
-            #         os.path.splitext(filename)[0] +
-            #         '.Conflict.txt',
-            #         None, time_delta)
+            if useAutoMerge:
+                self._mergeFiles(lpath, bpath, cpath)
+                os.remove(cpath)
+                self._upload(webdavConnection,
+                      filename, filename, time_delta)
+            else:
+                #Else duplicate
+                self._upload(webdavConnection, filename,
+                         None, time_delta)
 
     def _mergeFiles(self, lpath, bpath, cpath):
         from merge3.merge3 import Merge3
@@ -304,7 +305,8 @@ class Sync(QObject):
         with open(lpath, 'wb') as fh:
             fh.writelines(m3.merge())
 
-    def _conflictLocal(self, webdavConnection, filename, time_delta):
+    def _conflictLocal(self, webdavConnection, filename,
+                        time_delta, useAutoMerge):
         '''Priority to server'''
         self.logger.debug('conflictLocal: %s', filename)
         lpath = os.path.join(self._localDataFolder, filename)
@@ -323,11 +325,14 @@ class Sync(QObject):
         if md5util.md5sum(lpath) == md5util.md5sum(cpath):
             os.remove(cpath)
         else:
-            self._mergeFiles(lpath, bpath, cpath)
-            os.remove(cpath)
-            self._upload(webdavConnection,
-                   filename, filename, time_delta)
-            #self._download(webdavConnection, filename, None, time_delta)
+            if useAutoMerge:
+                self._mergeFiles(lpath, bpath, cpath)
+                os.remove(cpath)
+                self._upload(webdavConnection,
+                    filename, filename, time_delta)
+            else:
+                self._upload(webdavConnection, os.path.splitext(filename)[0] +
+                             '.Conflict.txt', None, time_delta)
 
     def _get_lastsync_filenames(self):
         index = ({}, {})
@@ -359,7 +364,11 @@ class Sync(QObject):
                 os.makedirs(merge_dir)
             for filename in glob.glob(os.path.join(self._localDataFolder,
               '*.txt')):
-                shutil.copy2(filename, merge_dir)
+                try:
+                    if os.path.isfile(filename):
+                        shutil.copy2(filename, merge_dir)
+                except IOError, err:
+                    print err
 
     def _rm_remote_index(self,):
         '''Delete the remote index stored locally'''

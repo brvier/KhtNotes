@@ -142,7 +142,16 @@ Page {
                      onTextChanged: {if (password.text !== '') Settings.webdavPasswd = password.text; } // Test if non null due to nasty bug on qml echoMode
 
                 }
-                
+            }
+                CheckBox {
+                    id: merge
+                    text: qsTr("Use auto merge feature")
+                    anchors.topMargin: 20 
+                    anchors.top: syncSettings.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    checked: Settings.autoMerge
+                    onClicked: {Settings.autoMerge = merge.checked;}
+                     
                 
             }
                 
@@ -153,7 +162,7 @@ Page {
                 anchors.leftMargin: 10
                 anchors.right: parent.right
                 anchors.rightMargin: 10
-                anchors.top: syncSettings.bottom
+                anchors.top: merge.bottom
                 anchors.topMargin: 30
             }
             
