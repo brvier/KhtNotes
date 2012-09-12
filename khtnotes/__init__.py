@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.3'
+__version__ = '2.4'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -41,11 +41,14 @@ __upgrade__ = '''1.1: First public release
 1.7: Improve unicode support (utf-8 and utf-16)
 1.8: fix authFailure wrong import in sync
 1.9: fix sync and improve delta sync diff
-1.10: Fix creation of KhtNotes folder on webdav and avoid lose of notes in case of notes if path is created, improve sync and fix bugs on conflicting update
+1.10: Fix creation of KhtNotes folder on webdav and
+      avoid lose of notes in case of notes if path is created,
+      improve sync and fix bugs on conflicting update
 2.0: Formatted notes when markdown syntax is used
 2.1: Fix the formatting of notes
 2.2: Fix a bug in sync when a file conflict happen
-2.3: Avoid useless conflict'''
+2.3: Avoid useless conflict
+2.4: Magically merge conflicting notes'''
 
 
 class QmlDirReaderWriter(QObject):
@@ -86,17 +89,16 @@ class NotesModel(QAbstractListModel):
 
     def _filterNotes(self):
         if self._filter:
-            self._filteredNotes = [note for note in self._notes \
-                                   if self._filter.lower() \
+            self._filteredNotes = [note for note in self._notes
+                                   if self._filter.lower()
                                    in note.title.lower()]
         else:
             self._filteredNotes = self._notes
 
-
     def loadData(self,):
-        self._notes = [Note(uid=file.decode('utf-8')) \
-                       for file in os.listdir(Note.NOTESPATH) \
-                       if (os.path.isfile(os.path.join(Note.NOTESPATH, file))) \
+        self._notes = [Note(uid=file.decode('utf-8'))
+                       for file in os.listdir(Note.NOTESPATH)
+                       if (os.path.isfile(os.path.join(Note.NOTESPATH, file)))
                        and (file != '.index.sync')]
 
         self._notes.sort(key=lambda note: note.timestamp, reverse=True)
@@ -143,7 +145,8 @@ class KhtNotes(QApplication):
         self.rootContext = self.view.rootContext()
         self.rootContext.setContextProperty("argv", sys.argv)
         self.rootContext.setContextProperty("__version__", __version__)
-        self.rootContext.setContextProperty("__upgrade__", __upgrade__.replace('\n','<br>'))
+        self.rootContext.setContextProperty("__upgrade__", __upgrade__
+                                            .replace('\n', '<br>'))
         self.rootContext.setContextProperty("Settings", Settings())
         self.rootContext.setContextProperty("Sync", self.syncer)
         self.rootContext.setContextProperty("Importer", self.conboyImporter)
@@ -152,7 +155,8 @@ class KhtNotes(QApplication):
         self.rootContext.setContextProperty('notesModel', self.notesModel)
         self.rootContext.setContextProperty('Note', self.note)
         self.view.setSource(QUrl.fromLocalFile(
-                os.path.join(os.path.dirname(__file__), 'qml', 'Harmattan_main.qml')))
+                os.path.join(os.path.dirname(__file__),
+                             'qml', 'Harmattan_main.qml')))
         self.rootObject = self.view.rootObject()
         self.view.showFullScreen()
         self.note.on_error.connect(self.rootObject.onError)
