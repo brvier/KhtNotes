@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -a*- coding: utf-8 -*-
 #
 # Copyright (c) 2011 Benoit HERVIER <khertan@khertan.net>
 # Licenced under GPLv3
@@ -51,7 +51,7 @@ class Sync(QObject):
 
     def _wsync(self):
         try:
-            self._sync()
+            self._synci_connect()
         except Exception, err:
             self.on_error.emit(unicode(err))
             self.on_running = False
@@ -126,7 +126,7 @@ class Sync(QObject):
             authFailures += 1
         return (isConnected, webdavConnection, time_delta)
 
-    def _sync(self):
+    def _sync_connect(self,):
         '''Sync the notes with a webdav server'''
         webdavLogin, webdavPasswd, useAutoMerge = self.readSettings()
 
@@ -135,6 +135,12 @@ class Sync(QObject):
             self.createConnection(webdavLogin, webdavPasswd)
         print 'isConnected: ', isConnected
         if isConnected:
+            self._sync_files(webdavConnection, time_delta, useAutoMerge)
+        self._set_running(False)
+        self.on_finished.emit()
+
+
+    def _sync_files(self, webdavConnection, time_delta, useAutoMerge):
             try:
                 #Check that KhtNotes folder exists at root or create it and
                 #and lock Collections
@@ -260,9 +266,6 @@ class Sync(QObject):
                 print traceback.format_exc()
                 self.on_error.emit(unicode(err))
                 self.logger.debug('Global sync error : %s' % unicode(err))
-
-        self._set_running(False)
-        self.on_finished.emit()
 
     def _conflictServer(self, webdavConnection, filename,
                         time_delta, useAutoMerge):
