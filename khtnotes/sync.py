@@ -25,7 +25,6 @@ import logger
 import logging
 import md5util
 
-
 def basename(path):
     return os.path.basename(path)
 
@@ -51,7 +50,7 @@ class Sync(QObject):
 
     def _wsync(self):
         try:
-            self._synci_connect()
+            self._sync_connect()
         except Exception, err:
             self.on_error.emit(unicode(err))
             self.on_running = False
@@ -66,6 +65,10 @@ class Sync(QObject):
         webdavPasswd = settings.webdavPasswd
         useAutoMerge = settings.autoMerge
         return webdavLogin, webdavPasswd, useAutoMerge
+
+    def resetPath(self, webdavConnection):
+        webdavConnection.path = self.webdavHost + self.webdavBasePath
+        return webdavConnection
 
     def createConnection(self, webdavLogin, webdavPasswd):
         from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
@@ -447,11 +450,10 @@ class Sync(QObject):
     def _check_khtnotes_folder_and_lock(self, webdavConnection):
         '''Check that khtnotes folder exists on webdav'''
         try:
-            print 'check khtnotes'
             khtnotesPath = self._get_notes_path()
             if not khtnotesPath in webdavConnection.listResources().keys():
                 webdavConnection.addCollection(
-                    os.path.basename(khtnotesPath[:-1]) + '/')
+                    os.path.basename(khtnotesPath))
                 #So here it s a new share, and if have old index file
                 #locally notes will be lose
                 self._rm_remote_index()

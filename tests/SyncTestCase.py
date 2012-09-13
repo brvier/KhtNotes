@@ -31,6 +31,7 @@ class SyncTestCase(unittest.TestCase):
         with open(lpath, 'w') as fh:
             fh.write('2')
         #sync
+        self.webdavConnection = self.sync.resetPath(self.webdavConnection)
         self.sync._sync_files(self.webdavConnection,
                               self.time_delta,
                               True)
