@@ -66,10 +66,6 @@ class Sync(QObject):
         useAutoMerge = settings.autoMerge
         return webdavLogin, webdavPasswd, useAutoMerge
 
-    def resetPath(self, webdavConnection):
-        webdavConnection.path = self.webdavHost + self.webdavBasePath
-        return webdavConnection
-
     def createConnection(self, webdavLogin, webdavPasswd):
         from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
                                         parseDigestAuthInfo
@@ -145,6 +141,10 @@ class Sync(QObject):
 
     def _sync_files(self, webdavConnection, time_delta, useAutoMerge):
             try:
+
+                #Reset webdav path
+                webdavConnection.path = self.webdavBasePath
+
                 #Check that KhtNotes folder exists at root or create it and
                 #and lock Collections
                 self._check_khtnotes_folder_and_lock(webdavConnection)
@@ -288,15 +288,15 @@ class Sync(QObject):
         if md5util.md5sum(lpath) == md5util.md5sum(cpath):
             os.remove(cpath)
         else:
-            if useAutoMerge:
+            if useAutoMerge and os.path.exists(bpath):
                 self._mergeFiles(lpath, bpath, cpath)
                 os.remove(cpath)
                 self._upload(webdavConnection,
                       filename, filename, time_delta)
             else:
                 #Else duplicate
-                self._upload(webdavConnection, filename,
-                         None, time_delta)
+                self._upload(webdavConnection, os.path.splitext(
+                             filename)[0] + '.Conflict.txt', None, time_delta)
 
     def _mergeFiles(self, lpath, bpath, cpath):
         from merge3.merge3 import Merge3
@@ -304,7 +304,7 @@ class Sync(QObject):
         try:
             base = file(bpath, 'rt').readlines()
         except:
-            base = file(lpath, 'rt').readlines()
+            base = file(cpath, 'rt').readlines()
         b = file(cpath, 'rt').readlines()
 
         m3 = Merge3(base, a, b)
@@ -331,7 +331,7 @@ class Sync(QObject):
         if md5util.md5sum(lpath) == md5util.md5sum(cpath):
             os.remove(cpath)
         else:
-            if useAutoMerge:
+            if useAutoMerge and os.path.exists(bpath):
                 self._mergeFiles(lpath, bpath, cpath)
                 os.remove(cpath)
                 self._upload(webdavConnection,
@@ -452,8 +452,7 @@ class Sync(QObject):
         try:
             khtnotesPath = self._get_notes_path()
             if not khtnotesPath in webdavConnection.listResources().keys():
-                webdavConnection.addCollection(
-                    os.path.basename(khtnotesPath))
+                webdavConnection.addCollection(self._remoteDataFolder + '/')
                 #So here it s a new share, and if have old index file
                 #locally notes will be lose
                 self._rm_remote_index()
@@ -471,6 +470,11 @@ class Sync(QObject):
                         time.mktime(properties.getLastModified()))
                         for (resource, properties)
                         in webdavConnection.listResources().items()])
+        try:
+            del index['']
+        except KeyError:
+            pass
+
         try:
             del index['.index.sync']
         except KeyError:
