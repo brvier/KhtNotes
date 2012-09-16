@@ -35,8 +35,10 @@ class SyncTestCase(unittest.TestCase):
         self.sync._localDataFolder = '/tmp/khtnotes_test'
         self.sync._remoteDataFolder = 'testKhtNotes'
         self.webdavLogin, self.webdavPasswd, useAutoMerge = self.sync.readSettings()
-        self.isConnected, self.webdavConnection, self.time_delta = self.sync.createConnection(self.webdavLogin, self.webdavPasswd)
-
+        self.isConnected, self.webdavConnection, self.time_delta = self.sync.createConnection(
+            self.webdavLogin, 
+            self.webdavPasswd
+        )
 
 
     def tearDown(self,):
@@ -87,7 +89,13 @@ class SyncTestCase(unittest.TestCase):
         with open(os.path.join(self.sync._localDataFolder , 'testremotedit2.txt'), 'w') as fh:
             fh.write('2')
         #upload the modified one
-        self.sync._upload(self.webdavConnection, os.path.join(self.sync._localDataFolder , 'testremotedit2.txt'), 'testremotedit1.txt', self.time_delta)
+        self.sync._upload(self.webdavConnection, os.path.join(
+                self.sync._localDataFolder , 
+                'testremotedit2.txt'
+            ), 
+            'testremotedit1.txt', 
+            self.time_delta
+        )
         #remove the 2
         os.remove(os.path.join(self.sync._localDataFolder , 'testremotedit2.txt'))
 
@@ -97,11 +105,22 @@ class SyncTestCase(unittest.TestCase):
                               self.time_delta,
                               True)
         #download it
-        self.sync._download(self.webdavConnection, 'testremotedit1.txt', 'testremoteditresult.txt',
-                            self.time_delta)
-        self.failUnless(filecmp.cmp(os.path.join(self.sync._localDataFolder , 'testremotedit1.txt'),
-            os.path.join(self.sync._localDataFolder,
-            'testremoteditresult.txt')), "File differs")
+        self.sync._download(
+            self.webdavConnection, 
+            'testremotedit1.txt', 
+            'testremoteditresult.txt',
+            self.time_delta)
+        self.failUnless(
+            filecmp.cmp(
+                    os.path.join(
+                        self.sync._localDataFolder , 
+                        'testremotedit1.txt'
+                    ),
+                    os.path.join(
+                        self.sync._localDataFolder,
+                        'testremoteditresult.txt'
+                    )
+                ), "File differs")
         #No need to test with/out autoMerge as it s not use here
 
     def test_ConflictEditWithMerge3(self):
@@ -118,7 +137,14 @@ class SyncTestCase(unittest.TestCase):
             fh.write('2')
 
         #upload the modified one
-        self.sync._upload(self.webdavConnection, os.path.join(self.sync._localDataFolder , 'testmerge2.txt'), 'testmerge1.txt', self.time_delta)
+        self.sync._upload(
+            self.webdavConnection, 
+            os.path.join(
+                self.sync._localDataFolder , 
+                'testmerge2.txt'
+            ), 
+            'testmerge1.txt', 
+            self.time_delta)
 
         #remove the 2
         os.remove(os.path.join(self.sync._localDataFolder , 'testmerge2.txt'))
@@ -155,7 +181,15 @@ class SyncTestCase(unittest.TestCase):
         with open(os.path.join(self.sync._localDataFolder , '2.txt'), 'w') as fh:
             fh.write('2')
         #upload the modified one
-        self.sync._upload(self.webdavConnection, os.path.join(self.sync._localDataFolder , '2.txt'), '1.txt', self.time_delta)
+        self.sync._upload(
+            self.webdavConnection, 
+            os.path.join(
+                self.sync._localDataFolder , 
+                '2.txt'
+            ), 
+            '1.txt', 
+            self.time_delta
+        )
         #remove the 2
         os.remove(os.path.join(self.sync._localDataFolder , '2.txt'))
         time.sleep(3)
@@ -196,4 +230,14 @@ class SyncTestCase(unittest.TestCase):
         self.sync._download(self.webdavConnection, 'remote1.txt', \
                             'result1.txt', self.time_delta)
 
-        self.failUnless(filecmp.cmp(os.path.join(self.sync._localDataFolder, 'result1.txt'), os.path.join(self.sync._localDataFolder, 'local1.txt')), "File differs")
+        self.failUnless(
+            filecmp.cmp(
+                os.path.join(
+                    self.sync._localDataFolder, 
+                    'result1.txt'
+                ), 
+                os.path.join(
+                    self.sync._
+                    localDataFolder, 
+                    'local1.txt')
+                ), "File differs")
