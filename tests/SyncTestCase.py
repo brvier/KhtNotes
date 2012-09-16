@@ -36,7 +36,7 @@ class SyncTestCase(unittest.TestCase):
         self.sync._remoteDataFolder = 'testKhtNotes'
         self.webdavLogin, self.webdavPasswd, useAutoMerge = self.sync.readSettings()
         self.isConnected, self.webdavConnection, self.time_delta = self.sync.createConnection(
-            self.webdavLogin, 
+            self.webdavLogin,
             self.webdavPasswd
         )
 
@@ -90,10 +90,10 @@ class SyncTestCase(unittest.TestCase):
             fh.write('2')
         #upload the modified one
         self.sync._upload(self.webdavConnection, os.path.join(
-                self.sync._localDataFolder , 
+                self.sync._localDataFolder ,
                 'testremotedit2.txt'
-            ), 
-            'testremotedit1.txt', 
+            ),
+            'testremotedit1.txt',
             self.time_delta
         )
         #remove the 2
@@ -106,14 +106,14 @@ class SyncTestCase(unittest.TestCase):
                               True)
         #download it
         self.sync._download(
-            self.webdavConnection, 
-            'testremotedit1.txt', 
+            self.webdavConnection,
+            'testremotedit1.txt',
             'testremoteditresult.txt',
             self.time_delta)
         self.failUnless(
             filecmp.cmp(
                     os.path.join(
-                        self.sync._localDataFolder , 
+                        self.sync._localDataFolder ,
                         'testremotedit1.txt'
                     ),
                     os.path.join(
@@ -138,12 +138,12 @@ class SyncTestCase(unittest.TestCase):
 
         #upload the modified one
         self.sync._upload(
-            self.webdavConnection, 
+            self.webdavConnection,
             os.path.join(
-                self.sync._localDataFolder , 
+                self.sync._localDataFolder ,
                 'testmerge2.txt'
-            ), 
-            'testmerge1.txt', 
+            ),
+            'testmerge1.txt',
             self.time_delta)
 
         #remove the 2
@@ -182,12 +182,12 @@ class SyncTestCase(unittest.TestCase):
             fh.write('2')
         #upload the modified one
         self.sync._upload(
-            self.webdavConnection, 
+            self.webdavConnection,
             os.path.join(
-                self.sync._localDataFolder , 
+                self.sync._localDataFolder ,
                 '2.txt'
-            ), 
-            '1.txt', 
+            ),
+            '1.txt',
             self.time_delta
         )
         #remove the 2
@@ -233,11 +233,10 @@ class SyncTestCase(unittest.TestCase):
         self.failUnless(
             filecmp.cmp(
                 os.path.join(
-                    self.sync._localDataFolder, 
+                    self.sync._localDataFolder,
                     'result1.txt'
-                ), 
+                ),
                 os.path.join(
-                    self.sync._
-                    localDataFolder, 
+                    self.sync._localDataFolder,
                     'local1.txt')
                 ), "File differs")
