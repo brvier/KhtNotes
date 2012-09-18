@@ -29,6 +29,8 @@ class Settings(QObject):
             self._write_default()
         else:
             self.config.read(os.path.expanduser('~/.khtnotes.cfg'))
+        if not self.config.has_section('Favorites'):
+            self.config.add_section('Favorites')
 
     def _write_default(self):
         ''' Write the default config'''
@@ -39,22 +41,51 @@ class Settings(QObject):
         self.config.set('Webdav', 'host', 'https://khertan.net/')
         self.config.set('Webdav', 'login', 'demo')
         self.config.set('Webdav', 'passwd', 'demo')
-        self.config.set('Webdav', 'basePath', '/owncloud/files/webdav.php')
+        self.config.set('Webdav', 'basePath',
+                        '/owncloud/files/webdav.php')
         self.config.set('Webdav', 'autoMerge', 'true')
+        self.config.add_section('Favorites')
 
         # Writing our configuration file to 'example.cfg'
-        with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') as configfile:
+        with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') \
+            as configfile:
             self.config.write(configfile)
 
     def _set(self, option, value):
-        if option in ('host', 'login', 'password', 'basePath', 'autoMerge'):
+        if option in ('host', 'login', 'password',
+                      'basePath', 'autoMerge'):
             self.config.set('Webdav', option, value)
         else:
             self.config.set('Display', option, value)
 
-        # Writing our configuration file to 'example.cfg'
-        with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') as configfile:
+        self._write()
+
+    def _write(self,):
+        with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') \
+            as configfile:
             self.config.write(configfile)
+
+    @Slot(unicode)
+    def add_favorite(self, uid):
+        if not self.config.has_section("Favorites"):
+            self.config.add_section("Favorites")
+        self.config.set("Favorites", uid, 'True')
+        self._write()
+        print 'uid %s favorited' % uid
+    @Slot(unicode)
+    def remove_favorite(self, uid):
+        try:
+            self.config.remove_option("Favorites", uid)
+            self._write()
+        except KeyError:
+            pass
+
+    def is_favorited(self, uid):
+        print 'is favorited : %s' % (uid)
+        return (uid.lower() in self.get_favorites())
+
+    def get_favorites(self):
+        return self.config.options("Favorites")
 
     @Slot(unicode, result=unicode)
     def get(self, option):
@@ -101,6 +132,7 @@ class Settings(QObject):
 
     def _set_webdavBasePath(self, path):
         self._set('basePath', path)
+
     on_fontSize = Signal()
     on_fontFamily = Signal()
     on_webdavHost = Signal()
@@ -110,14 +142,15 @@ class Settings(QObject):
     on_autoMerge = Signal()
 
     fontSize = Property(int, _get_fontSize, notify=on_fontSize)
-    fontFamily = Property(unicode, _get_fontFamily, notify=on_fontFamily)
-    webdavHost = Property(unicode, _get_webdavHost, \
+    fontFamily = Property(unicode, _get_fontFamily,
+                          notify=on_fontFamily)
+    webdavHost = Property(unicode, _get_webdavHost,
                           _set_webdavHost, notify=on_webdavHost)
-    webdavLogin = Property(unicode, _get_webdavLogin, \
+    webdavLogin = Property(unicode, _get_webdavLogin,
                          _set_webdavLogin, notify=on_webdavLogin)
-    webdavPasswd = Property(unicode, _get_webdavPasswd, \
+    webdavPasswd = Property(unicode, _get_webdavPasswd,
                          _set_webdavPasswd, notify=on_webdavPasswd)
-    webdavBasePath = Property(unicode, _get_webdavBasePath, \
+    webdavBasePath = Property(unicode, _get_webdavBasePath,
                         _set_webdavBasePath, notify=on_webdavBasePath)
     autoMerge = Property(bool, _get_autoMerge, _set_autoMerge,
                          notify=on_autoMerge)

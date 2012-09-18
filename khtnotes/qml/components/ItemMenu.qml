@@ -7,16 +7,25 @@ Menu {
     visualParent: pageStack
 
     property string uuid
-  
+    property int index
+
     MenuLayout {
         MenuItem {
+            text: qsTr("Favorite")
+            onClicked: {
+                //Note.favorite(uuid);
+                
+            notesModel.favorite(index)
+            }   
+        }
+        MenuItem {
             text: qsTr("Duplicate")
-            onClicked: console.log('Duplicate not implemented yet');
+            onClicked: notesModel.duplicate(index);
         }
         MenuItem {
             text: qsTr("Delete")
             onClicked: {
-              deleteQueryDialog.uuid = uuid;
+              deleteQueryDialog.index = index;
               deleteQueryDialog.open();
             }
         }

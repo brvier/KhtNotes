@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.9'
+__version__ = '2.10'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -53,7 +53,8 @@ __upgrade__ = '''1.1: First public release
 2.6: Fix directory error in copying files for merge
 2.7: Fix an other directory error in copying files for merge
 2.8: Remove absolute import for merge3: which fix import error error
-2.9: Fix the sync without and with merge feature'''
+2.9: Fix the sync without and with merge feature
+2.10: Add favorite feature, add duplicate, improve delete'''
 
 
 class QmlDirReaderWriter(QObject):
@@ -68,7 +69,7 @@ class QmlDirReaderWriter(QObject):
 
 
 class NotesModel(QAbstractListModel):
-    COLUMNS = ('title', 'timestamp', 'uuid', 'index', 'note')
+    COLUMNS = ('title', 'timestamp', 'uuid', 'index', 'data', 'favorited')
 
     def __init__(self, ):
         self._notes = {}
@@ -106,7 +107,11 @@ class NotesModel(QAbstractListModel):
                        if (os.path.isfile(os.path.join(Note.NOTESPATH, file)))
                        and (file != '.index.sync')]
 
-        self._notes.sort(key=lambda note: note.timestamp, reverse=True)
+        self._sortData()
+
+    def _sortData(self,):
+        self._notes.sort(key=lambda note: (note.favorited, note.timestamp)
+                                         , reverse=True)
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._filteredNotes)
@@ -122,6 +127,8 @@ class NotesModel(QAbstractListModel):
             return index.row()
         elif index.isValid() and role == NotesModel.COLUMNS.index('data'):
             return self._filteredNotes[index.row()].data
+        elif index.isValid() and role == NotesModel.COLUMNS.index('favorited'):
+            return self._filteredNotes[index.row()].favorited
         return None
 
     @Slot()
@@ -129,6 +136,36 @@ class NotesModel(QAbstractListModel):
         self.beginResetModel()
         self.loadData()
         self._filterNotes()
+        self.endResetModel()
+
+    @Slot(int)
+    def favorite(self, idx):
+        self.beginResetModel()
+        self._filteredNotes[idx].favorited = not \
+            self._filteredNotes[idx].favorited
+        self._sortData()
+        self.endResetModel()
+
+    @Slot(int)
+    def duplicate(self, idx):
+        self.beginResetModel()
+        uuid = self._filteredNotes[idx].duplicate()
+        self._notes.append(Note(uuid))
+        self._filterNotes()
+        self._sortData()
+        self.endResetModel()
+
+    @Slot(int)
+    def remove(self, idx):
+        self.beginResetModel()
+        uuid = self._filteredNotes[idx].uuid
+        self._filteredNotes[idx].rm()
+        for note in self._notes:
+            if note.uuid == uuid:
+                self._notes.remove(note)
+                break
+        self._filterNotes()
+        self._sortData()
         self.endResetModel()
 
 
@@ -159,9 +196,16 @@ class KhtNotes(QApplication):
                                              QmlDirReaderWriter())
         self.rootContext.setContextProperty('notesModel', self.notesModel)
         self.rootContext.setContextProperty('Note', self.note)
-        self.view.setSource(QUrl.fromLocalFile(
+
+        try:
+            self.view.setSource(QUrl.fromLocalFile(
                 os.path.join(os.path.dirname(__file__),
                              'qml', 'Harmattan_main.qml')))
+        except:
+             self.view.setSource(QUrl.fromLocalFile(
+                os.path.join(os.path.dirname(__file__),
+                             'qml', 'Desktop_main.qml')))
+
         self.rootObject = self.view.rootObject()
         self.view.showFullScreen()
         self.note.on_error.connect(self.rootObject.onError)

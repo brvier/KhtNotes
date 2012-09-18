@@ -21,6 +21,7 @@ import datetime
 import codecs
 from markdown import markdown
 import htmlentitydefs
+from settings import Settings
 
 INVALID_FILENAME_CHARS = '\/:*?"<>|'
 
@@ -40,9 +41,15 @@ def _linkify(group):
 def _colorize(text):
     text = text.replace('\n', '<br>\n')
     regexs =  (
-                (re.compile(r'(\*|_){2}(.+?)(\*|_){2}', re.UNICODE), _strongify),
-                (re.compile(r'(?<!\*|_)(\*|_)(?!\*|_)(.+?)(?<!\*|_)(\*|_)(?!\*|_)', re.UNICODE), _emify),
-                (re.compile(r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))([ \t]+(".*?"))?[ \t]*\)', re.UNICODE), _linkify),
+                (re.compile(
+                    r'(\*|_){2}(.+?)(\*|_){2}',
+                    re.UNICODE), _strongify),
+                (re.compile(
+            r'(?<!\*|_)(\*|_)(?!\*|_)(.+?)(?<!\*|_)(\*|_)(?!\*|_)',
+                    re.UNICODE), _emify),
+                (re.compile(
+r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))([ \t]+(".*?"))?[ \t]*\)',
+                    re.UNICODE), _linkify),
               )
     for regex, cb in regexs:
         text = re.sub(regex, cb, text)
@@ -64,7 +71,8 @@ def _unescape(text):
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = unichr(
+                    htmlentitydefs.name2codepoint[text[1:-1]])
             except KeyError, e:
                 print e
         return text # leave as is
@@ -74,8 +82,11 @@ def _unescape(text):
 def _stripTags(content):
     ''' Remove html text formating from a text'''
     from BeautifulSoup import BeautifulSoup
-    content = content.replace('<p style=', '<pre style').replace('<br />', '\n')
-    plainText = _unescape(''.join(BeautifulSoup(content).body(text=True)))
+    content = content.replace(
+                '<p style=', '<pre style').replace(
+                '<br />', '\n')
+    plainText = _unescape(''.join(BeautifulSoup(
+                content).body(text=True)))
     if (plainText.startswith('\n')):
         return plainText[1:]
     return plainText
@@ -99,6 +110,8 @@ class Note(QObject):
         self._uuid = None
         self._ready = False
         self._human_timestamp = u''
+        self._favorited = False
+        self._settings = Settings()
         if uid:
             self.load(uid)
 
@@ -111,6 +124,7 @@ class Note(QObject):
         self._set_text('Untitled %s' % unicode(index))
         self._title = None
         self._uuid = None
+        self._favorited = False
         self._set_ready(True)
 
     @Slot(unicode, result=bool)
@@ -136,7 +150,8 @@ class Note(QObject):
                 self.on_error.emit(u'Note title already exists')
                 return False
             if self._uuid:
-                os.rename(os.path.join(self.NOTESPATH, self._uuid), \
+                os.rename(os.path.join(self.NOTESPATH,
+                                       self._uuid),
                           new_path)
             self._uuid = getValidFilename(title.strip() + '.txt')
 
@@ -162,10 +177,28 @@ class Note(QObject):
 
     @Slot(unicode)
     def exists(self, uuid):
-        if os.path.exists(os.path.join(self.NOTESPATH, uuid + '.txt')):
+        if os.path.exists(os.path.join(
+            self.NOTESPATH, uuid + '.txt')):
             return True
         else:
             return False
+
+    @Slot(unicode)
+    def favorite(self, uuid=None):
+        if uuid:
+            if not self._settings.is_favorited(uuid):
+                self._settings.add_favorite(uuid)
+            else:
+                self._settings.remove_favorite(uuid)
+
+    @Slot(unicode)
+    def duplicate(self,):
+        import shutil
+        src = os.path.join(self.NOTESPATH, self._uuid)
+        new_uid = os.path.splitext(self._uuid)[0] + ' 2.txt'
+        dst = os.path.join(self.NOTESPATH, new_uid)
+        shutil.copy2(src, dst)
+        return new_uid
 
     @Slot(unicode)
     def rm(self, uuid=None):
@@ -193,6 +226,10 @@ class Note(QObject):
         if (self._uuid):
             try:
                 path = os.path.join(self.NOTESPATH, self._uuid)
+                self._favorited = self._settings.is_favorited(uid)
+                print self._favorited
+                self.onFavoritedChanged.emit()
+
                 with codecs.open(path, 'r', 'utf_8') as fh:
                     try:
                         text = fh.read()
@@ -216,6 +253,7 @@ class Note(QObject):
                 import traceback
                 print traceback.format_exc()
                 print e
+                self.on_error.emit(str(e))
 
     @Slot(unicode, result=unicode)
     def previewMarkdown(self, text):
@@ -232,6 +270,17 @@ class Note(QObject):
     def _set_text(self, text):
         self._data = _colorize(text)
         self.onDataChanged.emit()
+
+    def _get_favorited(self):
+        return self._favorited
+
+    def _set_favorited(self, value):
+        self._favorited = value
+        if value:
+            self._settings.add_favorite(self._uuid)
+        else:
+            self._settings.remove_favorite(self._uuid)
+        self.onFavoritedChanged.emit()
 
     def _get_title(self):
         return self._title
@@ -253,7 +302,8 @@ class Note(QObject):
     def _set_timestamp(self, timestamp):
         self._timestamp = timestamp
         self._human_timestamp = \
-            datetime.datetime.fromtimestamp(self._timestamp).strftime('%x %X')
+            datetime.datetime.fromtimestamp(
+                self._timestamp).strftime('%x %X')
         self.onTimestampChanged.emit()
         self.onHumanTimestampChanged.emit()
 
@@ -274,14 +324,32 @@ class Note(QObject):
     on_error = Signal(unicode)
     onReadyChanged = Signal()
     onHumanTimestampChanged = Signal()
+    onFavoritedChanged = Signal()
     human_timestamp = Property(unicode, _get_human_timestamp,
                                  notify=onHumanTimestampChanged)
-    data = Property(unicode, _get_text, _set_text, notify=onDataChanged)
-    title = Property(unicode, _get_title, _set_title, notify=onTitleChanged)
-    uuid = Property(unicode, _get_uuid, _set_uuid, notify=onUuidChanged)
-    timestamp = Property(int, _get_timestamp, _set_timestamp,
-                                 notify=onTimestampChanged)
-    ready = Property(bool, _get_ready, _set_ready, notify=onReadyChanged)
+    data = Property(unicode,
+                    _get_text,
+                    _set_text,
+                    notify=onDataChanged)
+    title = Property(unicode,
+                     _get_title,
+                     _set_title,
+                     notify=onTitleChanged)
+    uuid = Property(unicode,
+                    _get_uuid,
+                    _set_uuid,
+                    notify=onUuidChanged)
+    timestamp = Property(int,
+                    _get_timestamp, _set_timestamp,
+                    notify=onTimestampChanged)
+    favorited = Property(bool,
+                         _get_favorited,
+                         _set_favorited,
+                         notify=onFavoritedChanged)
+    ready = Property(bool,
+                     _get_ready,
+                     _set_ready,
+                     notify=onReadyChanged)
 
 if __name__ == '__main__':
     print _colorize('Test\ntest **test**, test haha __test__, hahaha test__test__test and an other *test* [link](http://khertan.net/)')

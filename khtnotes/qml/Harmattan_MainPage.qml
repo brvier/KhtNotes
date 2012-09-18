@@ -98,9 +98,19 @@ Page {
                         anchors.right: parent.right
                         elide: Text.ElideRight
                         maximumLineCount: 1
-                        }
-                }
+                    }
 
+                }
+                
+
+                Image {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter     
+                    source: "image://theme/icon-m-toolbar-favorite-mark" 
+                    visible: favorited
+                    opacity: favorited ? 1.0 : 0.0
+                }
 
                 MouseArea {
                     anchors.fill: parent
@@ -119,7 +129,8 @@ Page {
                     //    }
                     }
                     onPressAndHold: {
-                        itemMenu.uuid = model.uuid;
+                        //itemMenu.uuid = model.uuid;
+                        itemMenu.index = model.index;
                         itemMenu.open();
                    }
                 }

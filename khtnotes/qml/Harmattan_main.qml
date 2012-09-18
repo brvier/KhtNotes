@@ -108,7 +108,9 @@ PageStackWindow {
    showStatusBar: true
 
     QueryDialog {
-        property string uuid
+        
+        property int index
+
         id: deleteQueryDialog
         icon: Qt.resolvedUrl('../icons/khtnotes.png')
         titleText: "Delete"
@@ -116,8 +118,8 @@ PageStackWindow {
         acceptButtonText: qsTr("Delete")
         rejectButtonText: qsTr("Cancel")
         onAccepted: {
-                Note.rm(uuid);
-                fileBrowserPage.refresh();
+                notesModel.remove(index);
+                //fileBrowserPage.refresh();
         }
     }
 
