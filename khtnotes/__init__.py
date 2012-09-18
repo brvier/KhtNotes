@@ -54,7 +54,8 @@ __upgrade__ = '''1.1: First public release
 2.7: Fix an other directory error in copying files for merge
 2.8: Remove absolute import for merge3: which fix import error error
 2.9: Fix the sync without and with merge feature
-2.10: Add favorite feature, add duplicate, improve delete'''
+2.10: Add favorite feature, add duplicate, improve delete,
+      fix markdown preview'''
 
 
 class QmlDirReaderWriter(QObject):
