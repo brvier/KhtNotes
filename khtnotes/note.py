@@ -36,23 +36,46 @@ def _emify(group):
     return '<i>%s</i>' % group.group(0)
 
 def _linkify(group):
-     return '<font color="#00FF00">%s</font>' % group.group(0)
+    return '<font color="#00FF00">%s</font>' % group.group(0)
+
+def _titleify(group):
+    return '<font color="#00BB00">%s</font>' % group.group(0)
+
+def _undertitleify(group):
+    return '<font color="#008800">%s</font>' % group.group(0)
 
 def _colorize(text):
-    text = text.replace('\n', '<br>\n')
+
     regexs =  (
                 (re.compile(
                     r'(\*|_){2}(.+?)(\*|_){2}',
                     re.UNICODE), _strongify),
                 (re.compile(
-            r'(?<!\*|_)(\*|_)(?!\*|_)(.+?)(?<!\*|_)(\*|_)(?!\*|_)',
+                    r'(?<!\*|_)(\*|_)(?!\*|_)'\
+                    '(.+?)(?<!\*|_)(\*|_)(?!\*|_)',
                     re.UNICODE), _emify),
                 (re.compile(
-r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))([ \t]+(".*?"))?[ \t]*\)',
+                    r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))'\
+                    '([ \t]+(".*?"))?[ \t]*\)',
                     re.UNICODE), _linkify),
+                (re.compile(
+                    '^(.+)\n=+$',
+                    re.UNICODE|re.MULTILINE), _titleify),
+                 (re.compile(
+                    r'^(.+)\n-+$',
+                    re.UNICODE|re.MULTILINE), _undertitleify),
+                 (re.compile(
+                    r'^#(.+)#$',
+                     re.UNICODE|re.MULTILINE), _titleify),
+                 (re.compile(
+                    r'^##(.+)##$',
+                     re.UNICODE|re.MULTILINE), _undertitleify),
+
+
               )
     for regex, cb in regexs:
         text = re.sub(regex, cb, text)
+    text = text.replace('\n', '<br>\n')
 
     return  u'%s' % text
 
@@ -352,4 +375,4 @@ class Note(QObject):
                      notify=onReadyChanged)
 
 if __name__ == '__main__':
-    print _colorize('Test\ntest **test**, test haha __test__, hahaha test__test__test and an other *test* [link](http://khertan.net/)')
+    print _colorize('Test\n====\ntest **test**, test haha __test__, hahaha test__test__test and an other *test* [link](http://khertan.net/)\ntest under title\n-------\ntest\n## test ##\n# test #\ntest')
