@@ -11,6 +11,7 @@ Features
 
   * Sync with ownCloud or other webdav server
   * Preview markdown syntax
+  * Realtime syntax highlight of a subset of markdown syntax
   * File are stored as text file, so you can directly edit them in ownCloud or via a mounted webdav point and a text editor.
   * Import your Conboy or Tomboy notes (note should be in ~/.conboy/ directory)
 
