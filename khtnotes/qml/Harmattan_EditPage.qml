@@ -70,12 +70,21 @@ Page {
                  font { bold: false; 
                         family: Settings.fontFamily; 
                         pixelSize:  Settings.fontSize;}
-                 onTextChanged: { modified = true; console.log('text changed')}
+                 onTextChanged: { modified = true; autoTimer.start();}
                  Component.onDestruction: {
                         if (modified == true) {
                             Note.write(textEditor.text);
                         }
                     }
+                 Timer {
+                    id: autoTimer
+                    interval: 1000
+                    onTriggered: {
+                        var index = textEditor.cursorPosition;
+                        textEditor.text = Note.reHighlight(textEditor.text);
+                        textEditor.cursorPosition = index;
+                    }
+                 }
              }
      }
 

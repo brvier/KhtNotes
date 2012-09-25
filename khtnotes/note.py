@@ -70,14 +70,14 @@ def _colorize(text):
                  (re.compile(
                     r'^##(.+)##$',
                      re.UNICODE|re.MULTILINE), _undertitleify),
-
-
               )
+    if text.startswith('\n'):
+        text = text[1:]
     for regex, cb in regexs:
         text = re.sub(regex, cb, text)
-    text = text.replace('\n', '<br>\n')
+    text = text.replace('\n', '<br>')
 
-    return  u'%s' % text
+    return  u'<html><body>%s</body></html>' % text
 
 def _unescape(text):
     def fixup(m):
@@ -106,8 +106,8 @@ def _stripTags(content):
     ''' Remove html text formating from a text'''
     from BeautifulSoup import BeautifulSoup
     content = content.replace(
-                '<p style=', '<pre style').replace(
-                '<br />', '\n')
+                '<p style=', '<pre style=').replace(
+                '<br />', '\n').replace('<br>', '\n')
     plainText = _unescape(''.join(BeautifulSoup(
                 content).body(text=True)))
     if (plainText.startswith('\n')):
@@ -170,6 +170,7 @@ class Note(QObject):
             new_path = os.path.join(self.NOTESPATH,
                                     title + '.txt')
             if os.path.exists(new_path):
+                print 'Note title already exists: %s' % new_path
                 self.on_error.emit(u'Note title already exists')
                 return False
             if self._uuid:
@@ -277,6 +278,10 @@ class Note(QObject):
                 print traceback.format_exc()
                 print e
                 self.on_error.emit(str(e))
+
+    @Slot(unicode, result=unicode)
+    def reHighlight(self, text):
+        return _colorize(_uncolorize(text))
 
     @Slot(unicode, result=unicode)
     def previewMarkdown(self, text):
