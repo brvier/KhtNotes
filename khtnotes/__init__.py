@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.11'
+__version__ = '2.12'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -56,7 +56,8 @@ __upgrade__ = '''1.1: First public release
 2.9: Fix the sync without and with merge feature
 2.10: Add favorite feature, add duplicate, improve delete,
       fix markdown preview, add realtime markdown highlight
-2.11: Darker color and bigger text for title highlight, improve pre/post package script, fix timer for realtime highlight'''
+2.11: Darker color and bigger text for title highlight, improve pre/post package script, fix timer for realtime highlight
+2.12: Fix markdown preview (new line extension)'''
 
 
 class QmlDirReaderWriter(QObject):

@@ -287,7 +287,7 @@ class Note(QObject):
     def previewMarkdown(self, text):
         ''' Generate a markdown preview'''
         try:
-            return markdown(_uncolorize(text), extensions=['nb2lr',])
+            return markdown(_uncolorize(text), extensions=['nl2br',])
         except Exception, e:
             print type(e), ':', e
             return text

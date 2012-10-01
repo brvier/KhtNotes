@@ -92,7 +92,8 @@ exit 0'''
         files.append(os.path.join(root, f))
 
     p['/usr/share/dbus-1/services'] = ['khtnotes.service',]
-    p['/usr/share/icons/blanco/80x80/apps'] = ['khtnotes.png',]
+    p['/usr/share/icons/hicolor/80x80/apps'] = ['khtnotes.png',]
+    p['/usr/share/icons/hicolor/scalable/apps'] = ['khtnotes.svg',]
     p['/usr/share/applications'] = ['khtnotes.desktop',]
     p["/opt"] = files
 
