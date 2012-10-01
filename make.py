@@ -61,6 +61,15 @@ pycompile -O /opt/khtnotes/*.py
 echo "Precompiling Webdav Lib"
 pycompile -O /opt/khtnotes/webdav/*.py
 exit 0'''
+    p.prerm = '''#!/bin/sh
+echo 'Removing compiled files'
+rm -rf /opt/khtnotes/*.pyc
+rm -rf /opt/khtnotes/webdav/*.pyc
+rm -rf /opt/khtnotes/webdav/acp/*.pyc
+rm -rf /opt/khtnotes/markdown/*.pyc
+rm -rf /opt/khtnotes/markdown/extensions/*.pyc
+exit 0'''
+
     p.createDigsigsums = True
 
     #Remove pyc and pyo

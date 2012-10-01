@@ -39,10 +39,10 @@ def _linkify(group):
     return '<font color="#00FF00">%s</font>' % group.group(0)
 
 def _titleify(group):
-    return '<font color="#00BB00">%s</font>' % group.group(0)
+    return '<big><font color="#441144">%s</font></big>' % group.group(0)
 
 def _undertitleify(group):
-    return '<font color="#008800">%s</font>' % group.group(0)
+    return '<big><font color="#663366">%s</font></big>' % group.group(0)
 
 def _colorize(text):
 

@@ -70,7 +70,7 @@ Page {
                  font { bold: false; 
                         family: Settings.fontFamily; 
                         pixelSize:  Settings.fontSize;}
-                 onTextChanged: { modified = true; autoTimer.start();}
+                 onTextChanged: { modified = true; autoTimer.restart();}
                  Component.onDestruction: {
                         if (modified == true) {
                             Note.write(textEditor.text);
@@ -78,7 +78,7 @@ Page {
                     }
                  Timer {
                     id: autoTimer
-                    interval: 1000
+                    interval: 2000
                     onTriggered: {
                         var index = textEditor.cursorPosition;
                         textEditor.text = Note.reHighlight(textEditor.text);
