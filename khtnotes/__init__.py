@@ -56,7 +56,7 @@ __upgrade__ = '''1.1: First public release
 2.9: Fix the sync without and with merge feature
 2.10: Add favorite feature, add duplicate, improve delete,
       fix markdown preview, add realtime markdown highlight
-2.11: Darker color for title highlight, improve pre/post package script'''
+2.11: Darker color and bigger text for title highlight, improve pre/post package script, fix timer for realtime highlight'''
 
 
 class QmlDirReaderWriter(QObject):
