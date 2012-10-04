@@ -25,52 +25,58 @@ from settings import Settings
 
 INVALID_FILENAME_CHARS = '\/:*?"<>|'
 
+
 def getValidFilename(filename):
-    return ''.join(car for car in filename \
-                if car not in INVALID_FILENAME_CHARS)
+    return ''.join(car for car in filename
+                   if car not in INVALID_FILENAME_CHARS)
+
 
 def _strongify(group):
     return '<b>%s</b>' % group.group(0)
 
+
 def _emify(group):
     return '<i>%s</i>' % group.group(0)
+
 
 def _linkify(group):
     return '<font color="#00FF00">%s</font>' % group.group(0)
 
+
 def _titleify(group):
     return '<big><font color="#441144">%s</font></big>' % group.group(0)
+
 
 def _undertitleify(group):
     return '<big><font color="#663366">%s</font></big>' % group.group(0)
 
+
 def _colorize(text):
 
-    regexs =  (
-                (re.compile(
-                    r'(\*|_){2}(.+?)(\*|_){2}',
-                    re.UNICODE), _strongify),
-                (re.compile(
-                    r'(?<!\*|_)(\*|_)(?!\*|_)'\
-                    '(.+?)(?<!\*|_)(\*|_)(?!\*|_)',
-                    re.UNICODE), _emify),
-                (re.compile(
-                    r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))'\
-                    '([ \t]+(".*?"))?[ \t]*\)',
-                    re.UNICODE), _linkify),
-                (re.compile(
-                    '^(.+)\n=+$',
-                    re.UNICODE|re.MULTILINE), _titleify),
-                 (re.compile(
-                    r'^(.+)\n-+$',
-                    re.UNICODE|re.MULTILINE), _undertitleify),
-                 (re.compile(
-                    r'^#(.+)#$',
-                     re.UNICODE|re.MULTILINE), _titleify),
-                 (re.compile(
-                    r'^##(.+)##$',
-                     re.UNICODE|re.MULTILINE), _undertitleify),
-              )
+    regexs = ((re.compile(
+        r'(\*|_){2}(.+?)(\*|_){2}',
+        re.UNICODE), _strongify),
+        (re.compile(
+            r'(?<!\*|_)(\*|_)(?!\*|_)'
+            '(.+?)(?<!\*|_)(\*|_)(?!\*|_)',
+            re.UNICODE), _emify),
+        (re.compile(
+            r'\[(.*?)\]\([ \t]*(&lt;(.*?)&gt;|(.*?))'
+            '([ \t]+(".*?"))?[ \t]*\)',
+            re.UNICODE), _linkify),
+        (re.compile(
+            '^(.+)\n=+$',
+            re.UNICODE | re.MULTILINE), _titleify),
+        (re.compile(
+            r'^(.+)\n-+$',
+            re.UNICODE | re.MULTILINE), _undertitleify),
+        (re.compile(
+            r'^#(.+)#$',
+            re.UNICODE | re.MULTILINE), _titleify),
+        (re.compile(
+            r'^##(.+)##$',
+            re.UNICODE | re.MULTILINE), _undertitleify),
+    )
     if text.startswith('\n'):
         text = text[1:]
     for regex, cb in regexs:
@@ -78,6 +84,7 @@ def _colorize(text):
     text = text.replace('\n', '<br>')
 
     return  u'<html><body>%s</body></html>' % text
+
 
 def _unescape(text):
     def fixup(m):
@@ -98,7 +105,7 @@ def _unescape(text):
                     htmlentitydefs.name2codepoint[text[1:-1]])
             except KeyError, e:
                 print e
-        return text # leave as is
+        return text  # leave as is
     return re.sub("&#?\w+;", fixup, text)
 
 
@@ -106,10 +113,10 @@ def _stripTags(content):
     ''' Remove html text formating from a text'''
     from BeautifulSoup import BeautifulSoup
     content = content.replace(
-                '<p style=', '<pre style=').replace(
-                '<br />', '\n').replace('<br>', '\n')
+        '<p style=', '<pre style=').replace(
+            '<br />', '\n').replace('<br>', '\n')
     plainText = _unescape(''.join(BeautifulSoup(
-                content).body(text=True)))
+        content).body(text=True)))
     if (plainText.startswith('\n')):
         return plainText[1:]
     return plainText
@@ -117,7 +124,6 @@ def _stripTags(content):
 
 def _uncolorize(text):
     return _stripTags(text)
-
 
 
 class Note(QObject):
@@ -202,7 +208,7 @@ class Note(QObject):
     @Slot(unicode)
     def exists(self, uuid):
         if os.path.exists(os.path.join(
-            self.NOTESPATH, uuid + '.txt')):
+                self.NOTESPATH, uuid + '.txt')):
             return True
         else:
             return False
@@ -262,8 +268,8 @@ class Note(QObject):
                             #as qml didn t support it well'
                             text = text.decode('utf-16')
                         title = os.path.splitext(self._uuid)[0]
-                        self._set_text(title \
-                                    + '\n' + text)
+                        self._set_text(title
+                                       + '\n' + text)
                         self._set_timestamp(os.stat(path).st_mtime)
                         self._set_title(title)
                         self._set_ready(True)
@@ -287,7 +293,7 @@ class Note(QObject):
     def previewMarkdown(self, text):
         ''' Generate a markdown preview'''
         try:
-            return markdown(_uncolorize(text), extensions=['nl2br',])
+            return markdown(_uncolorize(text), extensions=['nl2br', ])
         except Exception, e:
             print type(e), ':', e
             return text
@@ -354,7 +360,7 @@ class Note(QObject):
     onHumanTimestampChanged = Signal()
     onFavoritedChanged = Signal()
     human_timestamp = Property(unicode, _get_human_timestamp,
-                                 notify=onHumanTimestampChanged)
+                               notify=onHumanTimestampChanged)
     data = Property(unicode,
                     _get_text,
                     _set_text,
@@ -368,8 +374,8 @@ class Note(QObject):
                     _set_uuid,
                     notify=onUuidChanged)
     timestamp = Property(int,
-                    _get_timestamp, _set_timestamp,
-                    notify=onTimestampChanged)
+                         _get_timestamp, _set_timestamp,
+                         notify=onTimestampChanged)
     favorited = Property(bool,
                          _get_favorited,
                          _set_favorited,
@@ -380,4 +386,8 @@ class Note(QObject):
                      notify=onReadyChanged)
 
 if __name__ == '__main__':
-    print _colorize('Test\n====\ntest **test**, test haha __test__, hahaha test__test__test and an other *test* [link](http://khertan.net/)\ntest under title\n-------\ntest\n## test ##\n# test #\ntest')
+    print _colorize('Test\n====\ntest **test**, test haha __test__,'
+                    ' hahaha test__test__test and an other *test* '
+                    '[link](http://khertan.net/)'
+                    '\ntest under title\n-------\ntest'
+                    '\n## test ##\n# test #\ntest')

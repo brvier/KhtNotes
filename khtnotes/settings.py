@@ -48,7 +48,7 @@ class Settings(QObject):
 
         # Writing our configuration file to 'example.cfg'
         with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') \
-            as configfile:
+                as configfile:
             self.config.write(configfile)
 
     def _set(self, option, value):
@@ -62,7 +62,7 @@ class Settings(QObject):
 
     def _write(self,):
         with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') \
-            as configfile:
+                as configfile:
             self.config.write(configfile)
 
     @Slot(unicode)
@@ -72,6 +72,7 @@ class Settings(QObject):
         self.config.set("Favorites", uid, 'True')
         self._write()
         print 'uid %s favorited' % uid
+
     @Slot(unicode)
     def remove_favorite(self, uid):
         try:
@@ -147,10 +148,10 @@ class Settings(QObject):
     webdavHost = Property(unicode, _get_webdavHost,
                           _set_webdavHost, notify=on_webdavHost)
     webdavLogin = Property(unicode, _get_webdavLogin,
-                         _set_webdavLogin, notify=on_webdavLogin)
+                           _set_webdavLogin, notify=on_webdavLogin)
     webdavPasswd = Property(unicode, _get_webdavPasswd,
-                         _set_webdavPasswd, notify=on_webdavPasswd)
+                            _set_webdavPasswd, notify=on_webdavPasswd)
     webdavBasePath = Property(unicode, _get_webdavBasePath,
-                        _set_webdavBasePath, notify=on_webdavBasePath)
+                              _set_webdavBasePath, notify=on_webdavBasePath)
     autoMerge = Property(bool, _get_autoMerge, _set_autoMerge,
                          notify=on_autoMerge)

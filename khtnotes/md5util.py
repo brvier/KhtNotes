@@ -29,6 +29,7 @@
 from hashlib import md5
 import sys
 
+
 def sumfile(fobj):
     '''Returns an md5 hash for an object with read() method.'''
     m = md5()
@@ -58,4 +59,3 @@ def md5sum(fname):
 if __name__ == '__main__':
     for fname in sys.argv[1:]:
         print '%32s  %s' % (md5sum(fname), fname)
-

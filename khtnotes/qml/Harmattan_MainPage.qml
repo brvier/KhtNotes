@@ -126,7 +126,6 @@ Page {
                              //editingPage.setData()
                              pageStack.push(editingPage, {text: Note.data,
                                                           modified: false});
-                    //    }
                     }
                     onPressAndHold: {
                         //itemMenu.uuid = model.uuid;

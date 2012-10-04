@@ -15,7 +15,7 @@
 
 from PySide.QtGui import QApplication
 from PySide.QtCore import QUrl, Slot, QObject, \
-                          QAbstractListModel, QModelIndex
+    QAbstractListModel, QModelIndex
 from PySide import QtDeclarative
 from PySide.QtOpenGL import QGLWidget
 
@@ -56,7 +56,8 @@ __upgrade__ = '''1.1: First public release
 2.9: Fix the sync without and with merge feature
 2.10: Add favorite feature, add duplicate, improve delete,
       fix markdown preview, add realtime markdown highlight
-2.11: Darker color and bigger text for title highlight, improve pre/post package script, fix timer for realtime highlight
+2.11: Darker color and bigger text for title highlight, '''
+'''improve pre/post package script, fix timer for realtime highlight
 2.12: Fix markdown preview (new line extension)'''
 
 
@@ -113,8 +114,8 @@ class NotesModel(QAbstractListModel):
         self._sortData()
 
     def _sortData(self,):
-        self._notes.sort(key=lambda note: (note.favorited, note.timestamp)
-                                         , reverse=True)
+        self._notes.sort(key=lambda note: (note.favorited, note.timestamp),
+                         reverse=True)
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._filteredNotes)
@@ -196,7 +197,7 @@ class KhtNotes(QApplication):
         self.rootContext.setContextProperty("Sync", self.syncer)
         self.rootContext.setContextProperty("Importer", self.conboyImporter)
         self.rootContext.setContextProperty("QmlDirReaderWriter",
-                                             QmlDirReaderWriter())
+                                            QmlDirReaderWriter())
         self.rootContext.setContextProperty('notesModel', self.notesModel)
         self.rootContext.setContextProperty('Note', self.note)
 
@@ -205,7 +206,7 @@ class KhtNotes(QApplication):
                 os.path.join(os.path.dirname(__file__),
                              'qml', 'Harmattan_main.qml')))
         except:
-             self.view.setSource(QUrl.fromLocalFile(
+            self.view.setSource(QUrl.fromLocalFile(
                 os.path.join(os.path.dirname(__file__),
                              'qml', 'Desktop_main.qml')))
 

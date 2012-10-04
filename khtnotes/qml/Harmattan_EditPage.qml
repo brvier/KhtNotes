@@ -29,7 +29,7 @@ Page {
 
     PageHeader {
          id: header
-         title: 'KhtNote'
+         title: 'KhtNotes'
     }
 
      BusyIndicator {

@@ -20,7 +20,7 @@ import xml.sax
 from note import Note, getValidFilename
 import threading
 from PySide.QtCore import QObject, Signal, Slot, \
-                          Property
+    Property
 
 
 class TomboyImporter(QObject):
@@ -38,14 +38,14 @@ class TomboyImporter(QObject):
 
     def _import(self):
         self.noteList = {}
-        for infile in glob.glob( \
-            os.path.join(os.path.expanduser('~/.conboy'), '*.note')):
+        for infile in glob.glob(
+                os.path.join(os.path.expanduser('~/.conboy'), '*.note')):
             try:
                 parser = xml.sax.make_parser()
                 handler = textHandler()
                 parser.setContentHandler(handler)
                 parser.parse(infile)
-            except Exception, err:
+            except Exception:
                 import traceback
                 print traceback.format_exc()
 
@@ -56,13 +56,13 @@ class TomboyImporter(QObject):
                 path = os.path.join(note.NOTESPATH, uuid)
                 if os.path.exists(path + '.txt'):
                     index = 2
-                    while (os.path.exists(os.path.join( \
-                            note.NOTESPATH,'%s %s.txt' \
-                            % (path, \
-                            unicode(index))))):
+                    while (os.path.exists(os.path.join(
+                            note.NOTESPATH, '%s %s.txt'
+                            % (path,
+                                unicode(index))))):
                         index = index + 1
-                    uuid = ('%s %s' \
-                            % (os.path.basename(path), \
+                    uuid = ('%s %s'
+                            % (os.path.basename(path),
                             unicode(index)))
 
                 note.uuid = uuid + '.txt'
@@ -72,11 +72,11 @@ class TomboyImporter(QObject):
                     mtime = strtotimestamp(handler._last_change)
                     lpath = os.path.join(Note.NOTESPATH, note.uuid)
                     os.utime(lpath, (-1, mtime))
-                except Exception, err:
+                except Exception:
                     import traceback
                     print traceback.format_exc()
 
-            except Exception, err:
+            except Exception:
                 import traceback
                 print traceback.format_exc()
 
@@ -95,6 +95,7 @@ class TomboyImporter(QObject):
     on_running = Signal()
     running = Property(bool, _get_running, _set_running, notify=on_running)
 
+
 class textHandler(ContentHandler):
     def __init__(self):
         ContentHandler.__init__(self)
@@ -104,12 +105,12 @@ class textHandler(ContentHandler):
         self._selector = None
         self._list_level = 0
 
-    def startElement(self, element,attributes):
-        if (element == 'note-content') and (self._selector == None):
+    def startElement(self, element, attributes):
+        if (element == 'note-content') and (self._selector is None):
             self._selector = element
-        elif (element == 'last-change-date') and (self._selector == None):
+        elif (element == 'last-change-date') and (self._selector is None):
             self._selector = element
-        elif (element == 'title') and (self._selector == None):
+        elif (element == 'title') and (self._selector is None):
             self._selector = element
         elif (element == 'list'):
             self._list_level = self._list_level + 1
@@ -146,9 +147,9 @@ class textHandler(ContentHandler):
                 self._title = self._title + unicode(ch)
             elif self._selector == 'last-change-date':
                 self._last_change = self._last_change + unicode(ch)
-        except Exception, err:
-             import traceback
-             print traceback.format_exc()
+        except Exception:
+            import traceback
+            print traceback.format_exc()
 
 
 if __name__ == '__main__':
