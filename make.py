@@ -55,6 +55,10 @@ if __name__ == "__main__":
     p.maemo_flags = 'visible'
     p.meego_desktop_entry_filename = '/usr/share/applications/khtnotes.desktop'
     files = []
+    p.postinst = '''#!/bin/sh
+echo "Giving permissions for apps to execute"
+chmod +x /opt/khtnotes/__init__.py
+exit 0'''
 
     #Include byte compiled files, so do not remove it at packaging
     #time : selinux / obs spec packaging can require them
