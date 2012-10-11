@@ -55,57 +55,12 @@ if __name__ == "__main__":
     p.maemo_flags = 'visible'
     p.meego_desktop_entry_filename = '/usr/share/applications/khtnotes.desktop'
     files = []
-    p.postinst = '''#!/bin/sh
-echo "Giving permissions for apps to execute"
-chmod +x /opt/khtnotes/__init__.py
-echo "Precompiling KhtNotes"
-pycompile -O /opt/khtnotes/*.py
-echo "Precompiling Webdav Lib"
-pycompile -O /opt/khtnotes/webdav/*.py
-exit 0'''
-    p.prerm = '''#!/bin/sh
-echo 'Removing compiled files'
-rm -rf /opt/khtnotes/*.pyc
-rm -rf /opt/khtnotes/webdav/*.pyc
-rm -rf /opt/khtnotes/webdav/acp/*.pyc
-rm -rf /opt/khtnotes/markdown/*.pyc
-rm -rf /opt/khtnotes/markdown/extensions/*.pyc
-exit 0'''
 
-    p.createDigsigsums = True
-    
-    #Remove pyc and pyo
-    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, '*.pyc')):
-        print 'Cleaning' ,  filepath
-        os.remove(filepath)
-    #Remove pyc and pyo
-    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, '*.pyo')):
-        print 'Cleaning' ,  filepath
-        os.remove(filepath)
-    #Remove pyc and pyo
-    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'webdav', '*.pyc')):
-        print 'Cleaning' ,  filepath
-        os.remove(filepath)
-    #Remove pyc and pyo
-    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'webdav', '*.pyo')):
-        print 'Cleaning' ,  filepath
-        os.remove(filepath)
-    #Remove pyc and pyo
-    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'merge3', '*.pyc')):
-        print 'Cleaning' ,  filepath
-        os.remove(filepath)
-    #Remove pyc and pyo
-    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'merge3', '*.pyo')):
-        print 'Cleaning' ,  filepath
-        os.remove(filepath)
-    #Remove pyc and pyo
-    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'markdown', '*.pyo')):
-        print 'Cleaning' ,  filepath
-        os.remove(filepath)
-    #Remove pyc and pyo
-    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'markdown', '*.pyo')):
-        print 'Cleaning' ,  filepath
-        os.remove(filepath)        
+    #Include byte compiled files, so do not remove it at packaging
+    #time : selinux / obs spec packaging can require them
+    from compileall import compile_dir
+    compile_dir(os.path.join(os.path.dirname(__file__), p.name))
+    os.system('python -O -m compileall '+os.path.join(os.path.dirname(__file__), p.name))
 
     #Src
     for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__), p.name)):
