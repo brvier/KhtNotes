@@ -39,17 +39,24 @@ Test
 test test **test** test *test*
 * *test*
 **test**
+* test
+  * test
+* test
 test
 ====
 test'''
 
-        result='''<html><body><font color="#008800">Test<br>
-----</font><br>
+        result='''<html><body><big><font color="#663366">Test<br>
+----</font></big><br>
 test test <b>**test**</b> test <i>*test*</i><br>
 <i>* *</i>test*<br>
 <b>**test**</b><br>
-<font color="#00BB00">test<br>
-====</font><br>
+* test<br>
+  * test<br>
+* test<br>
+<big><font color="#441144">test<br>
+====</font></big><br>
 test</body></html>'''.replace('\n', '')
         self.assertEqual(note._colorize(original), result)
         self.assertEqual(original[1:], note._uncolorize(result))
+        self.assertEqual(note._colorize(original[1:]), note._colorize(note._uncolorize(result)))

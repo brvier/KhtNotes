@@ -24,6 +24,8 @@ import htmlentitydefs
 from settings import Settings
 
 INVALID_FILENAME_CHARS = '\/:*?"<>|'
+STRIPTAGS = re.compile(r'<[^>]+>')
+STRIPHEAD = re.compile("<head>.*?</head>", re.DOTALL)
 
 
 def getValidFilename(filename):
@@ -52,7 +54,6 @@ def _undertitleify(group):
 
 
 def _colorize(text):
-
     regexs = ((re.compile(
         r'(\*|_){2}(.+?)(\*|_){2}',
         re.UNICODE), _strongify),
@@ -77,13 +78,18 @@ def _colorize(text):
             r'^##(.+)##$',
             re.UNICODE | re.MULTILINE), _undertitleify),
     )
-    if text.startswith('\n'):
-        text = text[1:]
     for regex, cb in regexs:
         text = re.sub(regex, cb, text)
-    text = text.replace('\n', '<br>')
-
-    return  u'<html><body>%s</body></html>' % text
+    #text = text.replace('\n', '</p><p>').replace('<p></p>', '<br />')
+    text = text.replace('\n', '<br />')
+    return  u'''
+<html><head><style type="text/css">
+    p, li, pre, body {
+        white-space: pre-wrap;
+        font-family: "Nokia Pure Text";
+        margin-top: 0px;
+        margin-bottom: 0px;}
+</style><body><p>%s</p></body></html>''' % text
 
 
 def _unescape(text):
@@ -109,21 +115,23 @@ def _unescape(text):
     return re.sub("&#?\w+;", fixup, text)
 
 
-def _stripTags(content):
-    ''' Remove html text formating from a text'''
-    from BeautifulSoup import BeautifulSoup
-    content = content.replace(
-        '<p style=', '<pre style=').replace(
-            '<br />', '\n').replace('<br>', '\n')
-    plainText = _unescape(''.join(BeautifulSoup(
-        content).body(text=True)))
-    if (plainText.startswith('\n')):
-        return plainText[1:]
-    return plainText
-
-
 def _uncolorize(text):
-    return _stripTags(text)
+    text = _unescape(STRIPTAGS.sub('',
+                     STRIPHEAD.sub('', text.replace('', '')
+                                   .replace('\n<pre style="'
+                                   + '-qt-paragraph-type:empty;'
+                                   + ' margin-top:0px;'
+                                   + ' margin-bottom:0px; margin-left:0px;'
+                                   + ' margin-right:0px; -qt-block-indent:0;'
+                                   + ' text-indent:0px;"><br /></pre>', '\n')
+                                   .replace('\n<p style="'
+                                   + '-qt-paragraph-type:empty;'
+                                   + ' margin-top:0px; margin-bottom:0px;'
+                                   + ' margin-left:0px; margin-right:0px;'
+                                   + ' -qt-block-indent:0; text-indent:0px;'
+                                   + '"><br /></p>', '\n')
+                                   .replace('<br />', '\n'))))
+    return text.lstrip('\n')
 
 
 class Note(QObject):
@@ -159,7 +167,7 @@ class Note(QObject):
     @Slot(unicode, result=bool)
     def write(self, data):
         ''' Write the document to a file '''
-        print data
+
         #Deleted content
         if data == '':
             #if exist only

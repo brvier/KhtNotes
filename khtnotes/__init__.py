@@ -17,7 +17,7 @@ from PySide.QtGui import QApplication
 from PySide.QtCore import QUrl, Slot, QObject, \
     QAbstractListModel, QModelIndex
 from PySide import QtDeclarative
-from PySide.QtOpenGL import QGLWidget
+from PySide.QtOpenGL import QGLWidget, QGLFormat
 
 import sys
 import os
@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.12'
+__version__ = '2.13'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -56,9 +56,10 @@ __upgrade__ = '''1.1: First public release
 2.9: Fix the sync without and with merge feature
 2.10: Add favorite feature, add duplicate, improve delete,
       fix markdown preview, add realtime markdown highlight
-2.11: Darker color and bigger text for title highlight, '''
-'''improve pre/post package script, fix timer for realtime highlight
-2.12: Fix markdown preview (new line extension)'''
+2.11: Darker color and bigger text for title highlight,
+      improve pre/post package script, fix timer for realtime highlight
+2.12: Fix markdown preview (new line extension)
+2.13: Use more limited set of html due to limitation on Qt.TextEdit'''
 
 
 class QmlDirReaderWriter(QObject):
@@ -182,7 +183,10 @@ class KhtNotes(QApplication):
         self.setApplicationName("KhtNotes")
 
         self.view = QtDeclarative.QDeclarativeView()
-        self.glw = QGLWidget()
+        self.glformat = QGLFormat().defaultFormat()
+        self.glformat.setSampleBuffers(False)
+        self.glw = QGLWidget(self.glformat)
+        self.glw.setAutoFillBackground(False)
         self.view.setViewport(self.glw)
         self.notesModel = NotesModel()
         self.note = Note()
@@ -192,7 +196,7 @@ class KhtNotes(QApplication):
         self.rootContext.setContextProperty("argv", sys.argv)
         self.rootContext.setContextProperty("__version__", __version__)
         self.rootContext.setContextProperty("__upgrade__", __upgrade__
-                                            .replace('\n', '<br>'))
+                                            .replace('\n', '<br />'))
         self.rootContext.setContextProperty("Settings", Settings())
         self.rootContext.setContextProperty("Sync", self.syncer)
         self.rootContext.setContextProperty("Importer", self.conboyImporter)
@@ -212,6 +216,7 @@ class KhtNotes(QApplication):
 
         self.rootObject = self.view.rootObject()
         self.view.showFullScreen()
+        self.view.show()
         self.note.on_error.connect(self.rootObject.onError)
         self.syncer.on_error.connect(self.rootObject.onError)
         self.syncer.on_finished.connect(self.notesModel.reload)

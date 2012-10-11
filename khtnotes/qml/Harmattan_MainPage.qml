@@ -1,6 +1,5 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
-import Qt.labs.folderlistmodel 1.0
 import 'components'
 import 'common.js' as Common
 
