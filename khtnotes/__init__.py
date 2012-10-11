@@ -31,6 +31,7 @@ from importer import TomboyImporter
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
 __version__ = '2.13'
+__build__ = '5'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug

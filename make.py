@@ -20,9 +20,8 @@ from glob import glob
 import pypackager
 sys.path.append('khtnotes')
 
-from khtnotes import __version__, __upgrade__
+from khtnotes import __version__, __upgrade__, __build__
 
-__build__ = '2'
 __author__ = "Benoît HERVIER (khertan)"
 __mail__ = "khertan@khertan.net"
 
@@ -31,23 +30,26 @@ if __name__ == "__main__":
         os.chdir(os.path.dirname(sys.argv[0]))
     except:
         pass
-    p=pypackager.PyPackager("khtnotes")
+    p = pypackager.PyPackager("khtnotes")
     p.display_name = 'KhtNotes'
-    p.version = __version__+'.0'
+    p.version = __version__ + '.0'
     p.buildversion = __build__
-    p.description="A note taking application for Harmattan devices (n950, n9). KhtNotes provide sync of notes with ownCloud, and permit to previem markdown syntax"
+    p.summary = 'A note taking application with ownCloud sync'
+    p.description = "A note taking application for Harmattan devices (n950, n9), and Nemo Mobile / MeeGo devices. KhtNotes provide sync of notes with ownCloud, and permit to previem markdown syntax"
     p.upgrade_description=__upgrade__
     p.author=__author__
     p.maintainer=__author__
     p.email=__mail__
     p.depends = "python, python-pyside.qtgui, python-pyside.qtdeclarative, python-pyside.qtcore, python-pyside.qtopengl"
+    p.rpm_depends = "python, python-pyside"
     p.suggests = ""
     p.section="user/office"
-    p.arch="armel"
+    p.arch="all"
     p.urgency="low"
     p.icon='khtnotes.png'
     p.distribution="harmattan"
     p.repository="Khertan Repository"
+    p.url = 'http://khertan.net/KhtNotes'
     p.bugtracker = 'http://github.com/khertan/KhtNotes/issues'
     p.changelog =  p.upgrade_description
     p.maemo_flags = 'visible'
@@ -71,20 +73,39 @@ rm -rf /opt/khtnotes/markdown/extensions/*.pyc
 exit 0'''
 
     p.createDigsigsums = True
-
+    
     #Remove pyc and pyo
     for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, '*.pyc')):
+        print 'Cleaning' ,  filepath
         os.remove(filepath)
     #Remove pyc and pyo
     for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, '*.pyo')):
+        print 'Cleaning' ,  filepath
         os.remove(filepath)
     #Remove pyc and pyo
     for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'webdav', '*.pyc')):
+        print 'Cleaning' ,  filepath
         os.remove(filepath)
     #Remove pyc and pyo
     for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'webdav', '*.pyo')):
+        print 'Cleaning' ,  filepath
         os.remove(filepath)
-
+    #Remove pyc and pyo
+    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'merge3', '*.pyc')):
+        print 'Cleaning' ,  filepath
+        os.remove(filepath)
+    #Remove pyc and pyo
+    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'merge3', '*.pyo')):
+        print 'Cleaning' ,  filepath
+        os.remove(filepath)
+    #Remove pyc and pyo
+    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'markdown', '*.pyo')):
+        print 'Cleaning' ,  filepath
+        os.remove(filepath)
+    #Remove pyc and pyo
+    for filepath in glob(os.path.join(os.path.dirname(__file__), p.name, 'markdown', '*.pyo')):
+        print 'Cleaning' ,  filepath
+        os.remove(filepath)        
 
     #Src
     for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__), p.name)):
