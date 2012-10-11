@@ -30,8 +30,8 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.13'
-__build__ = '5'
+__version__ = '2.14'
+__build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -60,7 +60,8 @@ __upgrade__ = '''1.1: First public release
 2.11: Darker color and bigger text for title highlight,
       improve pre/post package script, fix timer for realtime highlight
 2.12: Fix markdown preview (new line extension)
-2.13: Use more limited set of html due to limitation on Qt.TextEdit'''
+2.13: Use more limited set of html due to limitation on Qt.TextEdit
+2.14: Unactivate opengl for Mer/Nemo OS'''
 
 
 class QmlDirReaderWriter(QObject):
@@ -184,11 +185,14 @@ class KhtNotes(QApplication):
         self.setApplicationName("KhtNotes")
 
         self.view = QtDeclarative.QDeclarativeView()
-        self.glformat = QGLFormat().defaultFormat()
-        self.glformat.setSampleBuffers(False)
-        self.glw = QGLWidget(self.glformat)
-        self.glw.setAutoFillBackground(False)
-        self.view.setViewport(self.glw)
+        #Are we on mer ? So don't use opengl
+        #As it didn't works on all devices
+        if os.path.exists('/etc/mer-release'):
+            self.glformat = QGLFormat().defaultFormat()
+            self.glformat.setSampleBuffers(False)
+            self.glw = QGLWidget(self.glformat)
+            self.glw.setAutoFillBackground(False)
+            self.view.setViewport(self.glw)
         self.notesModel = NotesModel()
         self.note = Note()
         self.conboyImporter = TomboyImporter()
