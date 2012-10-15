@@ -137,8 +137,18 @@ PageStackWindow {
                              '<br><br><b>Changelog : </b><br>' +
                              __upgrade__ +
                              '<br><br><b>Thanks to : </b>' +
-                             '<br>Radek Novacek' 
-                             
+                             '<br>Radek Novacek' +
+                             '<br><br><b>Privacy Policy : </b>' +
+                             '<br>KhtNotes can sync your notes with a webdav storage or ownCloud instance. For this KhtNotes need to know the Url, Path, Login and Password to connect to. But this is optionnal, and you can use KhtNotes without the sync feature.' +
+                             '<br><br>' +
+                             'Which datas are transmitted :' +
+                             '<br>* Login and Password will only be transmitted to the url you put in the Web Host setting.' +
+                             '<br>* When using the sync features all your notes can be transmitted to the server you put in the Web Host setting' +
+                             '<br><br>' +
+                             'Which datas are stored :' +
+                             '<br>* All notes are stored as text files' +
+                             '<br>* An index of all files, with last synchronization datetime' +
+                             '<br>* Url & Path of the server, and login and password are stored in the settings file.'                            
              }
              );
     }

@@ -30,8 +30,8 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.14'
-__build__ = '4'
+__version__ = '2.15'
+__build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -61,7 +61,9 @@ __upgrade__ = '''1.1: First public release
       improve pre/post package script, fix timer for realtime highlight
 2.12: Fix markdown preview (new line extension)
 2.13: Use more limited set of html due to limitation on Qt.TextEdit
-2.14: Unactivate opengl for Mer/Nemo OS'''
+2.14: Unactivate opengl for Mer/Nemo OS
+2.15: Fix a bug losing focus when refreshing highlighting and add
+      privacy policy in about screen'''
 
 
 class QmlDirReaderWriter(QObject):

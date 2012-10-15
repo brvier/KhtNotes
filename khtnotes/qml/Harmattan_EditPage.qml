@@ -41,52 +41,71 @@ Page {
     }
 
     Flickable {
-         id: flick
-         opacity: Note.ready ? 1.0 : 0.0
-         flickableDirection: Flickable.HorizontalAndVerticalFlick
-         anchors.top: header.bottom
-         anchors.left: parent.left
-         anchors.leftMargin: -2
-         anchors.right: parent.right
-         anchors.rightMargin: -2
-         anchors.bottom: parent.bottom
-         anchors.bottomMargin: -2
-         anchors.topMargin: -2
-         clip: true
+        id: flick
+        opacity: Note.ready ? 1.0 : 0.0
+        flickableDirection: Flickable.HorizontalAndVerticalFlick
+        anchors.top: header.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: -2
+        anchors.right: parent.right
+        anchors.rightMargin: -2
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: -2
+        anchors.topMargin: -2
+        clip: true
 
-         contentWidth: textEditor.width
-         contentHeight: textEditor.height
-         pressDelay: 200
+        contentWidth: textEditor.width
+        contentHeight: textEditor.height
+        pressDelay: 200
 
+        function ensureVisible(r)
+        {
+            if (contentX >= r.x)
+                contentX = r.x;
+            else if (contentX+width <= r.x+r.width)
+                contentX = r.x+r.width-width;
+            if (contentY >= r.y)
+                contentY = r.y;
+            else if (contentY+height <= r.y+r.height)             
+                contentY = r.y+r.height-height;
+        }
+        onContentYChanged: {
+            if ((flick.contentY == 0) && (textEditor.cursorPosition != 0)) {
+                flick.ensureVisible(textEditor.positionToRectangle(textEditor.cursorPosition));
+            }
+        }
 
-             TextArea {
-                 id: textEditor
-                 anchors.top: parent.top
-                 height: Math.max (implicitHeight, flick.height + 4, editPage.height, 720)
-                 width:  flick.width + 4
-                 wrapMode: TextEdit.WordWrap
-                 inputMethodHints: Qt.ImhAutoUppercase | Qt.ImhNoPredictiveText
-                 textFormat: TextEdit.RichText
-                 font { bold: false; 
-                        family: Settings.fontFamily; 
-                        pixelSize:  Settings.fontSize;}
-                 onTextChanged: { modified = true; autoTimer.restart();}
-                 Component.onDestruction: {
-                        if (modified == true) {
-                            Note.write(textEditor.text);
-                        }
-                    }
-                 Timer {
-                    id: autoTimer
-                    interval: 2000
-                    onTriggered: {
-                        var index = textEditor.cursorPosition;
-                        textEditor.text = Note.reHighlight(textEditor.text);
-                        textEditor.cursorPosition = index;
-                    }
-                 }
-             }
-     }
+        TextArea {
+            id: textEditor
+            anchors.top: parent.top
+            height: Math.max (implicitHeight, flick.height + 4, editPage.height, 720)
+            width:  flick.width + 4
+            wrapMode: TextEdit.WordWrap
+            inputMethodHints: Qt.ImhAutoUppercase | Qt.ImhNoPredictiveText
+            textFormat: TextEdit.RichText
+            font { bold: false; 
+               family: Settings.fontFamily; 
+               pixelSize:  Settings.fontSize;}
+            onTextChanged: { modified = true; autoTimer.restart();}
+
+            Component.onDestruction: {
+                if (modified == true) {
+                    Note.write(textEditor.text);
+                }
+            }
+
+            Timer {
+                id: autoTimer
+                interval: 2000
+                onTriggered: {
+                    internalModification = true;
+                    var curPos = textEditor.cursorPosition;
+                    textEditor.text = Note.reHighlight(textEditor.text);
+                    textEditor.cursorPosition = curPos;
+                }
+            }
+        }
+    }
 
     ScrollDecorator {
         flickableItem: flick
