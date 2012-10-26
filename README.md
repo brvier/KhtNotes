@@ -1,9 +1,10 @@
 #KhtNotes
 
 **Sources :** [Git Repository][1]  
-**Bug Tracker :** [Bug Tracker][3]
+**Bug Tracker :** [Bug Tracker][3]  
+**Download:** [AppsForMeego][12] - [Khertan.net][11] - [MeeGo COBS][13] - [Nokia Store][14]  
 
-KhtNotes is a note taking application for Harmattan devices (n950, n9). Provide sync of notes with ownCloud, and permit to preview markdown syntax
+KhtNotes is a note taking application for Harmattan devices (n950, n9), and all device running MeeGo/Mer/NemoMobile. Provide sync of notes with ownCloud, and permit to preview markdown syntax
 Synchronization is made for [Owncloud][9] webdav, but should work with any other webdav server.
 
 Features
@@ -11,9 +12,12 @@ Features
 
   * Sync with ownCloud or other webdav server
   * Preview markdown syntax
-  * Realtime syntax highlight of a subset of markdown syntax
   * File are stored as text file, so you can directly edit them in ownCloud or via a mounted webdav point and a text editor.
   * Import your Conboy or Tomboy notes (note should be in ~/.conboy/ directory)
+
+Install on n9/n950 via QrCode
+-----------------------------------
+![Qr Code][15]
 
 Screenshots
 ------------------
@@ -37,6 +41,8 @@ Licenced under GPLv3.
 [10]:http://khertan.net/medias/khtnotes_screenshot_4.png
 [7]:http://khertan.net/KhtNotes
 [9]:https://owncloud.org   
-[11]:http://khertan.net/datas/downloads/khtnotes_2.0.0-1_armel.deb
+[11]:http://khertan.net/downloads
 [12]:http://apps.formeego.com/staging/applications/n9/pr1.0/harmattan/Office/khtnotes/
 [13]:http://repo.pub.meego.com/home:/khertan/Harmattan/armel/
+[14]:http://store.ovi.com/content/320976
+[15]:http://khertan.net/medias/khtnotes_qrcode.png
