@@ -82,10 +82,11 @@ class Sync(QObject):
 
         #Test KhtNotes folder and authenticate
         authFailures = 0
-        while authFailures < 3:
+        while authFailures < 4:
             try:
                 webdavConnection.validate()
                 response = webdavConnection.getSpecificOption('date')
+                print response
                 try:
                     import rfc822
                     local_datetime = int(time.time())
@@ -129,7 +130,7 @@ class Sync(QObject):
     def _sync_connect(self,):
         '''Sync the notes with a webdav server'''
         webdavLogin, webdavPasswd, useAutoMerge = self.readSettings()
-
+        print webdavLogin, webdavPasswd, useAutoMerge
         #Create Connection
         isConnected, webdavConnection, time_delta = \
             self.createConnection(webdavLogin, webdavPasswd)
@@ -389,7 +390,7 @@ class Sync(QObject):
                     self._localDataFolder, '.index.sync'), 'wb') as fh:
                 json.dump(({}, index[1]), fh)
         except:
-            raise
+            self.logger.debug('No remote index stored locally')
 
     def _move(self, webdavConnection, src, dst):
         '''Move/Rename a note on webdav'''
@@ -452,6 +453,7 @@ class Sync(QObject):
         '''Check that khtnotes folder exists on webdav'''
         try:
             khtnotesPath = self._get_notes_path()
+            self.logger.debug('WebdavConnection Path: %s' % webdavConnection.path)
             if not khtnotesPath in webdavConnection.listResources().keys():
                 webdavConnection.addCollection(self._remoteDataFolder + '/')
                 #So here it s a new share, and if have old index file
@@ -463,6 +465,7 @@ class Sync(QObject):
             import traceback
             print traceback.format_exc()
             raise
+        return True
 
     def _get_remote_filenames(self, webdavConnection):
         '''Check Remote Index'''

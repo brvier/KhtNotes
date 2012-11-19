@@ -52,7 +52,7 @@ class Settings(QObject):
             self.config.write(configfile)
 
     def _set(self, option, value):
-        if option in ('host', 'login', 'password',
+        if option in ('host', 'login', 'passwd',
                       'basePath', 'autoMerge'):
             self.config.set('Webdav', option, value)
         else:
