@@ -42,7 +42,7 @@ class Settings(QObject):
         self.config.set('Webdav', 'login', 'demo')
         self.config.set('Webdav', 'passwd', 'demo')
         self.config.set('Webdav', 'basePath',
-                        '/owncloud/files/webdav.php')
+                        '/remote.php/webdav/')
         self.config.set('Webdav', 'autoMerge', 'true')
         self.config.add_section('Favorites')
 
