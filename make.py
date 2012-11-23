@@ -35,23 +35,27 @@ if __name__ == "__main__":
     p.version = __version__ + '.0'
     p.buildversion = __build__
     p.summary = 'A note taking application with ownCloud sync'
-    p.description = "A note taking application for Harmattan devices (n950, n9), and Nemo Mobile / MeeGo devices. KhtNotes provide sync of notes with ownCloud, and permit to previem markdown syntax"
-    p.upgrade_description=__upgrade__
-    p.author=__author__
-    p.maintainer=__author__
-    p.email=__mail__
-    p.depends = "python, python-pyside.qtgui, python-pyside.qtdeclarative, python-pyside.qtcore, python-pyside.qtopengl"
+    p.description = "A note taking application for Harmattan devices" \
+        + " (n950, n9), and Nemo Mobile/ MeeGo devices. KhtNotes provide" \
+        + " sync of notes with ownCloud, and permit to previem markdown " \
+        + "syntax"
+    p.upgrade_description = __upgrade__
+    p.author = __author__
+    p.maintainer = __author__
+    p.email = __mail__
+    p.depends = "python, python-pyside.qtgui, python-pyside.qtdeclarative," \
+        + " python-pyside.qtcore, python-pyside.qtopengl"
     p.rpm_depends = "python, python-pyside"
     p.suggests = ""
-    p.section="user/office"
-    p.arch="all"
-    p.urgency="low"
-    p.icon='khtnotes.png'
-    p.distribution="harmattan"
-    p.repository="Khertan Repository"
+    p.section = "user/office"
+    p.arch = "all"
+    p.urgency = "low"
+    p.icon = 'khtnotes.png'
+    p.distribution = "harmattan"
+    p.repository = "Khertan Repository"
     p.url = 'http://khertan.net/KhtNotes'
     p.bugtracker = 'http://github.com/khertan/KhtNotes/issues'
-    p.changelog =  p.upgrade_description
+    p.changelog = p.upgrade_description
     p.maemo_flags = 'visible'
     p.meego_desktop_entry_filename = '/usr/share/applications/khtnotes.desktop'
     files = []
@@ -64,21 +68,27 @@ exit 0'''
     #time : selinux / obs spec packaging can require them
     from compileall import compile_dir
     compile_dir(os.path.join(os.path.dirname(__file__), p.name))
-    os.system('python -O -m compileall '+os.path.join(os.path.dirname(__file__), p.name))
+    os.system('python -O -m compileall '
+              + os.path.join(os.path.dirname(__file__), p.name))
 
     #Src
-    for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__), p.name)):
-      for f in fs:
-        files.append(os.path.join(root, f))
+    for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__),
+                                               p.name)):
+        for f in fs:
+            files.append(os.path.join(root, f))
 
-    p['/usr/share/dbus-1/services'] = ['khtnotes.service',]
-    p['/usr/share/icons/hicolor/80x80/apps'] = ['khtnotes.png',]
-    p['/usr/share/icons/hicolor/scalable/apps'] = ['khtnotes.svg',]
-    p['/usr/share/applications'] = ['khtnotes.desktop',]
+    p['/usr/share/dbus-1/services'] = ['khtnotes.service', ]
+    p['/usr/share/icons/hicolor/80x80/apps'] = ['khtnotes.png', ]
+    p['/usr/share/icons/hicolor/64x64/apps'] = ['khtnotes_64.png', ]
+    p['/usr/share/icons/hicolor/scalable/apps'] = ['khtnotes.svg', ]
+    p['/usr/share/applications'] = ['khtnotes.desktop', ]
     p["/opt"] = files
 
-    print p.generate(build_binary=True,build_src=True)
+    print p.generate(build_binary=True, build_src=True)
     if not os.path.exists('dists'):
         os.mkdir('dists')
-    for filepath in glob(p.name+'_'+p.version+'-'+p.buildversion+'*'):
-        os.rename(filepath, os.path.join(os.path.dirname(filepath), 'dists', os.path.basename(filepath)))
+    for filepath in glob(p.name + '_' +
+                         p.version + '-' + p.buildversion + '*'):
+        os.rename(filepath,
+                  os.path.join(os.path.dirname(filepath),
+                               'dists', os.path.basename(filepath)))
