@@ -31,7 +31,6 @@ def basename(path):
 
 
 def local2utc(secs):
-   
     if time.daylight:
         return secs - time.timezone
     else:
