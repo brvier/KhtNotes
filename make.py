@@ -84,11 +84,4 @@ exit 0'''
     p['/usr/share/applications'] = ['khtnotes.desktop', ]
     p["/opt"] = files
 
-    print p.generate(build_binary=True, build_src=True)
-    if not os.path.exists('dists'):
-        os.mkdir('dists')
-    for filepath in glob(p.name + '_' +
-                         p.version + '-' + p.buildversion + '*'):
-        os.rename(filepath,
-                  os.path.join(os.path.dirname(filepath),
-                               'dists', os.path.basename(filepath)))
+    print p.generate(('debian_source', 'rpm_source', 'debian_binary'))
