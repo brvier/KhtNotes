@@ -30,8 +30,8 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.17'
-__build__ = '2'
+__version__ = '2.18'
+__build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -67,7 +67,8 @@ __upgrade__ = '''1.1: First public release
 2.16: Fix an error in the settings parser that prevent it using the right
       password to authenticate to a webdav account
       Fix an error preventing displaying a login / password error message
-2.17: Add 64x64 icon for nemo mobile, clean make.py'''
+2.17: Add 64x64 icon for nemo mobile, clean make.py
+2.18: Fix an mistake where timedelta didn't care of timezone of server'''
 
 
 class QmlDirReaderWriter(QObject):
