@@ -30,6 +30,14 @@ def basename(path):
     return os.path.basename(path)
 
 
+def local2utc(secs):
+   
+    if time.daylight:
+        return secs - time.timezone
+    else:
+        return secs - time.altzone
+
+
 class Sync(QObject):
     '''Sync class'''
 
@@ -39,6 +47,8 @@ class Sync(QObject):
         #logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
         self.logger = logger.getDefaultLogger()
         self._localDataFolder = Note.NOTESPATH
+        if not os.path.exists(self._localDataFolder):
+            os.mkdir(self._localDataFolder)
         self._remoteDataFolder = 'KhtNotes'
 
     @Slot()
@@ -90,8 +100,14 @@ class Sync(QObject):
                 try:
                     import rfc822
                     local_datetime = int(time.time())
+                    self.logger.debug('Timezone: %f, Timealtzone: %f',
+                                      time.timezone, time.altzone)
+                    self.logger.debug('Server Time: %s' % response)
                     remote_datetime = rfc822.parsedate(response)
-                    time_delta = time.mktime(remote_datetime) - local_datetime
+                    self.logger.debug('Parsed server time %s' %
+                                      str(remote_datetime))
+                    time_delta = local2utc(time.mktime(remote_datetime)) \
+                        - local_datetime
                     self.logger.debug('Time delta: %f' % time_delta)
                 except Exception, err:
                     time_delta = None
@@ -453,7 +469,8 @@ class Sync(QObject):
         '''Check that khtnotes folder exists on webdav'''
         try:
             khtnotesPath = self._get_notes_path()
-            self.logger.debug('WebdavConnection Path: %s' % webdavConnection.path)
+            self.logger.debug('WebdavConnection Path: %s'
+                              % webdavConnection.path)
             if not khtnotesPath in webdavConnection.listResources().keys():
                 webdavConnection.addCollection(self._remoteDataFolder + '/')
                 #So here it s a new share, and if have old index file
