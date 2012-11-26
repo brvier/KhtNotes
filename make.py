@@ -15,7 +15,6 @@
 
 import os
 import sys
-from glob import glob
 
 import pypackager
 sys.path.append('khtnotes')
@@ -63,6 +62,12 @@ if __name__ == "__main__":
 echo "Giving permissions for apps to execute"
 chmod +x /opt/khtnotes/__init__.py
 exit 0'''
+
+    #Remove temporary files
+    for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__),
+                                               p.name)):
+        for filename in [filename for filename in fs if filename.endswith(('~', '.pyo', '.pyc', ))]:
+            files.append(os.path.join(root, filename))
 
     #Include byte compiled files, so do not remove it at packaging
     #time : selinux / obs spec packaging can require them
