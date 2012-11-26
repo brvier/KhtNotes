@@ -138,6 +138,7 @@ PageStackWindow {
                              __upgrade__ +
                              '<br><br><b>Thanks to : </b>' +
                              '<br>Radek Novacek' +
+                             '<br>caco3 on talk.maemo.org' +
                              '<br><br><b>Privacy Policy : </b>' +
                              '<br>KhtNotes can sync your notes with a webdav storage or ownCloud instance. For this KhtNotes need to know the Url, Path, Login and Password to connect to. But this is optionnal, and you can use KhtNotes without the sync feature.' +
                              '<br><br>' +
@@ -149,7 +150,12 @@ PageStackWindow {
                              '<br>* All notes are stored as text files' +
                              '<br>* An index of all files, with last synchronization datetime' +
                              '<br>* Url & Path of the server, and login and password are stored in the settings file.'                            
-             }
+                             '<br><br>' +
+                             '<b>Markdown format :</b>' +
+                             '<br>For a complete documentation on the markdown format,' +
+                             ' see http://daringfireball.net/projects/markdown/syntax, hilighting on KhtNotes support only few tags' +
+                             'of markdown syntax: title, bold, italics, links'
+
              );
     }
 
