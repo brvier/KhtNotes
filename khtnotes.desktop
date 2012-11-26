@@ -4,5 +4,4 @@ Version=1.0
 Type=Application
 Name=KhtNotes
 Exec=/usr/bin/invoker --type=e --single-instance /opt/khtnotes/__init__.py
-Icon=khtnotes
-
+Icon=/usr/share/icons/hicolors/80x80/apps/khtnotes.png
