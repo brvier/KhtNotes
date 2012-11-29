@@ -1,0 +1,38 @@
+Name: khtnotes
+Version: 2.18.0
+Release: 4
+Summary: A note taking application with ownCloud sync
+Group: office
+License: gpl
+URL: http://khertan.net/KhtNotes
+Source0: .pypackager_build_folder/%{name}-%{version}-%{release}.tar.gz
+
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch: noarch
+BuildRequires: python-devel
+Requires: python, python-pyside
+
+%description
+A note taking application for Harmattan devices (n950, n9), and Nemo Mobile / MeeGo devices. KhtNotes provide sync of notes with ownCloud, and permit to preview markdown syntax
+
+%prep
+%setup -q -n %{srcname}-%{version}
+find -name '__init__.py' | xargs chmod +x
+
+%build
+CFLAGS="$RPM_OPT_FLAGS" %{__python} setup.py build
+
+%install
+rm -rf %{buildroot}
+%{__python} setup.py install --skip-build --root $RPM_BUILD_ROOT
+
+%post
+
+%clean
+rm -rf %{buildroot}
+
+
+%files
+%defattr(-,root,root,-)
+UNFINISHED AND UNCOMPLETE SPEC FILE
+
