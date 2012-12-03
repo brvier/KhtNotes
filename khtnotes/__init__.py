@@ -68,7 +68,8 @@ __upgrade__ = '''1.1: First public release
       password to authenticate to a webdav account
       Fix an error preventing displaying a login / password error message
 2.17: Add 64x64 icon for nemo mobile, clean make.py
-2.18: Fix an mistake where timedelta didn't care of timezone of server'''
+2.18: Fix an mistake where timedelta didn't care of timezone of server
+2.19: Add a preferences for the remote folder name (Default is now Notes)'''
 
 
 class QmlDirReaderWriter(QObject):
@@ -235,4 +236,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_()) 
+    sys.exit(KhtNotes().exec_())

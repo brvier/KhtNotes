@@ -32,6 +32,10 @@ class Settings(QObject):
         if not self.config.has_section('Favorites'):
             self.config.add_section('Favorites')
 
+        #Added in 2.19
+        if not self.config.has_option('Webdav', 'remoteFolder'):
+            self.config.set('Webdav', 'remoteFolder', 'Notes')
+
     def _write_default(self):
         ''' Write the default config'''
         self.config.add_section('Display')
@@ -44,6 +48,7 @@ class Settings(QObject):
         self.config.set('Webdav', 'basePath',
                         '/remote.php/webdav/')
         self.config.set('Webdav', 'autoMerge', 'true')
+        self.config.set('Webdav', 'remoteFolder', 'Notes')
         self.config.add_section('Favorites')
 
         # Writing our configuration file to 'example.cfg'
@@ -53,7 +58,7 @@ class Settings(QObject):
 
     def _set(self, option, value):
         if option in ('host', 'login', 'passwd',
-                      'basePath', 'autoMerge'):
+                      'basePath', 'autoMerge', 'remoteFolder'):
             self.config.set('Webdav', option, value)
         else:
             self.config.set('Display', option, value)
@@ -71,7 +76,6 @@ class Settings(QObject):
             self.config.add_section("Favorites")
         self.config.set("Favorites", uid, 'True')
         self._write()
-        print 'uid %s favorited' % uid
 
     @Slot(unicode)
     def remove_favorite(self, uid):
@@ -82,7 +86,6 @@ class Settings(QObject):
             pass
 
     def is_favorited(self, uid):
-        print 'is favorited : %s' % (uid)
         return (uid.lower() in self.get_favorites())
 
     def get_favorites(self):
@@ -110,6 +113,9 @@ class Settings(QObject):
     def _get_webdavLogin(self,):
         return self.get('login')
 
+    def _get_remoteFolder(self,):
+        return self.get('remoteFolder')
+
     def _get_webdavPasswd(self,):
         return self.get('passwd')
 
@@ -124,6 +130,9 @@ class Settings(QObject):
 
     def _set_webdavHost(self, url):
         self._set('host', url)
+
+    def _set_remoteFolder(self, folder):
+        self._set('remoteFolder', folder)
 
     def _set_webdavLogin(self, login):
         self._set('login', login)
@@ -140,6 +149,7 @@ class Settings(QObject):
     on_webdavLogin = Signal()
     on_webdavPasswd = Signal()
     on_webdavBasePath = Signal()
+    on_remoteFolder = Signal()
     on_autoMerge = Signal()
 
     fontSize = Property(int, _get_fontSize, notify=on_fontSize)
@@ -155,3 +165,5 @@ class Settings(QObject):
                               _set_webdavBasePath, notify=on_webdavBasePath)
     autoMerge = Property(bool, _get_autoMerge, _set_autoMerge,
                          notify=on_autoMerge)
+    remoteFolder = Property(unicode, _get_remoteFolder, _set_remoteFolder,
+                            notify=on_remoteFolder)

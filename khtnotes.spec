@@ -1,6 +1,6 @@
 Name: khtnotes
-Version: 2.18.0
-Release: 4
+Version: 2.19.0
+Release: 1
 Summary: A note taking application with ownCloud sync
 Group: office
 License: gpl
@@ -34,4 +34,4 @@ rm -rf %{buildroot}
 /usr/share/icons/hicolor/80x80/apps/*
 /usr/share/icons/hicolor/64x64/apps/*
 /usr/share/icons/hicolor/scalable/apps/*
-
+%{python_sitelib}/*egg-info

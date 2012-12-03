@@ -30,18 +30,17 @@ Page {
             anchors.right: parent.right
             
             contentWidth: parent.width
-            contentHeight: syncSettingsLabel.height + syncSettings.height + importLabel.height + conboyImportButton.height + 100
+            contentHeight: syncSettingsLabel.height + syncSettings.height + merge.height + importLabel.height + conboyImportButton.height + 100
 
-            Label {
+            TitleLabel {
                 id: syncSettingsLabel
-                text: qsTr("<b>Sync settings</b>")
+                text: qsTr('Sync')
                 anchors.left: parent.left
                 anchors.leftMargin: 10
                 anchors.right: parent.right
                 anchors.rightMargin: 10
                 anchors.topMargin: 20
                 anchors.top: parent.top
-                
             }
                 
             Column {
@@ -142,8 +141,30 @@ Page {
                      onTextChanged: {if (password.text !== '') Settings.webdavPasswd = password.text; } // Test if non null due to nasty bug on qml echoMode
 
                 }
-            }
-                CheckBox {
+
+                Label {
+                    id: remoteFolderLabel
+                    text: qsTr("Remote Folder Name :")
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                TextField {
+                     id: remoteFolder
+                     text:Settings.remoteFolder
+                     anchors.left: parent.left
+                     anchors.leftMargin: 10
+                     anchors.right: parent.right
+                     anchors.rightMargin: 10
+                     onTextChanged: {Settings.remoteFolder = remoteFolder.text; } 
+
+                }
+                }
+            
+            CheckBox {
                     id: merge
                     text: qsTr("Use auto merge feature")
                     anchors.topMargin: 20 
@@ -155,7 +176,7 @@ Page {
                 
             }
                 
-             Label {
+             TitleLabel {
                 id: importLabel
                 text: qsTr("<b>Import</b>")
                 anchors.left: parent.left

@@ -265,7 +265,6 @@ class Note(QObject):
             try:
                 path = os.path.join(self.NOTESPATH, self._uuid)
                 self._favorited = self._settings.is_favorited(uid)
-                print self._favorited
                 self.onFavoritedChanged.emit()
 
                 with codecs.open(path, 'r', 'utf_8') as fh:

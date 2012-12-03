@@ -74,6 +74,7 @@ class Sync(QObject):
         webdavLogin = settings.webdavLogin
         webdavPasswd = settings.webdavPasswd
         useAutoMerge = settings.autoMerge
+        self._remoteDataFolder = settings.remoteFolder
         return webdavLogin, webdavPasswd, useAutoMerge
 
     def createConnection(self, webdavLogin, webdavPasswd):
@@ -144,12 +145,12 @@ class Sync(QObject):
 
     def _sync_connect(self,):
         '''Sync the notes with a webdav server'''
-        webdavLogin, webdavPasswd, useAutoMerge = self.readSettings()
-        print webdavLogin, webdavPasswd, useAutoMerge
+        webdavLogin, webdavPasswd, useAutoMerge, remoteFolder = self.readSettings()
+
         #Create Connection
         isConnected, webdavConnection, time_delta = \
             self.createConnection(webdavLogin, webdavPasswd)
-        print 'isConnected: ', isConnected
+
         if isConnected:
             self._sync_files(webdavConnection, time_delta, useAutoMerge)
         self._set_running(False)
