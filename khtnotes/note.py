@@ -21,7 +21,7 @@ import datetime
 import codecs
 from markdown import markdown
 import htmlentitydefs
-from settings import Settings
+from settings import Settings, NOTESPATH
 
 INVALID_FILENAME_CHARS = '\/:*?"<>|'
 STRIPTAGS = re.compile(r'<[^>]+>')
@@ -137,7 +137,7 @@ def _uncolorize(text):
 class Note(QObject):
     ''' A class representing a note '''
 
-    NOTESPATH = os.path.join(os.path.expanduser('~'), '.khtnotes')
+    NOTESPATH = NOTESPATH
 
     def __init__(self, uid=None):
         QObject.__init__(self, parent=None)
