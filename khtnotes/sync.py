@@ -145,7 +145,7 @@ class Sync(QObject):
 
     def _sync_connect(self,):
         '''Sync the notes with a webdav server'''
-        webdavLogin, webdavPasswd, useAutoMerge, remoteFolder = self.readSettings()
+        webdavLogin, webdavPasswd, useAutoMerge = self.readSettings()
 
         #Create Connection
         isConnected, webdavConnection, time_delta = \
