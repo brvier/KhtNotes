@@ -15,7 +15,7 @@
 
 import ConfigParser
 from PySide.QtCore import Slot, QObject, Property, Signal
-
+from note import Note
 import os
 
 
@@ -35,6 +35,9 @@ class Settings(QObject):
         #Added in 2.19
         if not self.config.has_option('Webdav', 'remoteFolder'):
             self.config.set('Webdav', 'remoteFolder', 'Notes')
+            #Remove local sync index to prevent losing notes :
+            if os.path.exists(os.path.join(Note.NOTESPATH, '.index.sync')):
+                os.remove(os.path.join(Note.NOTESPATH, '.index.sync'))
 
     def _write_default(self):
         ''' Write the default config'''
@@ -60,6 +63,9 @@ class Settings(QObject):
         if option in ('host', 'login', 'passwd',
                       'basePath', 'autoMerge', 'remoteFolder'):
             self.config.set('Webdav', option, value)
+            #Remove local sync index to prevent losing notes :
+            if os.path.exists(os.path.join(Note.NOTESPATH, '.index.sync')):
+                os.remove(os.path.join(Note.NOTESPATH, '.index.sync'))
         else:
             self.config.set('Display', option, value)
 
