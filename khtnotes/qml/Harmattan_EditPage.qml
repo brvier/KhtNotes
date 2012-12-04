@@ -98,7 +98,6 @@ Page {
                 id: autoTimer
                 interval: 2000
                 onTriggered: {
-                    internalModification = true;
                     var curPos = textEditor.cursorPosition;
                     textEditor.text = Note.reHighlight(textEditor.text);
                     textEditor.cursorPosition = curPos;

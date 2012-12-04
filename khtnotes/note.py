@@ -266,8 +266,8 @@ class Note(QObject):
                 path = os.path.join(self.NOTESPATH, self._uuid)
                 self._favorited = self._settings.is_favorited(uid)
                 self.onFavoritedChanged.emit()
-
-                with codecs.open(path, 'r', 'utf_8') as fh:
+                with codecs.open(path, 'r',
+                                 encoding='utf_8', errors='replace') as fh:
                     try:
                         text = fh.read()
                         if text.find('\0') > 0:
@@ -282,6 +282,7 @@ class Note(QObject):
                         self._set_ready(True)
                     except Exception, e:
                         print e
+                        print 'path:', path
                         import traceback
                         print traceback.format_exc()
                         self.on_error.emit(str(e))

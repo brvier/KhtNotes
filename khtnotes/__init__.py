@@ -17,7 +17,7 @@ from PySide.QtGui import QApplication
 from PySide.QtCore import QUrl, Slot, QObject, \
     QAbstractListModel, QModelIndex
 from PySide import QtDeclarative
-from PySide.QtOpenGL import QGLWidget, QGLFormat
+from PySide.QtOpenGL import QGLWidget, QGLFormat, QGL
 
 import sys
 import os
@@ -193,14 +193,25 @@ class KhtNotes(QApplication):
         self.setApplicationName("KhtNotes")
 
         self.view = QtDeclarative.QDeclarativeView()
-        #Are we on mer ? So don't use opengl
+        #Are we on mer ? or on desktop ? So don't use opengl
         #As it didn't works on all devices
-        if not os.path.exists('/etc/mer-release'):
+        if os.path.exists('/etc/mer-release'):
+            fullscreen = True
+        elif os.path.exists('/etc/aegis'):
+            fullscreen = True
             self.glformat = QGLFormat().defaultFormat()
             self.glformat.setSampleBuffers(False)
             self.glw = QGLWidget(self.glformat)
             self.glw.setAutoFillBackground(False)
             self.view.setViewport(self.glw)
+            #self.view.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+            #self.view.setAttribute(Qt.WA_OpaquePaintEvent)
+            #self.view.setAttribute(Qt.WA_NoSystemBackground)
+            #self.view.viewport().setAttribute(Qt.WA_OpaquePaintEvent)
+            #self.view.viewport().setAttribute(Qt.WA_NoSystemBackground)
+        else:
+            fullscreen = False
+
         self.notesModel = NotesModel()
         self.note = Note()
         self.conboyImporter = TomboyImporter()
@@ -228,8 +239,10 @@ class KhtNotes(QApplication):
                              'qml', 'Desktop_main.qml')))
 
         self.rootObject = self.view.rootObject()
-        self.view.showFullScreen()
-        self.view.show()
+        if fullscreen:
+            self.view.showFullScreen()
+        else:
+            self.view.show()
         self.note.on_error.connect(self.rootObject.onError)
         self.syncer.on_error.connect(self.rootObject.onError)
         self.syncer.on_finished.connect(self.notesModel.reload)
