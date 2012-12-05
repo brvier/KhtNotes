@@ -7,7 +7,6 @@ Page {
     tools: mainTools
 
     function refresh() {        
-         console.log('Refresh Model');
          notesView.model.reload();
     }
     
