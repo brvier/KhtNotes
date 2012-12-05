@@ -14,7 +14,7 @@
 ## GNU General Public License for more details.
 
 from PySide.QtGui import QApplication
-from PySide.QtCore import QUrl, Slot, QObject, \
+from PySide.QtCore import QUrl, Slot, \
     QAbstractListModel, QModelIndex
 from PySide import QtDeclarative
 from PySide.QtOpenGL import QGLWidget, QGLFormat
