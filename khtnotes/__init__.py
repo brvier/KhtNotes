@@ -108,6 +108,7 @@ class NotesModel(QAbstractListModel):
             self._filteredNotes = self._notes
 
     def loadData(self,):
+        print "load MODEL"
         self._notes = [Note(uid=file.decode('utf-8'))
                        for file in os.listdir(Note.NOTESPATH)
                        if (os.path.isfile(os.path.join(Note.NOTESPATH, file)))
@@ -139,6 +140,7 @@ class NotesModel(QAbstractListModel):
 
     @Slot()
     def reload(self):
+        print "Reload MODEL"
         self.beginResetModel()
         self.loadData()
         self._filterNotes()

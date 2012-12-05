@@ -40,7 +40,7 @@ class Settings(QObject):
             #Remove local sync index to prevent losing notes :
             if os.path.exists(os.path.join(NOTESPATH, '.index.sync')):
                 os.remove(os.path.join(NOTESPATH, '.index.sync'))
-                
+
         #Added in 2.20
         if not self.config.has_option('Display', 'displayHeader'):
             self.config.set('Display', 'displayHeader', 'true')
@@ -67,6 +67,10 @@ class Settings(QObject):
             self.config.write(configfile)
 
     def _set(self, option, value):
+        #Avoid useless change due to binding
+        if self.get(option) == value:
+            return
+
         if option in ('host', 'login', 'passwd',
                       'basePath', 'autoMerge', 'remoteFolder'):
             self.config.set('Webdav', option, value)
@@ -119,12 +123,14 @@ class Settings(QObject):
 
     def _set_fontSize(self, value):
         self._set('fontsize', unicode(value))
+        self.on_fontSize.emit()
 
     def _get_displayHeader(self):
         return self.get('displayheader') == 'true'
 
     def _set_displayHeader(self, b):
         self._set('displayheader', 'true' if b else 'false')
+        self.on_displayHeader.emit()
 
     def _get_fontFamily(self,):
         return self.get('fontfamily')

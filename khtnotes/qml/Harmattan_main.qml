@@ -25,13 +25,13 @@ PageStackWindow {
 
         ToolIcon {
             platformIconId: "toolbar-add" 
-            onClicked: {Note.create();pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_EditPage.qml")), {modified:'false'});
-        }}
+            onClicked: {Note.create();pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_EditPage.qml")), {modified:'false'});}
+        }
 
         ToolIcon {
             platformIconId: Sync.running ? 'toolbar-mediacontrol-stop' : 'toolbar-refresh';
             onClicked: Sync.launch();
-                                            }
+        }
                                             
         ToolIcon {
             platformIconId: "toolbar-view-menu"
@@ -122,7 +122,7 @@ PageStackWindow {
                 //fileBrowserPage.refresh();
         }
     }
-
+    
     function pushAbout() {
         pageStack.push(Qt.createComponent(Qt.resolvedUrl("components/AboutPage.qml")),
              {
@@ -166,7 +166,6 @@ PageStackWindow {
                         when: platformWindow.viewMode === WindowState.Fullsize && platformWindow.visible
                         StateChangeScript {
                                  script: {
-                                 console.log('objectName:'+pageStack.currentPage.objectName);
                                  if (pageStack.currentPage.objectName === 'fileBrowserPage') {
                                  	pageStack.currentPage.refresh();}
                                  }       }

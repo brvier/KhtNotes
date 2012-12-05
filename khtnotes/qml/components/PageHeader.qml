@@ -27,22 +27,21 @@ import com.nokia.meego 1.0
             
         }
         
-     BusyIndicator {
-             id: busyindicatorsmall
-                     platformStyle: BusyIndicatorStyle { size: "medium"; spinnerFrames: "image://theme/spinnerinverted"}
-                             running: Sync.running ? true : false;
-                                     opacity: Sync.running ? 1.0 : 0.0;
-                                             anchors.right: header.right
-                                                 //anchors.top: parent.top
-                                                 //anchors.bottom: parent.bottom
-                                                 anchors.rightMargin: 10                                                 
-                                                 //verticalAligment: parent.verticalCenter
-                                                  anchors.verticalCenter: header.verticalCenter
-                                                 }
-                                                 onOpacityChanged:{
-                                                    if (opacity === 0.0) {pageStack.currentPage.refresh();}
-                                                 }
-                                                 
-                                                 
-                                                 
-                                                     }
+         BusyIndicator {
+                 id: busyindicatorsmall
+                 platformStyle: BusyIndicatorStyle { size: "medium"; spinnerFrames: "image://theme/spinnerinverted"}
+                 running: Sync.running ? true : false;
+                 opacity: Sync.running ? 1.0 : 0.0;
+                 anchors.right: header.right
+                 anchors.rightMargin: 10                                                 
+                 anchors.verticalCenter: header.verticalCenter
+                 /*onOpacityChanged:{
+                    if ((opacity === 0.0) && (pageStack)) {
+                        if (pageStack.currentPage.objectName === 'fileBrowserPage') {
+                            pageStack.currentPage.refresh();
+                        }
+                    }
+                 }   */                                            
+     
+         }
+    }
