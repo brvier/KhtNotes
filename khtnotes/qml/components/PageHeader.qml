@@ -8,10 +8,12 @@ import com.nokia.meego 1.0
 
         anchors.top: parent.top
         width:parent.width
-        height:70
+        height:Settings.displayHeader ? 70 : 0
         color:'#663366'
         z:2
-
+        visible: Settings.displayHeader ? 1.0 : 0.0
+        opacity: visible
+        
         Text{
             id:headerlabel
             anchors.right: busyindicatorsmall.left
@@ -22,6 +24,7 @@ import com.nokia.meego 1.0
             font { bold: false; family: "Nokia Pure Text"; pixelSize: 36; }
             color:"white"
             text:'KhtNotes'
+            
         }
         
      BusyIndicator {

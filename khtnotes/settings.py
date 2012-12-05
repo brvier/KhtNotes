@@ -40,12 +40,17 @@ class Settings(QObject):
             #Remove local sync index to prevent losing notes :
             if os.path.exists(os.path.join(NOTESPATH, '.index.sync')):
                 os.remove(os.path.join(NOTESPATH, '.index.sync'))
+                
+        #Added in 2.20
+        if not self.config.has_option('Display', 'displayHeader'):
+            self.config.set('Display', 'displayHeader', 'true')
 
     def _write_default(self):
         ''' Write the default config'''
         self.config.add_section('Display')
         self.config.set('Display', 'fontsize', '18')
         self.config.set('Display', 'fontfamily', 'Nokia Pure Text')
+        self.config.set('Display', 'displayHeader', 'true')
         self.config.add_section('Webdav')
         self.config.set('Webdav', 'host', 'https://khertan.net/')
         self.config.set('Webdav', 'login', 'demo')
@@ -109,8 +114,17 @@ class Settings(QObject):
             except:
                 return ''
 
-    def _get_fontSize(self,):
+    def _get_fontSize(self, ):
         return int(self.get('fontsize'))
+
+    def _set_fontSize(self, value):
+        self._set('fontsize', unicode(value))
+
+    def _get_displayHeader(self):
+        return self.get('displayheader') == 'true'
+
+    def _set_displayHeader(self, b):
+        self._set('displayheader', 'true' if b else 'false')
 
     def _get_fontFamily(self,):
         return self.get('fontfamily')
@@ -134,7 +148,7 @@ class Settings(QObject):
         return self.get('autoMerge') == 'true'
 
     def _set_autoMerge(self, b):
-        return self._set('autoMerge', 'true' if b else 'false')
+        self._set('autoMerge', 'true' if b else 'false')
 
     def _set_webdavHost(self, url):
         self._set('host', url)
@@ -159,8 +173,10 @@ class Settings(QObject):
     on_webdavBasePath = Signal()
     on_remoteFolder = Signal()
     on_autoMerge = Signal()
+    on_displayHeader = Signal()
 
-    fontSize = Property(int, _get_fontSize, notify=on_fontSize)
+    fontSize = Property(int, _get_fontSize,
+                        _set_fontSize, notify=on_fontSize)
     fontFamily = Property(unicode, _get_fontFamily,
                           notify=on_fontFamily)
     webdavHost = Property(unicode, _get_webdavHost,
@@ -173,5 +189,7 @@ class Settings(QObject):
                               _set_webdavBasePath, notify=on_webdavBasePath)
     autoMerge = Property(bool, _get_autoMerge, _set_autoMerge,
                          notify=on_autoMerge)
+    displayHeader = Property(bool, _get_displayHeader, _set_displayHeader,
+                             notify=on_displayHeader)
     remoteFolder = Property(unicode, _get_remoteFolder, _set_remoteFolder,
                             notify=on_remoteFolder)

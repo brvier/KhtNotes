@@ -24,195 +24,200 @@ Page {
 
     Flickable {
             id: flick
+            interactive: true
             anchors.top: header.bottom
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
             anchors.right: parent.right
-            
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
             contentWidth: parent.width
-            contentHeight: syncSettingsLabel.height + syncSettings.height + merge.height + importLabel.height + conboyImportButton.height + 100
+            contentHeight: settingsColumn.height + 30
+            clip: true
 
-            TitleLabel {
-                id: syncSettingsLabel
-                text: qsTr('Sync')
-                anchors.left: parent.left
-                anchors.leftMargin: 10
-                anchors.right: parent.right
-                anchors.rightMargin: 10
-                anchors.topMargin: 20
-                anchors.top: parent.top
-            }
-                
             Column {
-                id: syncSettings
+                id: settingsColumn
                 spacing: 10
-                anchors.left: parent.left
-                anchors.leftMargin: 10
-                anchors.right: parent.right
-                anchors.rightMargin: 10
-                anchors.top: syncSettingsLabel.bottom
-                anchors.topMargin: 10
+                width: parent.width - 40
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 20
+            
+                TitleLabel {
+                    text: qsTr("Appearance")
+                }
                 
                 Label {
-                    id: hostLabel
-                    text: qsTr("WebDav Host :")
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr("Display Header")
+                    width: parent.width
+                    height: displayHeaderSwitch.height
+                    verticalAlignment: Text.AlignVCenter
+                    Switch {
+                        id: displayHeaderSwitch
+                        anchors.right: parent.right
+                        checked: Settings.displayHeader
+                        Binding {
+                            target: Settings
+                            property: "displayHeader"
+                            value: displayHeaderSwitch.checked
+                        }
+                    }
+                }
 
-
+                Label {
+                    text: qsTr("Font size")
+                    width: parent.width
+                    height: fontSlider.height
+                    verticalAlignment: Text.AlignVCenter
+                    Slider {
+                        id: fontSlider
+                        minimumValue: 9
+                        maximumValue: 40
+                        stepSize: 1
+                        width: 300
+                        valueIndicatorVisible: true
+                        value: Settings.fontSize
+                        anchors.right: fontSliderLabel.left
+                        Binding {
+                            target: Settings
+                            property: "fontSize"
+                            value: fontSlider.value
+                        }
+                    }
+                    Label {
+                        id: fontSliderLabel
+                        text: fontSlider.value
+                        width: 50
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+            
+                TitleLabel {
+                    text: qsTr('Webdav')
+                }
+                
+                
+                Label {
+                    text: qsTr("Host")
                 }
 
                 TextField {
                      id: host
                      text:Settings.webdavHost
+                     width: parent.width
                      placeholderText: "https://khertan.net"
-                     anchors.left: parent.left
-                     anchors.leftMargin: 10
-                     anchors.right: parent.right
-                     anchors.rightMargin: 10
-                     onTextChanged: {Settings.webdavHost = host.text;}
-
+                     Binding {
+                            target: Settings
+                            property: "webdavHost"
+                            value: host.text
+                     }
                 }
 
                 Label {
-                    id: pathLabel
-                    text: qsTr('Path :')
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr('Path')
                  }
 
-                 TextField {
+                TextField {
                     id: path
                     text:Settings.webdavBasePath
+                    width: parent.width
                     placeholderText: '/owncloud/files/webdav.php'
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    onTextChanged: {Settings.webdavBasePath = path.text;}
+                    Binding {
+                            target: Settings
+                            property: "webdavBasePath"
+                            value: path.text
+                    } 
                 }
 
                 Label {
-                    id: loginLabel
-                    text: qsTr("Login :")
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr("Login")
                 }
 
                 TextField {
                      id: login
                      text: Settings.webdavLogin
-                     anchors.left: parent.left
-                     anchors.leftMargin: 10
-                     anchors.right: parent.right
-                     anchors.rightMargin: 10
-                     onTextChanged: {Settings.webdavLogin = login.text;}
+                     width: parent.width
+                     Binding {
+                            target: Settings
+                            property: "webdavLogin"
+                            value: login.text
+                     } 
 
                 }
 
                 Label {
-                    id: passwordLabel
-                    text: qsTr("Password :")
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    horizontalAlignment: Text.AlignHCenter
-
+                    text: qsTr("Password")
                 }
 
                 TextField {
                      id: password
                      echoMode: TextInput.PasswordEchoOnEdit
                      text:Settings.webdavPasswd
-                     anchors.left: parent.left
-                     anchors.leftMargin: 10
-                     anchors.right: parent.right
-                     anchors.rightMargin: 10
+                     width: parent.width
                      onTextChanged: {if (password.text !== '') Settings.webdavPasswd = password.text; } // Test if non null due to nasty bug on qml echoMode
 
                 }
 
                 Label {
-                    id: remoteFolderLabel
-                    text: qsTr("Remote Folder Name :")
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr("Remote Folder Name")
                 }
 
                 TextField {
                      id: remoteFolder
                      text:Settings.remoteFolder
-                     anchors.left: parent.left
-                     anchors.leftMargin: 10
-                     anchors.right: parent.right
-                     anchors.rightMargin: 10
-                     onTextChanged: {Settings.remoteFolder = remoteFolder.text; } 
+                     width: parent.width
+                     Binding {
+                            target: Settings
+                            property: "remoteFolder"
+                            value: remoteFolder.text
+                     } 
+                } 
 
+                TitleLabel {
+                    text: qsTr("Sync")
                 }
-                }
-            
-            CheckBox {
-                    id: merge
+                
+                Label {
+                    width: parent.width
+                    height: mergeSwitch.height
+                    verticalAlignment: Text.AlignVCenter
                     text: qsTr("Use auto merge feature")
-                    anchors.topMargin: 20 
-                    anchors.top: syncSettings.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    checked: Settings.autoMerge
-                    onClicked: {Settings.autoMerge = merge.checked;}
-                     
+                    
+                    Switch {
+                            id: mergeSwitch               
+                            checked: Settings.autoMerge
+                            anchors.right: parent.right
+                            Binding {
+                                target: Settings
+                                property: "autoMerge"
+                                value: mergeSwitch.checked
+                            }
+                    }
+                }
                 
-            }
-                
-             TitleLabel {
-                id: importLabel
-                text: qsTr("<b>Import</b>")
-                anchors.left: parent.left
-                anchors.leftMargin: 10
-                anchors.right: parent.right
-                anchors.rightMargin: 10
-                anchors.top: merge.bottom
-                anchors.topMargin: 30
-            }
+                TitleLabel {
+                    text: qsTr("<b>Import</b>")
+                }
             
                         
-            Button {
-                id: conboyImportButton
-                width: 200; height: 50
-                text: "Conboy / Tomboy"
-                anchors.top: importLabel.bottom
-                anchors.topMargin: 20
-                anchors.left: parent.left
-                anchors.leftMargin: 20
-                anchors.right: busyindicatorImport.left
-                anchors.rightMargin: 20
-                onClicked: { Importer.launch(); }
-            }
+                Button {
+                    id: conboyImportButton
+                    width: 350; height: 50
+                    text: "Conboy / Tomboy"
+                    onClicked: { Importer.launch(); }
+                
             
-            BusyIndicator {
-                id: busyindicatorImport
-                platformStyle: BusyIndicatorStyle { size: "medium"; spinnerFrames: "image://theme/spinner"}
-                running: Importer.running ? true : false;
-                opacity: Importer.running ? 1.0 : 0.0;
-                anchors.right: parent.right
-                anchors.rightMargin: 20
-                anchors.verticalCenter: conboyImportButton.verticalCenter
-            }  
-                 
-        }
-
+                    BusyIndicator {
+                        id: busyindicatorImport
+                        platformStyle: BusyIndicatorStyle { size: "medium"; spinnerFrames: "image://theme/spinner"}
+                        running: Importer.running ? true : false;
+                        opacity: Importer.running ? 1.0 : 0.0;
+                        anchors.right: parent.right
+                        anchors.rightMargin: 20
+                        //anchors.verticalCenter: conboyImportButton.verticalCenter
+                    }  
+                }
+            }
+    }
 
     ScrollDecorator {
         flickableItem: flick

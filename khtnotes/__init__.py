@@ -17,7 +17,7 @@ from PySide.QtGui import QApplication
 from PySide.QtCore import QUrl, Slot, QObject, \
     QAbstractListModel, QModelIndex
 from PySide import QtDeclarative
-from PySide.QtOpenGL import QGLWidget, QGLFormat, QGL
+from PySide.QtOpenGL import QGLWidget, QGLFormat
 
 import sys
 import os
@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.18'
+__version__ = '2.20'
 __build__ = '3'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
@@ -69,18 +69,9 @@ __upgrade__ = '''1.1: First public release
       Fix an error preventing displaying a login / password error message
 2.17: Add 64x64 icon for nemo mobile, clean make.py
 2.18: Fix an mistake where timedelta didn't care of timezone of server
-2.19: Add a preferences for the remote folder name (Default is now Notes)'''
-
-
-class QmlDirReaderWriter(QObject):
-    ''' A class for manipulating file and directory from Qml'''
-    def __init__(self, ):
-        QObject.__init__(self)
-        if not os.path.exists(Note.NOTESPATH):
-            try:
-                os.mkdir(Note.NOTESPATH)
-            except Exception, e:
-                print 'Can t create note storage folder', str(e)
+2.19: Add a preferences for the remote folder name (Default is now Notes)
+2.20: Better preferences setting page add text size setting, better detection
+      if we use opengl or not (only used for harmattan), code cleaning'''
 
 
 class NotesModel(QAbstractListModel):
@@ -224,8 +215,6 @@ class KhtNotes(QApplication):
         self.rootContext.setContextProperty("Settings", Settings())
         self.rootContext.setContextProperty("Sync", self.syncer)
         self.rootContext.setContextProperty("Importer", self.conboyImporter)
-        self.rootContext.setContextProperty("QmlDirReaderWriter",
-                                            QmlDirReaderWriter())
         self.rootContext.setContextProperty('notesModel', self.notesModel)
         self.rootContext.setContextProperty('Note', self.note)
 
