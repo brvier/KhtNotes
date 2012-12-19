@@ -81,7 +81,9 @@ def _colorize(text):
     for regex, cb in regexs:
         text = re.sub(regex, cb, text)
     #text = text.replace('\n', '</p><p>').replace('<p></p>', '<br />')
+    text = text.replace('\r\n', '\n')
     text = text.replace('\n', '<br />')
+    text = text.replace('\r', '')
     return  u'''
 <html><head><style type="text/css">
     p, li, pre, body {
@@ -198,7 +200,7 @@ class Note(QObject):
 
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
-            with codecs.open(path, 'w', 'utf_8') as fh:
+            with codecs.open(path, 'wb', 'utf_8') as fh:
                 data = data.split('\n', 1)
                 if len(data) >= 2:
                     fh.write(data[1])
@@ -266,7 +268,7 @@ class Note(QObject):
                 path = os.path.join(self.NOTESPATH, self._uuid)
                 self._favorited = self._settings.is_favorited(uid)
                 self.onFavoritedChanged.emit()
-                with codecs.open(path, 'r',
+                with codecs.open(path, 'rb',
                                  encoding='utf_8', errors='replace') as fh:
                     try:
                         text = fh.read()
@@ -310,7 +312,7 @@ class Note(QObject):
         return self._data
 
     def _set_text(self, text):
-        self._data = _colorize(text)
+        self._data = _colorize(text.replace('\r\n', '\n'))
         self.onDataChanged.emit()
 
     def _get_favorited(self):
@@ -398,4 +400,4 @@ if __name__ == '__main__':
                     ' hahaha test__test__test and an other *test* '
                     '[link](http://khertan.net/)'
                     '\ntest under title\n-------\ntest'
-                    '\n## test ##\n# test #\ntest')
+                    '\n## test ##\n# test #\ntest') 

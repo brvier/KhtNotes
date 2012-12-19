@@ -6,16 +6,16 @@ import 'common.js' as Common
 Page {
     tools: mainTools
 
-    function refresh() {        
-         notesView.model.reload();
+    function refresh() {
+        notesView.model.reload();
     }
     
     
     PageHeader {
-         id: header
-         title: 'KhtNotes'
+        id: header
+        title: 'KhtNotes'
     }
-            
+
     TextField {
         id: search
         platformStyle: TextFieldStyle {
@@ -70,7 +70,7 @@ Page {
                     id: background
                     anchors.fill: parent
                     color: "darkgray";
-                    opacity: 0.0 
+                    opacity: 0.0
                     Behavior on opacity { NumberAnimation {} }
                 }
 
@@ -105,8 +105,8 @@ Page {
                 Image {
                     anchors.right: parent.right
                     anchors.rightMargin: 10
-                    anchors.verticalCenter: parent.verticalCenter     
-                    source: "image://theme/icon-m-toolbar-favorite-mark" 
+                    anchors.verticalCenter: parent.verticalCenter
+                    source: "image://theme/icon-m-toolbar-favorite-mark"
                     visible: favorited
                     opacity: favorited ? 1.0 : 0.0
                 }
@@ -118,23 +118,23 @@ Page {
                     onPositionChanged: background.opacity = 0.0;
 
                     onClicked: {
-                             Note.load(model.uuid);
-                            
-                             var editingPage = Qt.createComponent(Qt.resolvedUrl("Harmattan_EditPage.qml"));
-                             //editingPage.textEditor.text = Note.data
-                             //editingPage.setData()
-                             pageStack.push(editingPage, {text: Note.data,
-                                                          modified: false});
+                        Note.load(model.uuid);
+
+                        var editingPage = Qt.createComponent(Qt.resolvedUrl("Harmattan_EditPage.qml"));
+                        //editingPage.textEditor.text = Note.data
+                        //editingPage.setData()
+                        pageStack.push(editingPage, {text: Note.data,
+                                           modified: false});
                     }
                     onPressAndHold: {
                         //itemMenu.uuid = model.uuid;
                         itemMenu.index = model.index;
                         itemMenu.open();
-                   }
+                    }
                 }
             }
         }
-    }        
+    }
 
     ScrollDecorator {
         id: scrollDecorator

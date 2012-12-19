@@ -28,11 +28,11 @@ Page {
     }
 
     PageHeader {
-         id: header
-         title: 'KhtNotes'
+        id: header
+        title: 'KhtNotes'
     }
 
-     BusyIndicator {
+    BusyIndicator {
         id: busyindicator
         platformStyle: BusyIndicatorStyle { size: "large" }
         running: Note.ready ? false : true;
@@ -66,7 +66,7 @@ Page {
                 contentX = r.x+r.width-width;
             if (contentY >= r.y)
                 contentY = r.y;
-            else if (contentY+height <= r.y+r.height)             
+            else if (contentY+height <= r.y+r.height)
                 contentY = r.y+r.height-height;
         }
         onContentYChanged: {
@@ -80,12 +80,12 @@ Page {
             anchors.top: parent.top
             height: Math.max (implicitHeight, flick.height + 4, editPage.height, 720)
             width:  flick.width + 4
-            wrapMode: TextEdit.WordWrap
+            wrapMode: TextEdit.WrapAnywhere
             inputMethodHints: Qt.ImhAutoUppercase | Qt.ImhNoPredictiveText
             textFormat: TextEdit.RichText
-            font { bold: false; 
-               family: Settings.fontFamily; 
-               pixelSize:  Settings.fontSize;}
+            font { bold: false;
+                family: Settings.fontFamily;
+                pixelSize:  Settings.fontSize;}
             onTextChanged: { modified = true; autoTimer.restart();}
 
             Component.onDestruction: {
@@ -127,9 +127,9 @@ Page {
             platformIconId: "toolbar-back"
             anchors.left: (parent === undefined) ? undefined : parent.left
             onClicked: {
-                   if (saveFile() == true)
-                      exitFile();
-                   }
+                if (saveFile() == true)
+                    exitFile();
+            }
         }
 
         ToolIcon {

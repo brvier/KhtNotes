@@ -30,8 +30,8 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.20'
-__build__ = '3'
+__version__ = '2.21'
+__build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -71,7 +71,9 @@ __upgrade__ = '''1.1: First public release
 2.18: Fix an mistake where timedelta didn't care of timezone of server
 2.19: Add a preferences for the remote folder name (Default is now Notes)
 2.20: Better preferences setting page add text size setting, better detection
-      if we use opengl or not (only used for harmattan), code cleaning'''
+      if we use opengl or not (only used for harmattan), code cleaning
+2.21: Remove \r line ending
+      Wrap Everywhere instead of wordwrap'''
 
 
 class NotesModel(QAbstractListModel):
@@ -238,4 +240,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())
+    sys.exit(KhtNotes().exec_())  

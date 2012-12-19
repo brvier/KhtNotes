@@ -12,49 +12,49 @@ Page {
     signal refresh();
     
     onRefresh: {
-               }                            
+    }
     
-    function exitFile() {    
+    function exitFile() {
         pageStack.pop();
     }
 
     onAtextChanged: {
         textEditor.text = Note.previewMarkdown(atext)
     }
-        
+
     PageHeader {
-         id: header
-         title: 'KhtNotes'
+        id: header
+        title: 'KhtNotes'
     }
 
 
     Flickable {
-         id: flick
-         anchors.top: header.bottom
-         anchors.left: parent.left
-         anchors.leftMargin: -2
-         anchors.right: parent.right
-         anchors.rightMargin: -2
-         anchors.bottom: parent.bottom
-         anchors.bottomMargin: -2
-         anchors.topMargin: -2
-         clip: true
-         
-         contentWidth: textEditor.width
-         contentHeight: textEditor.height
-         pressDelay: 200
+        id: flick
+        anchors.top: header.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: -2
+        anchors.right: parent.right
+        anchors.rightMargin: -2
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: -2
+        anchors.topMargin: -2
+        clip: true
 
-             TextArea {
-                 id: textEditor
-                 height: Math.max (850, implicitHeight)
-                 width: Math.max(flick.width, implicitWidth) //previewPage.width + 4
-                 readOnly: true
-                 wrapMode: TextEdit.WordWrap
-                 textFormat: TextEdit.RichText
-                 text: Note.previewMarkdown(atext)
-                 font { bold: false; family: "Nokia Pure Text"; pixelSize: 18;}
-         }
-     }
+        contentWidth: textEditor.width
+        contentHeight: textEditor.height
+        pressDelay: 200
+
+        TextArea {
+            id: textEditor
+            height: Math.max (850, implicitHeight)
+            width: Math.max(flick.width, implicitWidth) //previewPage.width + 4
+            readOnly: true
+            wrapMode: TextEdit.WordWrap
+            textFormat: TextEdit.RichText
+            text: Note.previewMarkdown(atext)
+            font { bold: false; family: "Nokia Pure Text"; pixelSize: 18;}
+        }
+    }
 
 
     ScrollDecorator {
@@ -67,7 +67,7 @@ Page {
         visualParent: pageStack
         MenuLayout {
             MenuItem { text: qsTr("About"); onClicked: pushAbout()}
-         }
+        }
     }
 
     ToolBarLayout {
@@ -77,8 +77,8 @@ Page {
             platformIconId: "toolbar-back"
             anchors.left: (parent === undefined) ? undefined : parent.left
             onClicked: {
-                    pageStack.pop();
-                   }
+                pageStack.pop();
+            }
         }
 
         ToolIcon {

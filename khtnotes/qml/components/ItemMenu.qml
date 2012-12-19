@@ -15,8 +15,8 @@ Menu {
             onClicked: {
                 //Note.favorite(uuid);
                 
-            notesModel.favorite(index)
-            }   
+                notesModel.favorite(index)
+            }
         }
         MenuItem {
             text: qsTr("Duplicate")
@@ -25,8 +25,8 @@ Menu {
         MenuItem {
             text: qsTr("Delete")
             onClicked: {
-              deleteQueryDialog.index = index;
-              deleteQueryDialog.open();
+                deleteQueryDialog.index = index;
+                deleteQueryDialog.open();
             }
         }
     }

@@ -24,7 +24,7 @@ PageStackWindow {
         visible: true
 
         ToolIcon {
-            platformIconId: "toolbar-add" 
+            platformIconId: "toolbar-add"
             onClicked: {Note.create();pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_EditPage.qml")), {modified:'false'});}
         }
 
@@ -32,7 +32,7 @@ PageStackWindow {
             platformIconId: Sync.running ? 'toolbar-mediacontrol-stop' : 'toolbar-refresh';
             onClicked: Sync.launch();
         }
-                                            
+
         ToolIcon {
             platformIconId: "toolbar-view-menu"
             onClicked: (myMenu.status === DialogStatus.Closed) ? myMenu.open() : myMenu.close()
@@ -64,31 +64,31 @@ PageStackWindow {
             MenuItem { text: qsTr("About"); onClicked: pushAbout()}
             MenuItem { text: qsTr("Preferences"); onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_SettingsPage.qml"))); }
             MenuItem { text: qsTr("Report a bug");onClicked: {
-                         Qt.openUrlExternally('https://github.com/khertan/KhtNotes/issues/new');
-                    }
+                    Qt.openUrlExternally('https://github.com/khertan/KhtNotes/issues/new');
+                }
             }
         }
     }
 
     InfoBanner{
-                      id:notYetAvailableBanner
-                      text: 'This feature is not yet available'
-                      timerShowTime: 5000
-                      timerEnabled:true
-                      anchors.top: parent.top
-                      anchors.topMargin: 60
-                      anchors.horizontalCenter: parent.horizontalCenter
-                 }
+        id:notYetAvailableBanner
+        text: 'This feature is not yet available'
+        timerShowTime: 5000
+        timerEnabled:true
+        anchors.top: parent.top
+        anchors.topMargin: 60
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
 
     InfoBanner{
-                      id:errorBanner
-                      text: 'An error occur while creating new folder'
-                      timerShowTime: 15000
-                      timerEnabled:true
-                      anchors.top: parent.top
-                      anchors.topMargin: 60
-                      anchors.horizontalCenter: parent.horizontalCenter
-                 }
+        id:errorBanner
+        text: 'An error occur while creating new folder'
+        timerShowTime: 15000
+        timerEnabled:true
+        anchors.top: parent.top
+        anchors.topMargin: 60
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
 
     function onError(errMsg) {
         errorEditBanner.text = errMsg;
@@ -96,16 +96,16 @@ PageStackWindow {
     }
 
     InfoBanner{
-                      id:errorEditBanner
-                      text: ''
-                      timerShowTime: 15000
-                      timerEnabled:true
-                      anchors.top: parent.top
-                      anchors.topMargin: 60
-                      anchors.horizontalCenter: parent.horizontalCenter
-                 }
+        id:errorEditBanner
+        text: ''
+        timerShowTime: 15000
+        timerEnabled:true
+        anchors.top: parent.top
+        anchors.topMargin: 60
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
 
-   showStatusBar: true
+    showStatusBar: true
 
     QueryDialog {
         
@@ -118,57 +118,57 @@ PageStackWindow {
         acceptButtonText: qsTr("Delete")
         rejectButtonText: qsTr("Cancel")
         onAccepted: {
-                notesModel.remove(index);
-                //fileBrowserPage.refresh();
+            notesModel.remove(index);
+            //fileBrowserPage.refresh();
         }
     }
     
     function pushAbout() {
         pageStack.push(Qt.createComponent(Qt.resolvedUrl("components/AboutPage.qml")),
-             {
-                          title : 'KhtNotes ' + __version__,
-                          iconSource: Qt.resolvedUrl('../icons/khtnotes.png'),
-                          slogan : 'Notes in your own cloud !',
-                          text : 
-                             'A note taking application with sync with owncloud for MeeGo and Harmattan.' +
-                             '<br>Web Site : http://khertan.net/khtnotes' +
-                             '<br><br>By Benoît HERVIER (Khertan)' +
-                             '<br><b>Licenced under GPLv3</b>' +
-                             '<br><br><b>Changelog : </b><br>' +
-                             __upgrade__ +
-                             '<br><br><b>Thanks to : </b>' +
-                             '<br>Radek Novacek' +
-                             '<br>caco3 on talk.maemo.org' +
-                             '<br><br><b>Privacy Policy : </b>' +
-                             '<br>KhtNotes can sync your notes with a webdav storage or ownCloud instance. For this KhtNotes need to know the Url, Path, Login and Password to connect to. But this is optionnal, and you can use KhtNotes without the sync feature.' +
-                             '<br><br>' +
-                             'Which datas are transmitted :' +
-                             '<br>* Login and Password will only be transmitted to the url you put in the Web Host setting.' +
-                             '<br>* When using the sync features all your notes can be transmitted to the server you put in the Web Host setting' +
-                             '<br><br>' +
-                             'Which datas are stored :' +
-                             '<br>* All notes are stored as text files' +
-                             '<br>* An index of all files, with last synchronization datetime' +
-                             '<br>* Url & Path of the server, and login and password are stored in the settings file.'  +                 
-                             '<br><br>' +
-                             '<b>Markdown format :</b>' +
-                             '<br>For a complete documentation on the markdown format,' +
-                             ' see http://daringfireball.net/projects/markdown/syntax, hilighting on KhtNotes support only few tags' +
-                             'of markdown syntax: title, bold, italics, links'
-                      }
-             );
+                       {
+                           title : 'KhtNotes ' + __version__,
+                           iconSource: Qt.resolvedUrl('../icons/khtnotes.png'),
+                           slogan : 'Notes in your own cloud !',
+                           text :
+                           'A note taking application with sync with owncloud for MeeGo and Harmattan.' +
+                           '<br>Web Site : http://khertan.net/khtnotes' +
+                           '<br><br>By Benoît HERVIER (Khertan)' +
+                           '<br><b>Licenced under GPLv3</b>' +
+                           '<br><br><b>Changelog : </b><br>' +
+                           __upgrade__ +
+                           '<br><br><b>Thanks to : </b>' +
+                           '<br>Radek Novacek' +
+                           '<br>caco3 on talk.maemo.org' +
+                           '<br><br><b>Privacy Policy : </b>' +
+                           '<br>KhtNotes can sync your notes with a webdav storage or ownCloud instance. For this KhtNotes need to know the Url, Path, Login and Password to connect to. But this is optionnal, and you can use KhtNotes without the sync feature.' +
+                           '<br><br>' +
+                           'Which datas are transmitted :' +
+                           '<br>* Login and Password will only be transmitted to the url you put in the Web Host setting.' +
+                           '<br>* When using the sync features all your notes can be transmitted to the server you put in the Web Host setting' +
+                           '<br><br>' +
+                           'Which datas are stored :' +
+                           '<br>* All notes are stored as text files' +
+                           '<br>* An index of all files, with last synchronization datetime' +
+                           '<br>* Url & Path of the server, and login and password are stored in the settings file.'  +
+                           '<br><br>' +
+                           '<b>Markdown format :</b>' +
+                           '<br>For a complete documentation on the markdown format,' +
+                           ' see http://daringfireball.net/projects/markdown/syntax, hilighting on KhtNotes support only few tags' +
+                           'of markdown syntax: title, bold, italics, links'
+                       }
+                       );
     }
 
     //State used to detect when we should refresh view
     states: [
-            State {
-                        name: "fullsize-visible"
-                        when: platformWindow.viewMode === WindowState.Fullsize && platformWindow.visible
-                        StateChangeScript {
-                                 script: {
-                                 if (pageStack.currentPage.objectName === 'fileBrowserPage') {
-                                 	pageStack.currentPage.refresh();}
-                                 }       }
-                  }
-            ]
+        State {
+            name: "fullsize-visible"
+            when: platformWindow.viewMode === WindowState.Fullsize && platformWindow.visible
+            StateChangeScript {
+                script: {
+                    if (pageStack.currentPage.objectName === 'fileBrowserPage') {
+                        pageStack.currentPage.refresh();}
+                }       }
+        }
+    ]
 }
