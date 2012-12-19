@@ -121,8 +121,6 @@ Page {
                         Note.load(model.uuid);
 
                         var editingPage = Qt.createComponent(Qt.resolvedUrl("Harmattan_EditPage.qml"));
-                        //editingPage.textEditor.text = Note.data
-                        //editingPage.setData()
                         pageStack.push(editingPage, {text: Note.data,
                                            modified: false});
                     }

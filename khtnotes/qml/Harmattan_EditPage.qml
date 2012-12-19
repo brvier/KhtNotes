@@ -71,7 +71,8 @@ Page {
         }
         onContentYChanged: {
             if ((flick.contentY == 0) && (textEditor.cursorPosition != 0)) {
-                flick.ensureVisible(textEditor.positionToRectangle(textEditor.cursorPosition));
+                flick.ensureVisible(
+                    textEditor.positionToRectangle(textEditor.cursorPosition));
             }
         }
 
@@ -86,7 +87,12 @@ Page {
             font { bold: false;
                 family: Settings.fontFamily;
                 pixelSize:  Settings.fontSize;}
-            onTextChanged: { modified = true; autoTimer.restart();}
+            onTextChanged: {           
+                if(focus){      
+                    modified = true;
+                    autoTimer.restart();
+                }
+            }
 
             Component.onDestruction: {
                 if (modified == true) {
@@ -98,9 +104,11 @@ Page {
                 id: autoTimer
                 interval: 2000
                 onTriggered: {
-                    var curPos = textEditor.cursorPosition;
-                    textEditor.text = Note.reHighlight(textEditor.text);
-                    textEditor.cursorPosition = curPos;
+                    if (modified) {
+                        var curPos = textEditor.cursorPosition;
+                        textEditor.text = Note.reHighlight(textEditor.text);
+                        textEditor.cursorPosition = curPos;
+                    }
                 }
             }
         }
