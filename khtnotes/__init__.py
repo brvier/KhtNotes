@@ -73,7 +73,8 @@ __upgrade__ = '''1.1: First public release
 2.20: Better preferences setting page add text size setting, better detection
       if we use opengl or not (only used for harmattan), code cleaning
 2.21: Remove \r line ending
-      Wrap Everywhere instead of wordwrap'''
+      Wrap Everywhere instead of wordwrap
+      Avoid flagging just opened note as modified'''
 
 
 class NotesModel(QAbstractListModel):

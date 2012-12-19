@@ -103,7 +103,9 @@ class Sync(QObject):
                     self.logger.debug('Timezone: %f, Timealtzone: %f',
                                       time.timezone, time.altzone)
                     self.logger.debug('Server Time: %s' % response)
+                    print 'REMOTE TIME:', response
                     remote_datetime = rfc822.parsedate(response)
+                    print 'REMOTE PARSED TIME', remote_datetime
                     self.logger.debug('Parsed server time %s' %
                                       str(remote_datetime))
                     time_delta = local2utc(time.mktime(remote_datetime)) \
@@ -426,10 +428,11 @@ class Sync(QObject):
         webdavConnection.path = self._get_notes_path()
         resource = webdavConnection.addResource(remote_filename)
         lpath = os.path.join(self._localDataFolder, local_filename)
+
         with open(lpath, 'rb') as fh:
             resource.uploadFile(fh)
-            mtime = time.mktime(resource.readStandardProperties()
-                                .getLastModified()) - time_delta
+            mtime = local2utc(time.mktime(resource.readStandardProperties()
+                                          .getLastModified())) - time_delta
             os.utime(lpath, (-1, mtime))
 
     def _download(self, webdavConnection, remote_filename,
@@ -442,8 +445,9 @@ class Sync(QObject):
         lpath = os.path.join(self._localDataFolder,
                              getValidFilename(local_filename))
         webdavConnection.downloadFile(lpath)
-        mtime = time.mktime(webdavConnection.readStandardProperties()
-                            .getLastModified()) - time_delta
+        mtime = local2utc(time.mktime(webdavConnection
+                                      .readStandardProperties()
+                                      .getLastModified())) - time_delta
         os.utime(lpath, (-1, mtime))
 
     def _remote_delete(self, webdavConnection, filename):
@@ -546,3 +550,4 @@ class Sync(QObject):
 if __name__ == '__main__':
     s = Sync()
     s.launch()
+
