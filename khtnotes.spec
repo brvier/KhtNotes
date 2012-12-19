@@ -1,5 +1,5 @@
 Name: khtnotes
-Version: 2.20.0
+Version: 2.21.0
 Release: 1
 Summary: A note taking application with ownCloud sync
 Group: office
