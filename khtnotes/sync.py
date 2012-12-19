@@ -109,6 +109,7 @@ class Sync(QObject):
                     time_delta = local2utc(time.mktime(remote_datetime)) \
                         - local_datetime
                     self.logger.debug('Time delta: %f' % time_delta)
+                    print 'Time delta with server : %f' % time_delta
                 except Exception, err:
                     time_delta = None
                     print 'error parsing date', err
