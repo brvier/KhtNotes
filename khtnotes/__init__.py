@@ -74,7 +74,8 @@ __upgrade__ = '''1.1: First public release
       if we use opengl or not (only used for harmattan), code cleaning
 2.21: Remove \r line ending
       Wrap Everywhere instead of wordwrap
-      Avoid flagging just opened note as modified'''
+      Avoid flagging just opened note as modified
+      Fix a bug where synced file time was set in UTC instead of localtime'''
 
 
 class NotesModel(QAbstractListModel):
