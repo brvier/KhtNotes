@@ -18,7 +18,7 @@ from PySide.QtCore import Slot, QObject, Property, Signal
 
 import os
 
-NOTESPATH = os.path.join(os.path.expanduser('~'), '.khtnotes')
+NOTESPATH = os.path.join(os.path.expanduser(u'~'), u'.khtnotes')
 
 
 class Settings(QObject):
@@ -33,10 +33,12 @@ class Settings(QObject):
             self.config.read(os.path.expanduser('~/.khtnotes.cfg'))
         if not self.config.has_section('Favorites'):
             self.config.add_section('Favorites')
+            self._write()
 
         #Added in 2.19
         if not self.config.has_option('Webdav', 'remoteFolder'):
             self.config.set('Webdav', 'remoteFolder', 'Notes')
+            self._write()
             #Remove local sync index to prevent losing notes :
             if os.path.exists(os.path.join(NOTESPATH, '.index.sync')):
                 os.remove(os.path.join(NOTESPATH, '.index.sync'))
@@ -44,6 +46,7 @@ class Settings(QObject):
         #Added in 2.20
         if not self.config.has_option('Display', 'displayHeader'):
             self.config.set('Display', 'displayHeader', 'true')
+            self._write()
 
     def _write_default(self):
         ''' Write the default config'''

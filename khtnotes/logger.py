@@ -45,5 +45,4 @@ def getDefaultLogger(handler=None):
             myLogger.addHandler(stdoutHandler)
         else:
             myLogger.addHandler(handler)
-    return myLogger
-
+    return myLogger 

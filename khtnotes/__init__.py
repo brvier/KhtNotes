@@ -112,10 +112,11 @@ class NotesModel(QAbstractListModel):
             self._filteredNotes = self._notes
 
     def loadData(self,):
-        self._notes = [Note(uid=file.decode('utf-8'))
-                       for file in os.listdir(Note.NOTESPATH)
-                       if (os.path.isfile(os.path.join(Note.NOTESPATH, file)))
-                       and (file != '.index.sync')]
+        self._notes = [Note(uid=filename)
+                       for filename in os.listdir(Note.NOTESPATH)
+                       if (os.path.isfile(os.path.join(Note.NOTESPATH,
+                                                       filename)))
+                       and (filename != '.index.sync')]
 
         self._sortData()
 
