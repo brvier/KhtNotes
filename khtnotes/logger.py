@@ -37,7 +37,7 @@ def getDefaultLogger(handler=None):
 
     myLogger = logging.getLogger(_defaultLoggerName)
     if len(myLogger.handlers) == 0:
-        myLogger.level = logging.WARNING
+        myLogger.level = logging.DEBUG
         formatter = logging.Formatter(_fileLogFormat)
         if handler is None:
             stdoutHandler = logging.StreamHandler(sys.stdout)

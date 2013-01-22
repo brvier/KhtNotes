@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '2.21'
+__version__ = '3.0'
 __build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
@@ -75,18 +75,21 @@ __upgrade__ = '''1.1: First public release
 2.21: Remove \r line ending
       Wrap Everywhere instead of wordwrap
       Avoid flagging just opened note as modified
-      Fix a bug where synced file time was set in UTC instead of localtime'''
+      Fix a bug where synced file time was set in UTC instead of localtime
+3.0 : Implement category and fix some nasty sync bugs'''
 
 
 class NotesModel(QAbstractListModel):
-    COLUMNS = ('title', 'timestamp', 'uuid', 'index', 'data', 'favorited')
+    COLUMNS = ('title', 'timestamp', 'uuid', 'index',
+               'data', 'favorited', 'category')
 
     def __init__(self, ):
-        self._notes = {}
+        self._notes = []
         QAbstractListModel.__init__(self)
         self.setRoleNames(dict(enumerate(NotesModel.COLUMNS)))
         self._filter = None
         self._filteredNotes = self._notes
+        self._categories = []
 
         if not os.path.exists(Note.NOTESPATH):
             try:
@@ -112,17 +115,40 @@ class NotesModel(QAbstractListModel):
             self._filteredNotes = self._notes
 
     def loadData(self,):
-        self._notes = [Note(uid=filename)
-                       for filename in os.listdir(Note.NOTESPATH)
-                       if (os.path.isfile(os.path.join(Note.NOTESPATH,
-                                                       filename)))
-                       and (filename != '.index.sync')]
+        #self._all_notes = {}
+        self._notes = []
+        self._categories = []
+        for root, folders, filenames in os.walk(Note.NOTESPATH):
+                category = os.path.relpath(root, Note.NOTESPATH)
+                if category == u'.':
+                    category = u''
+                if category != '.merge.sync':
+                    self._notes.extend(
+                        [Note(uid=os.path.join(category, unicode(filename)))
+                         for filename in filenames if filename != '.index.sync'])
+                    self._categories.append(category)
+         
+#        self._notes = [Note(uid=filename)
+#                       for filename in os.listdir(Note.NOTESPATH)
+#                       if (os.path.isfile(os.path.join(Note.NOTESPATH,
+#                                                       filename)))
+#                       and (filename != '.index.sync')]
+        #Remove values which aren't notes
+        #try:
+        #    del self._all_notes['.merge.sync']
+        #except KeyError:
+        #    pass
 
+        #print self._all_notes.keys()
+        #self._notes = self._all_notes[self._currentCategory]
         self._sortData()
 
     def _sortData(self,):
-        self._notes.sort(key=lambda note: (note.favorited, note.timestamp),
+        self._notes.sort(key=lambda note: (note.favorited,
+                                           note.category,
+                                           note.timestamp),
                          reverse=True)
+        self._categories.sort()
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._filteredNotes)
@@ -140,6 +166,8 @@ class NotesModel(QAbstractListModel):
             return self._filteredNotes[index.row()].data
         elif index.isValid() and role == NotesModel.COLUMNS.index('favorited'):
             return self._filteredNotes[index.row()].favorited
+        elif index.isValid() and role == NotesModel.COLUMNS.index('category'):
+            return self._filteredNotes[index.row()].category
         return None
 
     @Slot()
@@ -178,6 +206,20 @@ class NotesModel(QAbstractListModel):
         self._filterNotes()
         self._sortData()
         self.endResetModel()
+
+    @Slot(result=unicode)
+    def getCategories(self,):
+        return '\n'.join(self._categories)
+
+    @Slot(int, unicode)
+    def setCategory(self, idx, name):
+        self.beginResetModel()
+        self._filteredNotes[idx].category = name
+        self.loadData()
+        self._filterNotes()
+        self._sortData()
+        self.endResetModel()
+
 
 
 class KhtNotes(QApplication):
@@ -243,4 +285,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())  
+    sys.exit(KhtNotes().exec_())

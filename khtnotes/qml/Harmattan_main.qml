@@ -107,6 +107,19 @@ PageStackWindow {
 
     showStatusBar: true
 
+    ComboxDialog {
+        property int index
+        id: categoryQueryDialog
+        titleText: 'Pick a category'
+        onAccepted: {
+            console.log(index);
+            console.log(categoryQueryDialog.text);
+            //fileBrowserPage.refresh();
+
+            notesModel.setCategory(index, categoryQueryDialog.text);
+        }
+    }
+
     QueryDialog {
         
         property int index

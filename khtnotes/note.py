@@ -28,9 +28,10 @@ STRIPTAGS = re.compile(r'<[^>]+>')
 STRIPHEAD = re.compile("<head>.*?</head>", re.DOTALL)
 
 
-def getValidFilename(filename):
-    return ''.join(car for car in filename
-                   if car not in INVALID_FILENAME_CHARS)
+def getValidFilename(filepath):
+    dirname, filename = os.path.dirname(filepath), os.path.basename(filepath)
+    return os.path.join(dirname, ''.join(car for car in filename
+                        if car not in INVALID_FILENAME_CHARS))
 
 
 def _strongify(group):
@@ -147,6 +148,7 @@ class Note(QObject):
         self._data = u''
         self._timestamp = None
         self._uuid = None
+        self._category = ''
         self._ready = False
         self._human_timestamp = u''
         self._favorited = False
@@ -163,6 +165,7 @@ class Note(QObject):
         self._set_text('Untitled %s' % unicode(index))
         self._title = None
         self._uuid = None
+        self._category = ''
         self._favorited = False
         self._set_ready(True)
 
@@ -174,7 +177,7 @@ class Note(QObject):
         if data == '':
             #if exist only
             if self._uuid:
-                self.rm(self._uuid)
+                self.rm(os.path.join(self._uuid))
             return True
         else:
             'Write data'
@@ -184,6 +187,7 @@ class Note(QObject):
         if (title != self._title) and self._title:
             #It s a rename of the note
             new_path = os.path.join(self.NOTESPATH,
+                                    self._category,
                                     title + '.txt')
             if os.path.exists(new_path):
                 print 'Note title already exists: %s' % new_path
@@ -191,12 +195,13 @@ class Note(QObject):
                 return False
             if self._uuid:
                 os.rename(os.path.join(self.NOTESPATH,
+                                       #self._category,
                                        self._uuid),
                           new_path)
-            self._uuid = getValidFilename(title.strip() + '.txt')
+            self._uuid = os.path.join(self._category, getValidFilename(title.strip() + '.txt'))
 
         if not self._uuid:
-            self._uuid = getValidFilename(title.strip() + '.txt')
+            self._uuid = os.path.join(self._category, getValidFilename(title.strip() + '.txt'))
 
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
@@ -224,7 +229,7 @@ class Note(QObject):
             return False
 
     @Slot(unicode)
-    def favorite(self, uuid=None):
+    def favorite(self, uuid):
         if uuid:
             if not self._settings.is_favorited(uuid):
                 self._settings.add_favorite(uuid)
@@ -266,6 +271,8 @@ class Note(QObject):
         if (self._uuid):
             try:
                 path = os.path.join(self.NOTESPATH, self._uuid)
+                self._category = os.path.dirname(self._uuid)
+                self.onCategoryChanged.emit()
                 self._favorited = self._settings.is_favorited(uid)
                 self.onFavoritedChanged.emit()
                 with codecs.open(path, 'rb',
@@ -276,7 +283,8 @@ class Note(QObject):
                             #Probably utf-16 ... decode it to utf-8
                             #as qml didn t support it well'
                             text = text.decode('utf-16')
-                        title = os.path.splitext(self._uuid)[0]
+                        title = os.path.splitext(
+                            os.path.basename(self._uuid))[0]
                         self._set_text(title
                                        + '\n' + text)
                         self._set_timestamp(os.stat(path).st_mtime)
@@ -333,6 +341,26 @@ class Note(QObject):
         self._title = title
         self.onTitleChanged.emit()
 
+    def _set_category(self, category):
+        new_uuid = os.path.join(category, os.path.basename(self._uuid))
+        if self.exists(new_uuid):
+            self.on_error.emit('There is already a note with the same title')
+            return
+        try:
+            old_uuid = self._uuid
+            self._category = category
+            self._set_uuid(new_uuid)
+            if not os.path.exists(os.path.join(self.NOTESPATH, self._category)):
+                os.mkdir(os.path.join(self.NOTESPATH, self._category))
+            os.rename(os.path.join(self.NOTESPATH, old_uuid),
+                      os.path.join(self.NOTESPATH, new_uuid))
+            self.onCategoryChanged.emit()
+        except Exception, e:
+            self.on_error.emit(str(e))
+
+    def _get_category(self):
+        return self._category
+
     def _get_uuid(self):
         return self._uuid
 
@@ -369,6 +397,11 @@ class Note(QObject):
     onReadyChanged = Signal()
     onHumanTimestampChanged = Signal()
     onFavoritedChanged = Signal()
+    onCategoryChanged= Signal()
+    category = Property(unicode,
+                   	_get_category,
+                        _set_category,
+                        notify=onCategoryChanged)
     human_timestamp = Property(unicode, _get_human_timestamp,
                                notify=onHumanTimestampChanged)
     data = Property(unicode,
@@ -400,4 +433,4 @@ if __name__ == '__main__':
                     ' hahaha test__test__test and an other *test* '
                     '[link](http://khertan.net/)'
                     '\ntest under title\n-------\ntest'
-                    '\n## test ##\n# test #\ntest') 
+                    '\n## test ##\n# test #\ntest')    

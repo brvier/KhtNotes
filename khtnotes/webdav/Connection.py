@@ -196,7 +196,7 @@ class Connection(DAV):
             # send first request
             path = _urlEncode(path)
             try:
-                self.set_debuglevel(3)
+                #self.set_debuglevel(3)
                 HTTPConnection.request(self, 'PUT', path, "", header)
                 self._blockCopySocket(srcfile, self, Connection.blockSize)
                 srcfile.close()

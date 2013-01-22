@@ -361,7 +361,6 @@ class LiveProperties(object):
         datetimeString = None
         if not self.properties.get(Constants.PROP_LAST_MODIFIED, None) is None:
             datetimeString = self.properties.get(Constants.PROP_LAST_MODIFIED).textof()
-        print 'TIMED2:', datetimeString, 'ENDTIMED2'
         result = rfc822.parsedate(datetimeString)
         if result is None:
             result = _parseIso8601String(datetimeString)

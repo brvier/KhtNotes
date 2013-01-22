@@ -1,6 +1,5 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
-//import '../common.js' as Common
 
 Menu {
     id: itemMenu
@@ -12,10 +11,23 @@ Menu {
     MenuLayout {
         MenuItem {
             text: qsTr("Favorite")
-            onClicked: {
-                //Note.favorite(uuid);
-                
+            onClicked: {                
                 notesModel.favorite(index)
+            }
+        }
+        MenuItem {
+            text: qsTr("Category")
+            onClicked: {
+                var categories = notesModel.getCategories().split("\n");
+                console.log(categories)
+                var index = 0;
+                categoryQueryDialog.model.clear();
+                for (;index < categories.length; index++) {
+                    categoryQueryDialog.model.append({"name":categories[index]});
+                }
+
+                categoryQueryDialog.index = index;
+                categoryQueryDialog.open();
             }
         }
         MenuItem {

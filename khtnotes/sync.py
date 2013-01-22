@@ -25,10 +25,7 @@ import logger
 import logging
 import md5util
 import sys
-
-
-def basename(path):
-    return os.path.basename(path)
+from webdav.Connection import WebdavError
 
 
 def local2utc(secs):
@@ -36,6 +33,15 @@ def local2utc(secs):
         return secs - time.timezone
     else:
         return secs - time.altzone
+
+
+def webdavPathJoin(path, *args):
+    for arg in args:
+        if path.endswith(u"/"):
+            path = path + arg
+        else:
+            path = path + u"/" + arg
+    return path
 
 
 class Sync(QObject):
@@ -50,6 +56,12 @@ class Sync(QObject):
         if not os.path.exists(self._localDataFolder):
             os.mkdir(self._localDataFolder)
         self._remoteDataFolder = 'KhtNotes'
+
+    def localBasename(self, path):
+        return os.path.relpath(path, self._localDataFolder)
+
+    def remoteBasename(self, path):
+        return os.path.relpath(path, os.path.join(self.webdavBasePath, self._remoteDataFolder))
 
     @Slot()
     def launch(self):
@@ -87,7 +99,7 @@ class Sync(QObject):
         webdavConnection = CollectionStorer(self.webdavHost
                                             + self.webdavBasePath,
                                             validateResourceNames=False)
-        webdavConnection.connection.logger.setLevel(logging.ERROR)
+        webdavConnection.connection.logger.setLevel(logging.WARNING)
 
         time_delta = None
 
@@ -104,12 +116,12 @@ class Sync(QObject):
                     self.logger.debug('Timezone: %f, Timealtzone: %f',
                                       time.timezone, time.altzone)
                     self.logger.debug('Server Time: %s' % response)
-                    remote_datetime = rfc822.parsedate(response)  
+                    remote_datetime = rfc822.parsedate(response)
                     self.logger.debug('Parsed server time %s' %
                                       str(remote_datetime))
                     time_delta = local2utc(time.mktime(remote_datetime)) \
                         - local_datetime
-                    self.logger.debug('Time delta: %f' % time_delta)     
+                    self.logger.debug('Time delta: %f' % time_delta)
                 except Exception, err:
                     time_delta = None
                     print 'error parsing date', err
@@ -191,15 +203,17 @@ class Sync(QObject):
                 for filename in set(lastsync_remote_filenames) \
                         - set(remote_filenames):
                     if filename in local_filenames.keys():
-                        if (local2utc(lastsync_remote_filenames[filename] -
-                                time_delta)) \
-                                >= (local_filenames[filename]):
+                        if int(local2utc(lastsync_remote_filenames[filename] -
+                                         time_delta)) \
+                                >= int(local_filenames[filename]):
                             self._local_delete(filename)
                         else:
                             #Else we have a conflict local file is newer than
                             #deleted one
-                            self.logger.debug('Delete conflictServer: %s'
-                                              % filename)
+                            self.logger.debug('Delete conflictServer: %s : %s >= %s'
+                                              % (filename,
+                                                 int(local2utc(lastsync_remote_filenames[filename]) - time_delta),
+                                                 int(local_filenames[filename])))
                             self._upload(webdavConnection, filename,
                                          None, time_delta)
 
@@ -207,9 +221,9 @@ class Sync(QObject):
                 for filename in set(lastsync_local_filenames) \
                         - set(local_filenames):
                     if filename in remote_filenames:
-                        if (lastsync_local_filenames[filename]) \
-                                >= (local2utc(remote_filenames[filename] -
-                                    time_delta)):
+                        if int(lastsync_local_filenames[filename]) \
+                                >= int(local2utc(remote_filenames[filename] -
+                                                 time_delta)):
                             self._remote_delete(webdavConnection, filename)
                         else:
                             #We have a conflict remote file is newer than what
@@ -243,6 +257,24 @@ class Sync(QObject):
                         self.logger.debug('New conflictLocal: %s' % filename)
                         self._conflictLocal(webdavConnection,
                                             filename, time_delta, useAutoMerge)
+
+                #What to do with file not really new
+                #but not really deleted
+                for filename in set(local_filenames).intersection(lastsync_local_filenames) \
+                        - set(remote_filenames).union(lastsync_remote_filenames):
+                    self._upload(webdavConnection, filename,
+                                 None, time_delta)
+                    print 'Uhuh ? ', filename, \
+                          ' local_filename:', filename in local_filenames, \
+                          ' lastsync_local_filenames:', filename in lastsync_local_filenames, \
+                          ' remote_filenames:', filename in remote_filenames, \
+                          ' lastsync_remote_filenames:', filename in lastsync_remote_filenames
+
+                for filename in set(remote_filenames).intersection(lastsync_remote_filenames) \
+                        - set(local_filenames).union(lastsync_local_filenames):
+                    self._download(webdavConnection, filename,
+                                   None, time_delta)
+                    print 'Uhuh 2 ? ', filename
 
                 #Check what's updated remotly
                 rupdated = [filename for filename
@@ -396,7 +428,7 @@ class Sync(QObject):
                     if os.path.isfile(filename):
                         shutil.copy(filename,
                                     os.path.join(merge_dir,
-                                                 os.path.basename(filename)))
+                                                 self.localBasename(filename)))
                 except IOError, err:
                     print err, 'filename:', filename, ' merge_dir:', merge_dir
 
@@ -422,19 +454,32 @@ class Sync(QObject):
                 remote_filename, time_delta):
         #TODO set modification time on local file as
         #"it s not possible on remote
-        if not remote_filename:
-            remote_filename = local_filename
-        self.logger.debug('Upload %s to %s' %
-                          (local_filename, remote_filename))
-        webdavConnection.path = self._get_notes_path()
-        resource = webdavConnection.addResource(remote_filename)
-        lpath = os.path.join(self._localDataFolder, local_filename)
+        try:
+            if not remote_filename:
+                remote_filename = local_filename
+            self.logger.debug('Upload %s to %s' %
+                              (local_filename, remote_filename))
+            rdirname, rfilename = os.path.dirname(remote_filename), os.path.basename(remote_filename)
+            print rdirname, rfilename
+            webdavConnection.path = webdavPathJoin(self._get_notes_path(), rdirname, '')
+            try:
+                webdavConnection.validate()
+            except WebdavError, err:
+                webdavConnection.path = webdavPathJoin(self._get_notes_path())
+                webdavConnection.addCollection(rdirname)
+                webdavConnection.path = webdavPathJoin(self._get_notes_path(), rdirname, '')
 
-        with open(lpath, 'rb') as fh:
-            resource.uploadFile(fh)
-            mtime = local2utc(time.mktime(resource.readStandardProperties()
-                                          .getLastModified())) - time_delta
-            os.utime(lpath, (-1, mtime))
+            print webdavConnection.path
+            resource = webdavConnection.addResource(rfilename)
+            lpath = os.path.join(self._localDataFolder, local_filename)
+
+            with open(lpath, 'rb') as fh:
+                resource.uploadFile(fh)
+                mtime = local2utc(time.mktime(resource.readStandardProperties()
+                                              .getLastModified())) - time_delta
+                os.utime(lpath, (-1, mtime))
+        except WebdavError, err:
+            self.on_error.emit('%s:%s' % (unicode(err), unicode(remote_filename)))
 
     def _download(self, webdavConnection, remote_filename,
                   local_filename, time_delta):
@@ -442,9 +487,17 @@ class Sync(QObject):
             local_filename = remote_filename
         self.logger.debug('Download %s to %s' %
                           (remote_filename, local_filename))
-        webdavConnection.path = self._get_notes_path() + remote_filename
+        rdirname, rfilename = os.path.dirname(remote_filename), os.path.basename(remote_filename)
+        print rdirname, rfilename
+        webdavConnection.path = webdavPathJoin(self._get_notes_path(), rdirname, rfilename)
+        print webdavConnection.path
+        if not os.path.exists(os.path.join(self._localDataFolder,
+                                           os.path.dirname(local_filename))):
+            os.makedirs(os.path.join(self._localDataFolder,
+                                     os.path.dirname(local_filename)))
         lpath = os.path.join(self._localDataFolder,
-                             getValidFilename(local_filename))
+                             os.path.dirname(local_filename),
+                             getValidFilename(os.path.basename(local_filename)))
         webdavConnection.downloadFile(lpath)
         mtime = local2utc(time.mktime(webdavConnection
                                       .readStandardProperties()
@@ -490,13 +543,26 @@ class Sync(QObject):
             raise
         return True
 
+    def __get_remote_filenames(self, webdavConnection, path):
+        index = {}
+        webdavConnection.path = path
+        for resource, properties in webdavConnection.getCollectionContents():
+            if properties.getResourceType() != 'resource':
+                index.update(self.__get_remote_filenames(webdavConnection, resource.path))
+            else:
+                index[self.remoteBasename(resource.path)] = time.mktime(properties.getLastModified())
+        return index
+
     def _get_remote_filenames(self, webdavConnection):
         '''Check Remote Index'''
         webdavConnection.path = self._get_notes_path()
-        index = dict([(unicode(basename(resource)),
-                      time.mktime(properties.getLastModified()))
-                      for (resource, properties)
-                      in webdavConnection.listResources().items()])
+
+        index = self.__get_remote_filenames(webdavConnection, self._get_notes_path())
+
+        # index = dict([(unicode(self.remoteBasename(resource)),
+        #               time.mktime(properties.getLastModified()))
+        #               for (resource, properties)
+        #               in webdavConnection.listResources().items()])
         try:
             del index['']
         except KeyError:
@@ -506,7 +572,7 @@ class Sync(QObject):
             del index['.index.sync']
         except KeyError:
             pass
-        self.logger.debug('_get_remote_filenames: %s' % unicode(index))
+        #self.logger.debug('_get_remote_filenames: %s' % unicode(index))
         #Cleaning a bit for test:)
         #for filename in index.keys():
         #    self._remote_delete(webdavConnection, filename)
@@ -514,20 +580,19 @@ class Sync(QObject):
         return index
 
     def _get_local_filenames(self):
-        index = dict([(filename,
-                      round(os.path.getmtime(
-                      os.path.join(
-                      self._localDataFolder, filename))))
-                      for filename in os.listdir(self._localDataFolder)
-                      if os.path.isfile(os.path.join(
-                                        self._localDataFolder,
-                                        filename))])
+        index = {}
+        for root, folders, files in os.walk(self._localDataFolder):
+            if self.localBasename(root) != u'.merge.sync':
+                for filename in files:
+                    index[self.localBasename(os.path.join(root, filename))] = round(os.path.getmtime(
+                        os.path.join(root, filename)))
+
         try:
             del index['.index.sync']
         except KeyError:
             pass
 
-        self.logger.debug('_get_local_filenames: %s' % unicode(index))
+        #self.logger.debug('_get_local_filenames: %s' % unicode(index))
         return index
 
     def _write(self, uid, data, timestamp=None):
@@ -551,4 +616,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
     s = Sync()
-    s.launch()   
+    s.launch()
