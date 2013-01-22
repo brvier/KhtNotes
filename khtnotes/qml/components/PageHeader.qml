@@ -35,13 +35,5 @@ Rectangle {
         anchors.right: header.right
         anchors.rightMargin: 10
         anchors.verticalCenter: header.verticalCenter
-        /*onOpacityChanged:{
-                    if ((opacity === 0.0) && (pageStack)) {
-                        if (pageStack.currentPage.objectName === 'fileBrowserPage') {
-                            pageStack.currentPage.refresh();
-                        }
-                    }
-                 }   */
-
     }
 }

@@ -73,6 +73,4 @@ Page {
             }
         }
     }
-    
-    //Component.onCompleted: theme.inverted = true
 }

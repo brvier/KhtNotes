@@ -198,10 +198,14 @@ class Note(QObject):
                                        #self._category,
                                        self._uuid),
                           new_path)
-            self._uuid = os.path.join(self._category, getValidFilename(title.strip() + '.txt'))
+            self._uuid = os.path.join(self._category,
+                                      getValidFilename(title.strip()
+                                                       + '.txt'))
 
         if not self._uuid:
-            self._uuid = os.path.join(self._category, getValidFilename(title.strip() + '.txt'))
+            self._uuid = os.path.join(self._category,
+                                      getValidFilename(title.strip()
+                                                       + '.txt'))
 
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
@@ -350,7 +354,8 @@ class Note(QObject):
             old_uuid = self._uuid
             self._category = category
             self._set_uuid(new_uuid)
-            if not os.path.exists(os.path.join(self.NOTESPATH, self._category)):
+            if not os.path.exists(os.path.join(self.NOTESPATH,
+                                               self._category)):
                 os.mkdir(os.path.join(self.NOTESPATH, self._category))
             os.rename(os.path.join(self.NOTESPATH, old_uuid),
                       os.path.join(self.NOTESPATH, new_uuid))
@@ -397,9 +402,9 @@ class Note(QObject):
     onReadyChanged = Signal()
     onHumanTimestampChanged = Signal()
     onFavoritedChanged = Signal()
-    onCategoryChanged= Signal()
+    onCategoryChanged = Signal()
     category = Property(unicode,
-                   	_get_category,
+                        _get_category,
                         _set_category,
                         notify=onCategoryChanged)
     human_timestamp = Property(unicode, _get_human_timestamp,
@@ -433,4 +438,4 @@ if __name__ == '__main__':
                     ' hahaha test__test__test and an other *test* '
                     '[link](http://khertan.net/)'
                     '\ntest under title\n-------\ntest'
-                    '\n## test ##\n# test #\ntest')    
+                    '\n## test ##\n# test #\ntest')

@@ -72,7 +72,7 @@ Page {
         onContentYChanged: {
             if ((flick.contentY == 0) && (textEditor.cursorPosition != 0)) {
                 flick.ensureVisible(
-                    textEditor.positionToRectangle(textEditor.cursorPosition));
+                            textEditor.positionToRectangle(textEditor.cursorPosition));
             }
         }
 
@@ -87,8 +87,8 @@ Page {
             font { bold: false;
                 family: Settings.fontFamily;
                 pixelSize:  Settings.fontSize;}
-            onTextChanged: {           
-                if(focus){      
+            onTextChanged: {
+                if(focus){
                     modified = true;
                     autoTimer.restart();
                 }

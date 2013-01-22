@@ -11,7 +11,7 @@ Menu {
     MenuLayout {
         MenuItem {
             text: qsTr("Favorite")
-            onClicked: {                
+            onClicked: {
                 notesModel.favorite(index)
             }
         }
@@ -25,7 +25,6 @@ Menu {
                 for (;index < categories.length; index++) {
                     categoryQueryDialog.model.append({"name":categories[index]});
                 }
-
                 categoryQueryDialog.index = index;
                 categoryQueryDialog.open();
             }

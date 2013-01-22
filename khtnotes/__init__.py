@@ -115,7 +115,6 @@ class NotesModel(QAbstractListModel):
             self._filteredNotes = self._notes
 
     def loadData(self,):
-        #self._all_notes = {}
         self._notes = []
         self._categories = []
         for root, folders, filenames in os.walk(Note.NOTESPATH):
@@ -125,22 +124,10 @@ class NotesModel(QAbstractListModel):
                 if category != '.merge.sync':
                     self._notes.extend(
                         [Note(uid=os.path.join(category, unicode(filename)))
-                         for filename in filenames if filename != '.index.sync'])
+                         for filename in filenames
+                         if filename != '.index.sync'])
                     self._categories.append(category)
-         
-#        self._notes = [Note(uid=filename)
-#                       for filename in os.listdir(Note.NOTESPATH)
-#                       if (os.path.isfile(os.path.join(Note.NOTESPATH,
-#                                                       filename)))
-#                       and (filename != '.index.sync')]
-        #Remove values which aren't notes
-        #try:
-        #    del self._all_notes['.merge.sync']
-        #except KeyError:
-        #    pass
 
-        #print self._all_notes.keys()
-        #self._notes = self._all_notes[self._currentCategory]
         self._sortData()
 
     def _sortData(self,):
@@ -221,7 +208,6 @@ class NotesModel(QAbstractListModel):
         self.endResetModel()
 
 
-
 class KhtNotes(QApplication):
     ''' Application class '''
     def __init__(self):
@@ -242,11 +228,6 @@ class KhtNotes(QApplication):
             self.glw = QGLWidget(self.glformat)
             self.glw.setAutoFillBackground(False)
             self.view.setViewport(self.glw)
-            #self.view.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
-            #self.view.setAttribute(Qt.WA_OpaquePaintEvent)
-            #self.view.setAttribute(Qt.WA_NoSystemBackground)
-            #self.view.viewport().setAttribute(Qt.WA_OpaquePaintEvent)
-            #self.view.viewport().setAttribute(Qt.WA_NoSystemBackground)
         else:
             fullscreen = False
 
