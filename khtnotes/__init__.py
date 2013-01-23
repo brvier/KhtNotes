@@ -15,7 +15,7 @@
 
 from PySide.QtGui import QApplication
 from PySide.QtCore import QUrl, Slot, \
-    QAbstractListModel, QModelIndex
+    QAbstractListModel, QModelIndex, QObject, QEvent
 from PySide import QtDeclarative
 from PySide.QtOpenGL import QGLWidget, QGLFormat
 
@@ -217,8 +217,6 @@ class KhtNotes(QApplication):
         self.setApplicationName("KhtNotes")
 
         self.view = QtDeclarative.QDeclarativeView()
-        #Are we on mer ? or on desktop ? So don't use opengl
-        #As it didn't works on all devices
         if os.path.exists('/etc/mer-release'):
             fullscreen = True
         elif os.path.exists('/etc/aegis'):

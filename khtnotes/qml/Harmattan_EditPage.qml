@@ -93,8 +93,13 @@ Page {
                     autoTimer.restart();
                 }
             }
+            onActiveFocusChanged: {
+                   if ((textEditor.activeFocus) && (Settings.hideVkb) )
+                       textEditor.closeSoftwareInputPanel();
+               }
 
             Component.onDestruction: {
+                console.log('On destruction called');
                 if (modified == true) {
                     Note.write(textEditor.text);
                 }

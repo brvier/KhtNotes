@@ -92,6 +92,28 @@ Page {
             }
             
             TitleLabel {
+                text: qsTr('Virtual Keyboard')
+            }
+
+            Label {
+                width: parent.width
+                height: hideVkbSwitch.height
+                verticalAlignment: Text.AlignVCenter
+                text: qsTr("Hide")
+
+                Switch {
+                    id: hideVkbSwitch
+                    checked: Settings.hideVkb
+                    anchors.right: parent.right
+                    Binding {
+                        target: Settings
+                        property: "hideVkb"
+                        value: hideVkbSwitch.checked
+                    }
+                }
+            }
+                        
+            TitleLabel {
                 text: qsTr('Webdav')
             }
 

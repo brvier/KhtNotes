@@ -48,6 +48,12 @@ class Settings(QObject):
             self.config.set('Display', 'displayHeader', 'true')
             self._write()
 
+        #Added in 3.1
+        if not self.config.has_option('Keyboard', 'hideVkb'):
+            self.config.add_section('Keyboard')
+            self.config.set('Keyboard', 'hideVkb', 'true')
+            self._write()
+
     def _write_default(self):
         ''' Write the default config'''
         self.config.add_section('Display')
@@ -62,6 +68,8 @@ class Settings(QObject):
                         '/remote.php/webdav/')
         self.config.set('Webdav', 'autoMerge', 'true')
         self.config.set('Webdav', 'remoteFolder', 'Notes')
+        self.config.add_section('Keyboard')
+        self.config.set('Keyboard', 'hideVkb', 'false')
         self.config.add_section('Favorites')
 
         # Writing our configuration file to 'example.cfg'
@@ -80,6 +88,8 @@ class Settings(QObject):
             #Remove local sync index to prevent losing notes :
             if os.path.exists(os.path.join(NOTESPATH, '.index.sync')):
                 os.remove(os.path.join(NOTESPATH, '.index.sync'))
+        elif option in ('hideVkb'):
+            self.config.set('Keyboard', option, value)
         else:
             self.config.set('Display', option, value)
 
@@ -114,12 +124,15 @@ class Settings(QObject):
     @Slot(unicode, result=unicode)
     def get(self, option):
         try:
-            return self.config.get('Display', option)
+            return self.config.get('Keyboard', option)
         except:
             try:
-                return self.config.get('Webdav', option)
+                return self.config.get('Display', option)
             except:
-                return ''
+                try:
+                    return self.config.get('Webdav', option)
+                except:
+                    return ''
 
     def _get_fontSize(self, ):
         return int(self.get('fontsize'))
@@ -174,6 +187,12 @@ class Settings(QObject):
     def _set_webdavBasePath(self, path):
         self._set('basePath', path)
 
+    def _get_hideVkb(self,):
+        return self.get('hideVkb') == 'true'
+
+    def _set_hideVkb(self, b):
+        return self._set('hideVkb', 'true' if b else 'false')
+
     on_fontSize = Signal()
     on_fontFamily = Signal()
     on_webdavHost = Signal()
@@ -183,7 +202,10 @@ class Settings(QObject):
     on_remoteFolder = Signal()
     on_autoMerge = Signal()
     on_displayHeader = Signal()
+    on_hideVkb = Signal()
 
+    hideVkb = Property(bool, _get_hideVkb,
+                       _set_hideVkb, notify=on_hideVkb)
     fontSize = Property(int, _get_fontSize,
                         _set_fontSize, notify=on_fontSize)
     fontFamily = Property(unicode, _get_fontFamily,
