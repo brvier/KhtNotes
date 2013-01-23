@@ -320,6 +320,16 @@ class Note(QObject):
             print type(e), ':', e
             return text
 
+    @Slot(unicode, result=unicode)
+    def previewReStructuredText(self, text):
+        ''' Generate a markdown preview'''
+        try:
+            from docutils.core import publish_parts
+            return publish_parts(_uncolorize(text), writer_name='html')['html_body']
+        except Exception, e:
+            print type(e), ':', e
+            return text
+   
     def _get_text(self):
         return self._data
 
@@ -438,4 +448,4 @@ if __name__ == '__main__':
                     ' hahaha test__test__test and an other *test* '
                     '[link](http://khertan.net/)'
                     '\ntest under title\n-------\ntest'
-                    '\n## test ##\n# test #\ntest')
+                    '\n## test ##\n# test #\ntest')  

@@ -132,7 +132,10 @@ Page {
         visualParent: pageStack
         MenuLayout {
             MenuItem { text: qsTr("About"); onClicked: pushAbout()}
-            MenuItem { text: qsTr("MarkDown Preview"); onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_PreviewPage.qml")), {atext:textEditor.text}); }
+            MenuItem { text: qsTr("MarkDown Preview"); 
+                                    onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_PreviewPage.qml")), {html:Note.previewMarkdown(textEditor.text)}); }
+            MenuItem { text: qsTr("ReStructuredText Preview"); onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_PreviewPage.qml")), {html:Note.previewReStructuredText(textEditor.text)}); }
+          
         }
     }
 

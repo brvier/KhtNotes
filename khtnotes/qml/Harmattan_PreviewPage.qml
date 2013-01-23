@@ -7,7 +7,7 @@ Page {
     tools: simpleBackTools
     id: previewPage
 
-    property string atext;
+    property alias html: textEditor.text;
 
     signal refresh();
     
@@ -16,10 +16,6 @@ Page {
     
     function exitFile() {
         pageStack.pop();
-    }
-
-    onAtextChanged: {
-        textEditor.text = Note.previewMarkdown(atext)
     }
 
     PageHeader {
@@ -51,7 +47,7 @@ Page {
             readOnly: true
             wrapMode: TextEdit.WordWrap
             textFormat: TextEdit.RichText
-            text: Note.previewMarkdown(atext)
+            text: ''
             font { bold: false; family: "Nokia Pure Text"; pixelSize: 18;}
         }
     }
