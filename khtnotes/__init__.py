@@ -208,6 +208,22 @@ class NotesModel(QAbstractListModel):
         self.endResetModel()
 
 
+class FilteredDeclarativeView(QtDeclarative.QDeclarativeView):
+    def __init__(self,):
+        QtDeclarative.QDeclarativeView.__init__(self)
+        self.settings = Settings()
+
+    def event(self, event):
+        if ((event.type() == QEvent.RequestSoftwareInputPanel)
+                and (self.settings.hideVkb)):
+            #Hacky way to do, but event is already processed when
+            #python got the hand
+            closeEvent = QEvent(QEvent.CloseSoftwareInputPanel)
+            QApplication.instance().postEvent(self, closeEvent)
+            return True
+        return QtDeclarative.QDeclarativeView.event(self, event)
+
+
 class KhtNotes(QApplication):
     ''' Application class '''
     def __init__(self):
@@ -216,7 +232,7 @@ class KhtNotes(QApplication):
         self.setOrganizationDomain("khertan.net")
         self.setApplicationName("KhtNotes")
 
-        self.view = QtDeclarative.QDeclarativeView()
+        self.view = FilteredDeclarativeView()
         if os.path.exists('/etc/mer-release'):
             fullscreen = True
         elif os.path.exists('/etc/aegis'):

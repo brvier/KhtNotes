@@ -94,8 +94,11 @@ Page {
                 }
             }
             onActiveFocusChanged: {
+		   console.log('ActiveFocus');
                    if ((textEditor.activeFocus) && (Settings.hideVkb) )
-                       textEditor.closeSoftwareInputPanel();
+                       
+			console.log('activeFocus and settings.hideVkb');
+			textEditor.closeSoftwareInputPanel();
                }
 
             Component.onDestruction: {
