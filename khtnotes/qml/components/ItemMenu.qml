@@ -20,10 +20,10 @@ Menu {
             onClicked: {
                 var categories = notesModel.getCategories().split("\n");
                 console.log(categories)
-                var index = 0;
+                var idx = 0;
                 categoryQueryDialog.model.clear();
-                for (;index < categories.length; index++) {
-                    categoryQueryDialog.model.append({"name":categories[index]});
+                for (;idx < categories.length; idx++) {
+                    categoryQueryDialog.model.append({"name":categories[idx]});
                 }
                 categoryQueryDialog.index = index;
                 categoryQueryDialog.open();
