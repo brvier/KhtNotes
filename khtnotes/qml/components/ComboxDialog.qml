@@ -1,7 +1,7 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 
-Dialog {
+  Dialog {
     property alias placeholder: textfield.placeholderText
     property alias text: textfield.text
     property alias titleText: titleField.text
@@ -16,32 +16,24 @@ Dialog {
         height: 50
     }
 
-    content:  //Item {
-//        id: name
-//        width: parent.width
-//        height: root.height - 70
-       //anchors.fill: parent
-       //anchors.bottom: 
-
+    content: 
         Rectangle {
-            //anchors.fill: parent
-            //height: parent.height
-            //spacing: 10
-            //height: root.height - 70
+            anchors.fill: parent
+            id: contentItem
             height: 250
+            color: '#000'
 
             TextField {
                 id: textfield
-                width: parent.width
+                width: contentItem.width
                 anchors.top: parent.top
             }
 
             ListView {
                 id: view
                 height: parent.height - textfield.height - 10
-                //height: parent.height
                 anchors.bottom: parent.bottom
-                width: parent.width
+                width: contentItem.width
                 clip: true
 
                 model: ListModel {
@@ -53,19 +45,18 @@ Dialog {
                     Label {
                         text: model.name
                         color: 'white'
-                        width:parent.width
                         height: 50
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
                                 textfield.text = model.name;
                             }
-                        }
+                        //}
                     }
                 }
             }
         }
-//    }
+    }
 
     buttons: ButtonRow {
         style: ButtonStyle { }

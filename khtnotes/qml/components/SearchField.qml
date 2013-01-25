@@ -4,7 +4,6 @@ import com.nokia.meego 1.0
 Rectangle {
    property alias text: root.text
    height: 70
-  // width: parent.width
    color: '#eee'
 
    TextField {
@@ -14,14 +13,17 @@ Rectangle {
         platformStyle: TextFieldStyle {
             backgroundSelected: "image://theme/color6-meegotouch-textedit-background-selected"
         }
-         placeholderText: "Search"
-         inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase
+        placeholderText: "Search"
+        inputMethodHints: Qt.ImhNoPredictiveText 
+			  | Qt.ImhPreferLowercase 
+			  | Qt.ImhNoAutoUppercase
 
     Image {
         anchors { top: parent.top; right: parent.right; margins: 5 }
         smooth: true
         fillMode: Image.PreserveAspectFit
-        source: root.text ? "image://theme/icon-m-input-clear" : "image://theme/icon-m-common-search"
+        source: root.text ? "image://theme/icon-m-input-clear" 
+			  : "image://theme/icon-m-common-search"
         height: parent.height - platformStyle.paddingMedium * 2
         width: parent.height - platformStyle.paddingMedium * 2
 

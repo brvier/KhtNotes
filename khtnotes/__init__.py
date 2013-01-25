@@ -15,7 +15,7 @@
 
 from PySide.QtGui import QApplication
 from PySide.QtCore import QUrl, Slot, \
-    QAbstractListModel, QModelIndex, QObject, QEvent
+    QAbstractListModel, QModelIndex, QEvent
 from PySide import QtDeclarative
 from PySide.QtOpenGL import QGLWidget, QGLFormat
 
@@ -282,4 +282,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())    
+    sys.exit(KhtNotes().exec_())     

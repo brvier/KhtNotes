@@ -216,6 +216,25 @@ Page {
                 }
             }
 
+
+            Label {
+                width: parent.width
+                height: autoSwitch.height
+                verticalAlignment: Text.AlignVCenter
+                text: qsTr("Use auto sync feature")
+
+                Switch {
+                    id: autoSwitch
+                    checked: Settings.autoSync
+                    anchors.right: parent.right
+                    Binding {
+                        target: Settings
+                        property: "autoSync"
+                        value: autoSwitch.checked
+                    }
+                }
+            }
+
             TitleLabel {
                 text: qsTr("<b>Import</b>")
             }

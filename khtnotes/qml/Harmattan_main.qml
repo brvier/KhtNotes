@@ -112,11 +112,7 @@ PageStackWindow {
         id: categoryQueryDialog
         titleText: 'Pick a category'
         onAccepted: {
-            console.log(index);
-            console.log(categoryQueryDialog.text);
-            //fileBrowserPage.refresh();
-
-            notesModel.setCategory(index, categoryQueryDialog.text);
+             notesModel.setCategory(index, categoryQueryDialog.text);
         }
     }
 
@@ -132,7 +128,6 @@ PageStackWindow {
         rejectButtonText: qsTr("Cancel")
         onAccepted: {
             notesModel.remove(index);
-            //fileBrowserPage.refresh();
         }
     }
     

@@ -204,9 +204,9 @@ class Sync(QObject):
                 for filename in set(lastsync_remote_filenames) \
                         - set(remote_filenames):
                     if filename in local_filenames.keys():
-                        if int(local2utc(lastsync_remote_filenames[filename] -
-                                         time_delta)) \
-                                >= int(local_filenames[filename]):
+                        if round(local2utc(lastsync_remote_filenames[filename] -
+                                         time_delta), -1) \
+                                >= round(local_filenames[filename], -1):
                             self._local_delete(filename)
                         else:
                             #Else we have a conflict local file is newer than
@@ -228,9 +228,9 @@ class Sync(QObject):
                 for filename in set(lastsync_local_filenames) \
                         - set(local_filenames):
                     if filename in remote_filenames:
-                        if int(lastsync_local_filenames[filename]) \
-                                >= int(local2utc(remote_filenames[filename] -
-                                                 time_delta)):
+                        if round(lastsync_local_filenames[filename], -1) \
+                                >= round(local2utc(remote_filenames[filename] -
+                                                 time_delta), -1):
                             self._remote_delete(webdavConnection, filename)
                         else:
                             #We have a conflict remote file is newer than what
@@ -298,16 +298,16 @@ class Sync(QObject):
                     self._upload(webdavConnection, filename,
                                  None, time_delta)
                 for filename in set(lupdated).intersection(rupdated):
-                    if int(local2utc(remote_filenames[filename])
-                            - time_delta) \
-                            > int(local_filenames[filename]):
+                    if round(local2utc(remote_filenames[filename]
+                            - time_delta), -1) \
+                            > round(local_filenames[filename], -1):
                         self.logger.debug(
                             'Updated conflictLocal: %s' % filename)
                         self._conflictLocal(webdavConnection, filename,
                                             time_delta, useAutoMerge)
-                    elif int(local2utc(remote_filenames[filename])
-                             - time_delta) \
-                            < int(local_filenames[filename]):
+                    elif round(local2utc(remote_filenames[filename]
+                             - time_delta), -1) \
+                            < round(local_filenames[filename], -1):
                         self.logger.debug('Updated conflictServer: %s'
                                           % filename)
                         self._conflictServer(webdavConnection, filename,
@@ -630,4 +630,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
     s = Sync()
-    s.launch()
+    s.launch()  

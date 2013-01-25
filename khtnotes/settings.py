@@ -48,10 +48,14 @@ class Settings(QObject):
             self.config.set('Display', 'displayHeader', 'true')
             self._write()
 
-        #Added in 3.1
+        #Added in 3.0
         if not self.config.has_option('Keyboard', 'hideVkb'):
             self.config.add_section('Keyboard')
             self.config.set('Keyboard', 'hideVkb', 'true')
+            self._write()
+
+        if not self.config.has_option('Webdav', 'autoSync'):
+            self.config.set('Webdav', 'autoSync', 'false')
             self._write()
 
     def _write_default(self):
@@ -68,6 +72,7 @@ class Settings(QObject):
                         '/remote.php/webdav/')
         self.config.set('Webdav', 'autoMerge', 'true')
         self.config.set('Webdav', 'remoteFolder', 'Notes')
+        self.config.set('Webdav', 'autoSync', 'false')
         self.config.add_section('Keyboard')
         self.config.set('Keyboard', 'hideVkb', 'false')
         self.config.add_section('Favorites')
@@ -83,7 +88,8 @@ class Settings(QObject):
             return
 
         if option in ('host', 'login', 'passwd',
-                      'basePath', 'autoMerge', 'remoteFolder'):
+                      'basePath', 'autoMerge', 'remoteFolder',
+                      'autoSync'):
             self.config.set('Webdav', option, value)
             #Remove local sync index to prevent losing notes :
             if os.path.exists(os.path.join(NOTESPATH, '.index.sync')):
@@ -193,6 +199,12 @@ class Settings(QObject):
     def _set_hideVkb(self, b):
         return self._set('hideVkb', 'true' if b else 'false')
 
+    def _get_autoSync(self,):
+        return self.get('autoSync') == 'true'
+
+    def _set_autoSync(self, b):
+        return self._set('autoSync', 'true' if b else 'false')
+
     on_fontSize = Signal()
     on_fontFamily = Signal()
     on_webdavHost = Signal()
@@ -203,7 +215,10 @@ class Settings(QObject):
     on_autoMerge = Signal()
     on_displayHeader = Signal()
     on_hideVkb = Signal()
+    on_autoSync = Signal()
 
+    autoSync = Property(bool, _get_autoSync,
+                       _set_autoSync, notify=on_autoSync)
     hideVkb = Property(bool, _get_hideVkb,
                        _set_hideVkb, notify=on_hideVkb)
     fontSize = Property(int, _get_fontSize,
@@ -223,4 +238,4 @@ class Settings(QObject):
     displayHeader = Property(bool, _get_displayHeader, _set_displayHeader,
                              notify=on_displayHeader)
     remoteFolder = Property(unicode, _get_remoteFolder, _set_remoteFolder,
-                            notify=on_remoteFolder)
+                            notify=on_remoteFolder) 
