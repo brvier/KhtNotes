@@ -131,29 +131,31 @@ class NotesModel(QAbstractListModel):
         self._sortData()
 
     def _sortData(self,):
-        self._notes.sort(key=lambda note: (note.favorited,
+        self._notes.sort(key=lambda note: (not note.favorited,
                                            note.category,
-                                           note.timestamp),
-                         reverse=True)
+                                           note.title),
+                         reverse=False)
         self._categories.sort()
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._filteredNotes)
 
     def data(self, index, role):
-        if index.isValid() and role == NotesModel.COLUMNS.index('title'):
+        if not index.isValid():
+            return None
+        if role == 0:  # NotesModel.COLUMNS.index('title'):
             return self._filteredNotes[index.row()].title
-        elif index.isValid() and role == NotesModel.COLUMNS.index('timestamp'):
+        elif role == 1:  # NotesModel.COLUMNS.index('timestamp'):
             return self._filteredNotes[index.row()].human_timestamp
-        elif index.isValid() and role == NotesModel.COLUMNS.index('uuid'):
+        elif role == 2:  # NotesModel.COLUMNS.index('uuid'):
             return self._filteredNotes[index.row()].uuid
-        elif index.isValid() and role == NotesModel.COLUMNS.index('index'):
+        elif role == 3:  # NotesModel.COLUMNS.index('index'):
             return index.row()
-        elif index.isValid() and role == NotesModel.COLUMNS.index('data'):
+        elif role == 4:  # NotesModel.COLUMNS.index('data'):
             return self._filteredNotes[index.row()].data
-        elif index.isValid() and role == NotesModel.COLUMNS.index('favorited'):
+        elif role == 5:  # NotesModel.COLUMNS.index('favorited'):
             return self._filteredNotes[index.row()].favorited
-        elif index.isValid() and role == NotesModel.COLUMNS.index('category'):
+        elif role == 6:  #NotesModel.COLUMNS.index('category'):
             return self._filteredNotes[index.row()].category
         return None
 
@@ -280,4 +282,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())
+    sys.exit(KhtNotes().exec_())    

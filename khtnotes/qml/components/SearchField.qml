@@ -1,13 +1,21 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 
-TextField {
-    id: root
-    platformStyle: TextFieldStyle {
-        backgroundSelected: "image://theme/color6-meegotouch-textedit-background-selected"
-    }
-    placeholderText: "Search"
-    inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase
+Rectangle {
+   property alias text: root.text
+   height: 70
+  // width: parent.width
+   color: '#eee'
+
+   TextField {
+        id: root
+        anchors.margins: 10
+        anchors.fill: parent
+        platformStyle: TextFieldStyle {
+            backgroundSelected: "image://theme/color6-meegotouch-textedit-background-selected"
+        }
+         placeholderText: "Search"
+         inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase
 
     Image {
         anchors { top: parent.top; right: parent.right; margins: 5 }
@@ -24,4 +32,5 @@ TextField {
             onClicked: root.text = ""
         }
     }
+}
 }

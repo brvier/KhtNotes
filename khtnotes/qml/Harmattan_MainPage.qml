@@ -10,19 +10,9 @@ Page {
         notesView.model.reload();
     }
     
-    
     PageHeader {
-        id: header
+        id: pageHeader
         title: 'KhtNotes'
-    }
-
-    SearchField {
-        id: search
-        anchors { top: header.bottom; left: parent.left; right: parent.right }
-        anchors.leftMargin: 16
-        anchors.rightMargin: 16
-        anchors.topMargin: 10
-        onTextChanged: notesModel.setFilterFixedString(text)
     }
     
     Component {
@@ -45,13 +35,21 @@ Page {
         }
     }
 
-
+    SearchField {
+            id: searchField
+            onTextChanged: notesModel.setFilterFixedString(text)
+            anchors {
+                top: pageHeader.bottom
+                left: parent.left
+                right: parent.right
+            }
+        }
+    
     ListView {
         id: notesView
-        anchors.top: search.bottom
-        anchors.topMargin: 10
+        anchors.top: searchField.bottom
         anchors.bottom: parent.bottom
-        height: search.height - header.height
+        height: pageHeader.height
         width: parent.width
         clip: true
         z:1
@@ -80,12 +78,15 @@ Page {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
-                    Label {text:'<b>'+model.title+'</b>'
+                    Label {text: model.title
                         font.family: "Nokia Pure Text"
                         font.pixelSize: 24
+                        font.weight: Font.Bold
                         color:"black"
                         anchors.left: parent.left
                         anchors.right: parent.right
+                        elide: Text.ElideRight
+                        maximumLineCount: 1
                     }
 
                     Label {
@@ -125,7 +126,6 @@ Page {
                                            modified: false});
                     }
                     onPressAndHold: {
-                        //itemMenu.uuid = model.uuid;
                         itemMenu.index = model.index;
                         itemMenu.open();
                     }
@@ -143,6 +143,7 @@ Page {
         flickableItem: notesView
         z:3
         platformStyle: ScrollDecoratorStyle {
-        }}
+        }
+     }
 
 }

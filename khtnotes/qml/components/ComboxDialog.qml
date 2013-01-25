@@ -16,22 +16,31 @@ Dialog {
         height: 50
     }
 
-    content:Item {
-        id: name
-        width: parent.width
-        height: 450
+    content:  //Item {
+//        id: name
+//        width: parent.width
+//        height: root.height - 70
+       //anchors.fill: parent
+       //anchors.bottom: 
 
-        Column {
-            anchors.fill: parent
-            spacing: 10
+        Rectangle {
+            //anchors.fill: parent
+            //height: parent.height
+            //spacing: 10
+            //height: root.height - 70
+            height: 250
 
             TextField {
                 id: textfield
+                width: parent.width
+                anchors.top: parent.top
             }
 
             ListView {
                 id: view
-                height: 250
+                height: parent.height - textfield.height - 10
+                //height: parent.height
+                anchors.bottom: parent.bottom
                 width: parent.width
                 clip: true
 
@@ -56,7 +65,7 @@ Dialog {
                 }
             }
         }
-    }
+//    }
 
     buttons: ButtonRow {
         style: ButtonStyle { }
