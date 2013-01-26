@@ -648,7 +648,7 @@ class CollectionStorer(ResourceStorer):
         if  response.status == Constants.CODE_MULTISTATUS and response.msr.errorCount > 0:
             raise WebdavError("Request failed: %s" % response.msr.reason, response.msr.code)
 
-    def lockAll(self, owner):
+    def lockAll(self, owner, timeout=None):
         """
         Locks this collection resource for exclusive write access. This means that for
         succeeding write operations the returned lock token has to be passed.
@@ -660,7 +660,7 @@ class CollectionStorer(ResourceStorer):
         @rtype: L{LockToken}
         """
         assert isinstance(owner, types.StringType) or isinstance(owner, types.UnicodeType)
-        response = self.connection.lock(self.path, owner, depth=Constants.HTTP_HEADER_DEPTH_INFINITY)
+        response = self.connection.lock(self.path, owner, depth=Constants.HTTP_HEADER_DEPTH_INFINITY, timeout=timeout)
         return LockToken(self.url, response.locktoken)
 
     def listResources(self):
@@ -867,4 +867,4 @@ if __name__ == "__main__":
             else:
                 raise
             authFailures += 1
-        print("\n")
+        print("\n")    

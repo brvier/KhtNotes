@@ -175,7 +175,8 @@ PageStackWindow {
             StateChangeScript {
                 script: {
                     if (pageStack.currentPage.objectName === 'fileBrowserPage') {
-                        pageStack.currentPage.refresh();}
+                        pageStack.currentPage.refresh();
+                        if (! Sync.running) {Sync.launch()}; }
                 }       }
         }
     ]

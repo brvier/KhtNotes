@@ -50,6 +50,7 @@ class Sync(QObject):
     def __init__(self,):
         QObject.__init__(self)
         self._running = False
+        self._lock = None
         #logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
         self.logger = logger.getDefaultLogger()
         self._localDataFolder = Note.NOTESPATH
@@ -320,12 +321,16 @@ class Sync(QObject):
 
                 #Un_lock the collection
                 self._unlock(webdavConnection)
+                self.logger.debug('Sync end')
             except Exception, err:
-                import traceback
-                print traceback.format_exc()
-                self.on_error.emit(unicode(err))
                 self.logger.debug('Global sync error : %s' % unicode(err))
-
+                if (type(err) == WebdavError) and (unicode(err)==u'Locked'):
+                    self.on_error.emit(u'The server resources are locked, there is probably an other sync running on server. Please wait.')
+                else:
+                    import traceback
+                    print traceback.format_exc()
+                    self.on_error.emit(unicode(err))
+                
     def _conflictServer(self, webdavConnection, filename,
                         time_delta, useAutoMerge):
         '''Priority to local'''
@@ -479,11 +484,11 @@ class Sync(QObject):
                                                        rdirname, '')
 
             print webdavConnection.path
-            resource = webdavConnection.addResource(rfilename)
+            resource = webdavConnection.addResource(rfilename, token=self._lock)
             lpath = os.path.join(self._localDataFolder, local_filename)
 
             with open(lpath, 'rb') as fh:
-                resource.uploadFile(fh)
+                resource.uploadFile(fh, token=self._lock)
                 mtime = local2utc(time.mktime(resource.readStandardProperties()
                                               .getLastModified())) - time_delta
                 os.utime(lpath, (-1, mtime))
@@ -519,16 +524,17 @@ class Sync(QObject):
 
     def _remote_delete(self, webdavConnection, filename):
         webdavConnection.path = self._get_notes_path()
-        webdavConnection.deleteResource(filename)
+        webdavConnection.deleteResource(filename, token=self._lock)
         self.logger.debug('remote_delete: %s' % filename)
 
     def _local_delete(self, filename):
         os.remove(os.path.join(self._localDataFolder, filename))
         self.logger.debug('local_delete: %s' % filename)
 
-    def _unlock(self, filename):
+    def _unlock(self, webdavConnection):
         #TODO
-        pass
+        webdavConnection.path = self._get_notes_path()
+        webdavConnection.unlock(self._lock)
 
     def _get_notes_path(self):
         khtnotesPath = self.webdavBasePath
@@ -549,6 +555,8 @@ class Sync(QObject):
                 #locally notes will be lose
                 self._rm_remote_index()
             #TODO : Lock
+            webdavConnection.path = self._get_notes_path()
+            self._lock = webdavConnection.lockAll('KhtNotes', timeout='Second-300')
         except Exception, err:
             self.logger.error(unicode(err))
             import traceback
@@ -630,4 +638,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
     s = Sync()
-    s.launch()  
+    s.launch()        
