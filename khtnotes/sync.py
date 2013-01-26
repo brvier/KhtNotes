@@ -484,7 +484,7 @@ class Sync(QObject):
                                                        rdirname, '')
 
             print webdavConnection.path
-            resource = webdavConnection.addResource(rfilename, token=self._lock)
+            resource = webdavConnection.addResource(rfilename, lockToken=self._lock)
             lpath = os.path.join(self._localDataFolder, local_filename)
 
             with open(lpath, 'rb') as fh:
@@ -524,7 +524,7 @@ class Sync(QObject):
 
     def _remote_delete(self, webdavConnection, filename):
         webdavConnection.path = self._get_notes_path()
-        webdavConnection.deleteResource(filename, token=self._lock)
+        webdavConnection.deleteResource(filename, lockToken=self._lock)
         self.logger.debug('remote_delete: %s' % filename)
 
     def _local_delete(self, filename):
@@ -638,4 +638,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
     s = Sync()
-    s.launch()        
+    s.launch()         
