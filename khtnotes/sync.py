@@ -488,7 +488,7 @@ class Sync(QObject):
             lpath = os.path.join(self._localDataFolder, local_filename)
 
             with open(lpath, 'rb') as fh:
-                resource.uploadFile(fh, token=self._lock)
+                resource.uploadFile(fh, lockToken=self._lock)
                 mtime = local2utc(time.mktime(resource.readStandardProperties()
                                               .getLastModified())) - time_delta
                 os.utime(lpath, (-1, mtime))
@@ -638,4 +638,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
     s = Sync()
-    s.launch()         
+    s.launch()          
