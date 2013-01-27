@@ -76,7 +76,7 @@ __upgrade__ = '''1.1: First public release
       Wrap Everywhere instead of wordwrap
       Avoid flagging just opened note as modified
       Fix a bug where synced file time was set in UTC instead of localtime
-3.0 : Implement category and fix some nasty sync bugs'''
+3.0 : Implement category and fix some nasty sync bugs, add automatic sync'''
 
 
 class NotesModel(QAbstractListModel):
