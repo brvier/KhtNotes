@@ -66,7 +66,8 @@ exit 0'''
     #Remove temporary files
     for root, dirs, fs in os.walk(os.path.join(os.path.dirname(__file__),
                                                p.name)):
-        for filename in [filename for filename in fs if filename.endswith(('~', '.pyo', '.pyc', ))]:
+        for filename in [filename for filename
+                         in fs if filename.endswith(('~', '.pyo', '.pyc', ))]:
             os.remove(os.path.join(root, filename))
 
     #Include byte compiled files, so do not remove it at packaging
