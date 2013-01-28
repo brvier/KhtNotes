@@ -35,17 +35,19 @@ class SyncTestCase(unittest.TestCase):
             pass
         self.sync._localDataFolder = '/tmp/khtnotes_test'
         self.sync._remoteDataFolder = 'testKhtNotes'
-        self.webdavLogin, self.webdavPasswd, useAutoMerge = self.sync.readSettings()
-        self.isConnected, self.webdavConnection, self.time_delta = self.sync.createConnection(
-            self.webdavLogin,
-            self.webdavPasswd
-        )
+        self.webdavLogin, self.webdavPasswd, useAutoMerge = \
+            self.sync.readSettings()
+        self.isConnected, self.webdavConnection, self.time_delta = \
+            self.sync.createConnection(
+                self.webdavLogin,
+                self.webdavPasswd)
 
     def tearDown(self,):
         import glob
 
         #Remove local
-        for filename in glob.glob(os.path.join(self.sync._localDataFolder, '*')):
+        for filename in glob.glob(os.path.join(self.sync._localDataFolder,
+                                               '*')):
             try:  # remove only file
                 os.remove(filename)
             except:
@@ -58,8 +60,10 @@ class SyncTestCase(unittest.TestCase):
             self.sync._remote_delete(self.webdavConnection, filename)
 
     def test_check_khtnotes_folder_and_lock(self):
-        #nosetests tests/SyncTestCase.py:SyncTestCase.test_check_khtnotes_folder_and_lock -s
-        self.failUnless(self.sync._check_khtnotes_folder_and_lock(self.webdavConnection) is True)
+        self.failUnless(
+            self.sync._check_khtnotes_folder_and_lock(self.webdavConnection)
+            is True)
+        self.sync._unlock(self.webdavConnection)
 
     def test_LocalEdit(self):
         #self.cleanLocalAndRemote()
@@ -68,7 +72,10 @@ class SyncTestCase(unittest.TestCase):
         with open(lpath, 'w') as fh:
             fh.write('1')
         #upload it
-        self.sync._upload(self.webdavConnection, lpath, 'testlocaledit.txt', self.time_delta)
+        self.sync._upload(self.webdavConnection,
+                          lpath,
+                          'testlocaledit.txt',
+                          self.time_delta)
         #update it
         with open(lpath, 'w') as fh:
             fh.write('2')
@@ -78,7 +85,9 @@ class SyncTestCase(unittest.TestCase):
                               self.time_delta,
                               True)
         #download it
-        self.sync._download(self.webdavConnection, 'testlocaledit.txt', 'testlocaleditresult.txt',
+        self.sync._download(self.webdavConnection,
+                            'testlocaledit.txt',
+                            'testlocaleditresult.txt',
                             self.time_delta)
         self.failUnless(filecmp.cmp(lpath,
                         os.path.join(self.sync._localDataFolder,
@@ -87,17 +96,21 @@ class SyncTestCase(unittest.TestCase):
 
     def test_RemoteEdit(self):
         #Create a file
-        with open(os.path.join(self.sync._localDataFolder, 'testremotedit1.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               'testremotedit1.txt'), 'w') as fh:
             fh.write('1')
-        with open(os.path.join(self.sync._localDataFolder, 'testremotedit2.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               'testremotedit2.txt'), 'w') as fh:
             fh.write('2')
         #upload the modified one
-        self.sync._upload(self.webdavConnection, os.path.join(self.sync._localDataFolder,
-                                                              'testremotedit2.txt'),
+        self.sync._upload(self.webdavConnection,
+                          os.path.join(self.sync._localDataFolder,
+                          'testremotedit2.txt'),
                           'testremotedit1.txt',
                           self.time_delta)
         #remove the 2
-        os.remove(os.path.join(self.sync._localDataFolder, 'testremotedit2.txt'))
+        os.remove(os.path.join(self.sync._localDataFolder,
+                               'testremotedit2.txt'))
 
         #sync
         #print self.webdavConnection.path
@@ -125,13 +138,17 @@ class SyncTestCase(unittest.TestCase):
         #self.cleanLocalAndRemote()
 
         #Create a file
-        with open(os.path.join(self.sync._localDataFolder, 'testmerge1.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               'testmerge1.txt'), 'w') as fh:
             fh.write('1')
-        with open(os.path.join(self.sync._localDataFolder, 'merge.sync', 'testmerge1.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               'merge.sync',
+                               'testmerge1.txt'), 'w') as fh:
             fh.write('1')
 
         #for merge3 we need a base
-        with open(os.path.join(self.sync._localDataFolder, 'testmerge2.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               'testmerge2.txt'), 'w') as fh:
             fh.write('2')
 
         #upload the modified one
@@ -146,7 +163,8 @@ class SyncTestCase(unittest.TestCase):
 
         #remove the 2
         os.remove(os.path.join(self.sync._localDataFolder, 'testmerge2.txt'))
-        with open(os.path.join(self.sync._localDataFolder, 'testmerge1.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               'testmerge1.txt'), 'w') as fh:
             fh.write('3')
 
         #sync
@@ -155,27 +173,35 @@ class SyncTestCase(unittest.TestCase):
                               self.time_delta,
                               True)
         #download it
-        self.sync._download(self.webdavConnection, 'testmerge1.txt', 'result.txt',
+        self.sync._download(self.webdavConnection,
+                            'testmerge1.txt',
+                            'result.txt',
                             self.time_delta)
 
         #test result
         l = ''
-        with open(os.path.join(self.sync._localDataFolder, 'testmerge1.txt'), 'r') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               'testmerge1.txt'), 'r') as fh:
             l = fh.read()
-        self.failUnless(l in ('32', '23'), "Incorrect local with Merge : %s" % l)
+        self.failUnless(l in ('32', '23'),
+                        "Incorrect local with Merge : %s" % l)
         l = ''
-        with open(os.path.join(self.sync._localDataFolder, 'result.txt'), 'r') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               'result.txt'), 'r') as fh:
             l = fh.read()
-        self.failUnless(l in ('32', '23'), "Incorrect remote with Merge : %s" % l)
+        self.failUnless(l in ('32', '23'),
+                        "Incorrect remote with Merge : %s" % l)
 
     def test_ConflictEditWithoutMerge3(self):
         import time
         #self.cleanLocalAndRemote()
         #Create a file
-        with open(os.path.join(self.sync._localDataFolder, '1.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               '1.txt'), 'w') as fh:
             fh.write('1')
         time.sleep(3)
-        with open(os.path.join(self.sync._localDataFolder, '2.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               '2.txt'), 'w') as fh:
             fh.write('2')
         #upload the modified one
         self.sync._upload(
@@ -190,7 +216,8 @@ class SyncTestCase(unittest.TestCase):
         #remove the 2
         os.remove(os.path.join(self.sync._localDataFolder, '2.txt'))
         time.sleep(3)
-        with open(os.path.join(self.sync._localDataFolder, '1.txt'), 'w') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               '1.txt'), 'w') as fh:
             fh.write('3')
 
         #sync
@@ -201,18 +228,24 @@ class SyncTestCase(unittest.TestCase):
         #download it
         self.sync._download(self.webdavConnection, '1.txt', 'result.txt',
                             self.time_delta)
-        self.sync._download(self.webdavConnection, '1.Conflict.txt', 'result.Conflict.txt',
+        self.sync._download(self.webdavConnection,
+                            '1.Conflict.txt', 'result.Conflict.txt',
                             self.time_delta)
-        self.failUnless(filecmp.cmp(os.path.join(self.sync._localDataFolder, '1.txt'),
+        self.failUnless(filecmp.cmp(os.path.join(self.sync._localDataFolder,
+                                                 '1.txt'),
                         os.path.join(self.sync._localDataFolder,
                         'result.txt')), "Original file isn't the same")
-        self.failUnless(filecmp.cmp(os.path.join(self.sync._localDataFolder, '1.Conflict.txt'),
+        self.failUnless(filecmp.cmp(os.path.join(self.sync._localDataFolder,
+                                                 '1.Conflict.txt'),
                         os.path.join(self.sync._localDataFolder,
-                        'result.Conflict.txt')), "Conflicting file isn't the same")
-        with open(os.path.join(self.sync._localDataFolder, '1.txt'), 'r') as fh:
+                        'result.Conflict.txt')),
+                        "Conflicting file isn't the same")
+        with open(os.path.join(self.sync._localDataFolder,
+                               '1.txt'), 'r') as fh:
             l = fh.read()
         self.failUnless(l == '2', 'Incorrect Original file : %s' % l)
-        with open(os.path.join(self.sync._localDataFolder, '1.Conflict.txt'), 'r') as fh:
+        with open(os.path.join(self.sync._localDataFolder,
+                               '1.Conflict.txt'), 'r') as fh:
             l = fh.read()
         self.failUnless(l == '3', 'Incorrect Conflict file : %s' % l)
 
@@ -237,3 +270,4 @@ class SyncTestCase(unittest.TestCase):
                     self.sync._localDataFolder,
                     'local1.txt')
             ), "File differs")
+
