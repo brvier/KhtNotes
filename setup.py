@@ -26,7 +26,7 @@ for root, dirs, filenames in os.walk(os.path.join(os.path.dirname(__file__),
 print files
 
 setup(name='khtnotes',
-      version='3.1.0',
+      version='3.1.1',
       license='GNU GPLv3',
       description='A note taking application with ownCloud sync',
       long_description="A note taking application for Harmattan devices"
