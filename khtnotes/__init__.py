@@ -30,8 +30,8 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '3.1'
-__build__ = '2'
+__version__ = '3.2'
+__build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
 1.3: Fix a nasty bug where a new note can sometime overwrite an existing bug
@@ -77,7 +77,8 @@ __upgrade__ = '''1.1: First public release
       Avoid flagging just opened note as modified
       Fix a bug where synced file time was set in UTC instead of localtime
 3.0 : Implement category and fix some nasty sync bugs, add automatic sync
-3.1 : Improve sync again'''
+3.1 : Improve sync again
+3.2 : '''
 
 
 class NotesModel(QAbstractListModel):

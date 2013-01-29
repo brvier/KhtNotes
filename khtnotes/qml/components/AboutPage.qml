@@ -68,7 +68,7 @@ Page {
                     text: ''
                     textFormat: Text.RichText
                     width: aboutPage.width
-                    wrapMode: Text.WordWrap
+                    wrapMode: TextEdit.WrapAnywhere
                 }
             }
         }
