@@ -26,7 +26,7 @@ for root, dirs, filenames in os.walk(os.path.join(os.path.dirname(__file__),
 print files
 
 setup(name='khtnotes',
-      version='3.0.0',
+      version='3.1.0',
       license='GNU GPLv3',
       description='A note taking application with ownCloud sync',
       long_description="A note taking application for Harmattan devices"
@@ -40,12 +40,6 @@ setup(name='khtnotes',
       maintainer_email='khertan@khertan.net',
       url='http://www.khertan.net/KhtNotes',
       requires=['python', 'pyside'],
-      #packages=['khtnotes', ],
-      #package_data={'khtnotes': ['icons/*',
-      #                           'qml/components/*',
-      #                           'qml/*.js',
-      #                           'qml/*.qml'], },
-
 
       data_files=[('/usr/share/dbus-1/services', ['khtnotes.service']),
                   ('/usr/share/applications/', ['khtnotes.desktop']),
@@ -54,4 +48,3 @@ setup(name='khtnotes',
                   ('/usr/share/icons/hicolor/scalable/apps', ['khtnotes.svg']),
                   ] + files,
       )
-

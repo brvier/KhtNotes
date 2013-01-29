@@ -76,7 +76,8 @@ __upgrade__ = '''1.1: First public release
       Wrap Everywhere instead of wordwrap
       Avoid flagging just opened note as modified
       Fix a bug where synced file time was set in UTC instead of localtime
-3.0 : Implement category and fix some nasty sync bugs, add automatic sync'''
+3.0 : Implement category and fix some nasty sync bugs, add automatic sync
+3.1 : Improve sync again'''
 
 
 class NotesModel(QAbstractListModel):
@@ -155,7 +156,7 @@ class NotesModel(QAbstractListModel):
             return self._filteredNotes[index.row()].data
         elif role == 5:  # NotesModel.COLUMNS.index('favorited'):
             return self._filteredNotes[index.row()].favorited
-        elif role == 6: # NotesModel.COLUMNS.index('category'):
+        elif role == 6:  # NotesModel.COLUMNS.index('category'):
             return self._filteredNotes[index.row()].category
         return None
 
