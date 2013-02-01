@@ -183,7 +183,17 @@ class Note(QObject):
             'Write data'
             data = _uncolorize(data)
 
-        title = data.split('\n', 1)[0]
+        try:
+            _title, _content = data.split('\n', 1)
+        except ValueError, err:
+            _title = data.split('\n', 1)
+            _content = ''
+
+        if len(_title) > 255:
+            title = _title[:255]
+            _content = _title[256:] + _content
+        else:
+            title = _title
         if (title != self._title) and self._title:
             #It s a rename of the note
             new_path = os.path.join(self.NOTESPATH,
@@ -210,13 +220,9 @@ class Note(QObject):
         path = os.path.join(self.NOTESPATH, self._uuid)
         try:
             with codecs.open(path, 'wb', 'utf_8') as fh:
-                data = data.split('\n', 1)
-                if len(data) >= 2:
-                    fh.write(data[1])
-                else:
-                    fh.write('')
-                self._set_timestamp(os.stat(path).st_mtime)
-                self._set_title(self._data.split('\n', 1)[0])
+                fh.write(_content)
+            self._set_timestamp(os.stat(path).st_mtime)
+            self._set_title(self._data.split('\n', 1)[0])
         except Exception, e:
             import traceback
             print traceback.format_exc()
@@ -448,4 +454,4 @@ if __name__ == '__main__':
                     ' hahaha test__test__test and an other *test* '
                     '[link](http://khertan.net/)'
                     '\ntest under title\n-------\ntest'
-                    '\n## test ##\n# test #\ntest')  
+                    '\n## test ##\n# test #\ntest')   

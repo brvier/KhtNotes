@@ -78,7 +78,10 @@ __upgrade__ = '''1.1: First public release
       Fix a bug where synced file time was set in UTC instead of localtime
 3.0 : Implement category and fix some nasty sync bugs, add automatic sync
 3.1 : Improve sync again
-3.2 : '''
+3.2 : Fix autoSync that didn t take care of preference setting
+      Fix an autoSync bug that block the ui due to refresh while editing
+      Fix an bug on notes when title lenght exceed what filesystem support
+'''
 
 
 class NotesModel(QAbstractListModel):
@@ -280,7 +283,7 @@ class KhtNotes(QApplication):
             self.view.show()
         self.note.on_error.connect(self.rootObject.onError)
         self.syncer.on_error.connect(self.rootObject.onError)
-        self.syncer.on_finished.connect(self.notesModel.reload)
+        self.syncer.on_finished.connect(self.rootObject.refresh)
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':

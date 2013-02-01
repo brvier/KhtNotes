@@ -14,7 +14,12 @@ PageStackWindow {
         objectName: 'fileBrowserPage'
     }
 
-    
+    function refresh() {
+        if (pageStack.currentPage.objectName === 'fileBrowserPage') {
+            pageStack.currentPage.refresh();
+        }
+    }
+
     ItemMenu {
         id: itemMenu
     }
@@ -176,7 +181,7 @@ PageStackWindow {
                 script: {
                     if (pageStack.currentPage.objectName === 'fileBrowserPage') {
                         pageStack.currentPage.refresh();
-                        if (! Sync.running) {Sync.launch()}; }
+                        if ((! Sync.running) && (Settings.autoSync)) {Sync.launch()}; }
                 }       }
         }
     ]

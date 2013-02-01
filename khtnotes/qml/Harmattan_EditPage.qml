@@ -20,7 +20,7 @@ Page {
             if (Note.write(textEditor.text)) {
                 modified = false;
                 fileBrowserPage.refresh();
-                if (! Sync.running) {Sync.launch()};
+                if ((! Sync.running) && (Settings.autoSync)) {Sync.launch()};
                 return true;
             }
             else {return false;}
