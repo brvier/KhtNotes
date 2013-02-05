@@ -19,11 +19,11 @@ Page {
     Flickable {
         anchors.fill: parent
         contentHeight: aboutContainer.height + 10
-        contentWidth: aboutContainer.width
+        contentWidth: aboutContainer.width - 10
 
         Item {
             id: aboutContainer
-            width: aboutPage.width
+            width: aboutPage.width - 20
             height: aboutColumn.height
 
             Column {
@@ -66,9 +66,9 @@ Page {
                 Label {
                     id: content
                     text: ''
-                    textFormat: Text.RichText
-                    width: aboutPage.width
-                    wrapMode: TextEdit.WrapAnywhere
+                   // textFormat: Text.RichText
+                    width: aboutContainer.width
+                    wrapMode: TextEdit.WordWrap
                 }
             }
         }
