@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '3.2'
+__version__ = '3.3'
 __build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
@@ -81,6 +81,7 @@ __upgrade__ = '''1.1: First public release
 3.2 : Fix autoSync that didn t take care of preference setting
       Fix an autoSync bug that block the ui due to refresh while editing
       Fix an bug on notes when title lenght exceed what filesystem support
+3.3 : Fix wordWrap in about page
 '''
 
 
