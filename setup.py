@@ -26,7 +26,7 @@ for root, dirs, filenames in os.walk(os.path.join(os.path.dirname(__file__),
 print files
 
 setup(name='khtnotes',
-      version='3.3.0',
+      version='3.4.0',
       license='GNU GPLv3',
       description='A note taking application with ownCloud sync',
       long_description="A note taking application for Harmattan devices"
@@ -47,4 +47,4 @@ setup(name='khtnotes',
                   ('/usr/share/icons/hicolor/64x64/apps', ['khtnotes_64.png']),
                   ('/usr/share/icons/hicolor/scalable/apps', ['khtnotes.svg']),
                   ] + files,
-      )
+      ) 

@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '3.3'
+__version__ = '3.4'
 __build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
@@ -82,6 +82,8 @@ __upgrade__ = '''1.1: First public release
       Fix an autoSync bug that block the ui due to refresh while editing
       Fix an bug on notes when title lenght exceed what filesystem support
 3.3 : Fix wordWrap in about page
+3.4 : Improve hide vkb keyboard
+      Improve settings
 '''
 
 
@@ -217,9 +219,12 @@ class NotesModel(QAbstractListModel):
 
 
 class FilteredDeclarativeView(QtDeclarative.QDeclarativeView):
-    def __init__(self,):
+    def __init__(self, settings=None):
         QtDeclarative.QDeclarativeView.__init__(self)
-        self.settings = Settings()
+        if settings:
+            self.settings = settings
+        else:
+            self.settings = Settings()
 
     def event(self, event):
         if ((event.type() == QEvent.RequestSoftwareInputPanel)
@@ -240,7 +245,8 @@ class KhtNotes(QApplication):
         self.setOrganizationDomain("khertan.net")
         self.setApplicationName("KhtNotes")
 
-        self.view = FilteredDeclarativeView()
+        self.settings = Settings()
+        self.view = FilteredDeclarativeView(settings=self.settings)
         if os.path.exists('/etc/mer-release'):
             fullscreen = True
         elif os.path.exists('/etc/aegis'):
@@ -254,7 +260,7 @@ class KhtNotes(QApplication):
             fullscreen = False
 
         self.notesModel = NotesModel()
-        self.note = Note()
+        self.note = Note(settings=self.settings)
         self.conboyImporter = TomboyImporter()
         self.syncer = Sync()
         self.rootContext = self.view.rootContext()
@@ -262,7 +268,7 @@ class KhtNotes(QApplication):
         self.rootContext.setContextProperty("__version__", __version__)
         self.rootContext.setContextProperty("__upgrade__", __upgrade__
                                             .replace('\n', '<br />'))
-        self.rootContext.setContextProperty("Settings", Settings())
+        self.rootContext.setContextProperty("Settings", self.settings)
         self.rootContext.setContextProperty("Sync", self.syncer)
         self.rootContext.setContextProperty("Importer", self.conboyImporter)
         self.rootContext.setContextProperty('notesModel', self.notesModel)
@@ -288,4 +294,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())
+    sys.exit(KhtNotes().exec_())  

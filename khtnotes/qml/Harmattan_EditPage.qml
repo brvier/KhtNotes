@@ -102,6 +102,20 @@ Page {
 			textEditor.closeSoftwareInputPanel();
                }
 
+           Connections {
+            target: inputContext
+
+            onSoftwareInputPanelVisibleChanged: {
+                if ((activeFocus) && (Settings.hideVkb) )
+                    textEditor.closeSoftwareInputPanel();
+            }
+
+            onSoftwareInputPanelRectChanged: {
+                if ((activeFocus) && (Settings.hideVkb) )
+                    textEditor.closeSoftwareInputPanel();
+            }
+        }
+
             Component.onDestruction: {
                 console.log('On destruction called');
                 if (modified == true) {

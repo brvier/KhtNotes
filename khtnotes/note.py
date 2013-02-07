@@ -142,7 +142,7 @@ class Note(QObject):
 
     NOTESPATH = NOTESPATH
 
-    def __init__(self, uid=None):
+    def __init__(self, uid=None, settings=None):
         QObject.__init__(self, parent=None)
         self._title = None
         self._data = u''
@@ -152,7 +152,10 @@ class Note(QObject):
         self._ready = False
         self._human_timestamp = u''
         self._favorited = False
-        self._settings = Settings()
+        if settings:
+            self._settings = settings
+        else:
+            self._settings = Settings()
         if uid:
             self.load(uid)
 
@@ -454,4 +457,4 @@ if __name__ == '__main__':
                     ' hahaha test__test__test and an other *test* '
                     '[link](http://khertan.net/)'
                     '\ntest under title\n-------\ntest'
-                    '\n## test ##\n# test #\ntest')   
+                    '\n## test ##\n# test #\ntest')    
