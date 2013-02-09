@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '3.4'
+__version__ = '3.5'
 __build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
@@ -84,6 +84,7 @@ __upgrade__ = '''1.1: First public release
 3.3 : Fix wordWrap in about page
 3.4 : Improve hide vkb keyboard
       Improve settings
+3.5 : Fix a bug where notes with just a title aren't saved
 '''
 
 
@@ -294,4 +295,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())  
+    sys.exit(KhtNotes().exec_())    

@@ -189,7 +189,7 @@ class Note(QObject):
         try:
             _title, _content = data.split('\n', 1)
         except ValueError, err:
-            _title = data.split('\n', 1)
+            _title = data.split('\n', 1)[0]
             _content = ''
 
         if len(_title) > 255:
@@ -457,4 +457,4 @@ if __name__ == '__main__':
                     ' hahaha test__test__test and an other *test* '
                     '[link](http://khertan.net/)'
                     '\ntest under title\n-------\ntest'
-                    '\n## test ##\n# test #\ntest')    
+                    '\n## test ##\n# test #\ntest')     
