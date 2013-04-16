@@ -14,7 +14,7 @@
 ## GNU General Public License for more details.
 
 from PySide.QtGui import QApplication
-from PySide.QtCore import QUrl, Slot, \
+from PySide.QtCore import QUrl, Slot, Property, \
     QAbstractListModel, QModelIndex, QEvent
 from PySide import QtDeclarative
 from PySide.QtOpenGL import QGLWidget, QGLFormat
@@ -106,7 +106,7 @@ class NotesModel(QAbstractListModel):
             except Exception, e:
                 print 'Can t create note storage folder', str(e)
 
-        #self.loadData()
+        # self.loadData()
 
     @Slot(unicode)
     def setFilterFixedString(self, search):
@@ -166,7 +166,12 @@ class NotesModel(QAbstractListModel):
             return self._filteredNotes[index.row()].favorited
         elif role == 6:  # NotesModel.COLUMNS.index('category'):
             return self._filteredNotes[index.row()].category
+
         return None
+
+    @Slot()
+    def get(self, index):
+        return self._filteredNotes[index.row()]
 
     @Slot()
     def reload(self):
@@ -218,6 +223,8 @@ class NotesModel(QAbstractListModel):
         self._sortData()
         self.endResetModel()
 
+    count = Property(int, rowCount)
+
 
 class FilteredDeclarativeView(QtDeclarative.QDeclarativeView):
     def __init__(self, settings=None):
@@ -230,8 +237,8 @@ class FilteredDeclarativeView(QtDeclarative.QDeclarativeView):
     def event(self, event):
         if ((event.type() == QEvent.RequestSoftwareInputPanel)
                 and (self.settings.hideVkb)):
-            #Hacky way to do, but event is already processed when
-            #python got the hand
+            # Hacky way to do, but event is already processed when
+            # python got the hand
             closeEvent = QEvent(QEvent.CloseSoftwareInputPanel)
             QApplication.instance().postEvent(self, closeEvent)
             return True
@@ -296,3 +303,4 @@ class KhtNotes(QApplication):
 
 if __name__ == '__main__':
     sys.exit(KhtNotes().exec_())
+

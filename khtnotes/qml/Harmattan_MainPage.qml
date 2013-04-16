@@ -136,14 +136,20 @@ Page {
         section.property: "category"
         section.criteria: ViewSection.FullString
         section.delegate: notesCategory
+
     }
 
+    SectionScroller {
+            id:sectionScroller
+            listView: notesView
+        }
+        
     ScrollDecorator {
         id: scrollDecorator
         flickableItem: notesView
         z:3
         platformStyle: ScrollDecoratorStyle {
         }
-     }
+    }
 
 }
