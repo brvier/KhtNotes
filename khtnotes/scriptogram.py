@@ -34,8 +34,8 @@ class Scriptogram():
         if res.status_code != requests.codes.ok:
             raise NetworkError('HTTP Error : %d' % res.status_code)
         else:
-            if 'status' not in res.json:
+            if 'status' not in res.json():
                 raise NetworkError('Invalid answer from scriptogr.am API'
-                                   % res.json['reason'])
-            if res.json['status'] != 'success':
-                raise NetworkError('%s' % res.json['reason'])
+                                   % res.json()['reason'])
+            if res.json()['status'] != 'success':
+                raise NetworkError('%s' % res.json()['reason']) 
