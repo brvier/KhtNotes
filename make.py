@@ -15,6 +15,7 @@
 
 import os
 import sys
+import datetime
 
 import pypackager
 sys.path.append('khtnotes')
@@ -32,6 +33,8 @@ if __name__ == "__main__":
     p = pypackager.PyPackager("khtnotes")
     p.display_name = 'KhtNotes'
     p.version = __version__ + '.0'
+    if 'git' in sys.argv:
+        p.version += '+%sgit' % datetime.datetime.now().strftime('%Y%m%d')
     p.buildversion = __build__
     p.summary = 'A note taking application with ownCloud sync'
     p.description = "A note taking application for Harmattan devices" \
