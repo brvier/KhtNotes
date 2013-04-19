@@ -322,6 +322,8 @@ class Sync(QObject):
                                           % filename)
                         self._conflictServer(webdavConnection, filename,
                                              time_delta, useAutoMerge)
+                    else:
+                        self.logger.debug('Ignored %s' % filename)
 
                 #Build and write index
                 self._write_index(webdavConnection, time_delta)
@@ -613,11 +615,7 @@ class Sync(QObject):
             del index['.index.sync']
         except KeyError:
             pass
-        #self.logger.debug('_get_remote_filenames: %s' % unicode(index))
-        #Cleaning a bit for test:)
-        #for filename in index.keys():
-        #    self._remote_delete(webdavConnection, filename)
-        #index = self._get_remote_filenames(webdavConnection)
+        self.logger.debug('_get_remote_filenames: %s' % unicode(index))
         return index
 
     def _get_local_filenames(self):
@@ -659,4 +657,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
     s = Sync()
-    s.launch()
+    s.launch() 

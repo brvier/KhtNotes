@@ -4,14 +4,14 @@
 # Copyright (c) 2011 Benoit HERVIER <khertan@khertan.net>
 # Licenced under GPLv3
 
-## This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; version 3 only.
-##
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation; version 3 only.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
 import ConfigParser
 from PySide.QtCore import Slot, QObject, Property, Signal
@@ -22,6 +22,7 @@ NOTESPATH = os.path.join(os.path.expanduser(u'~'), u'.khtnotes')
 
 
 class Settings(QObject):
+
     '''Config object'''
 
     def __init__(self,):
@@ -35,20 +36,20 @@ class Settings(QObject):
             self.config.add_section('Favorites')
             self._write()
 
-        #Added in 2.19
+        # Added in 2.19
         if not self.config.has_option('Webdav', 'remoteFolder'):
             self.config.set('Webdav', 'remoteFolder', 'Notes')
             self._write()
-            #Remove local sync index to prevent losing notes :
+            # Remove local sync index to prevent losing notes :
             if os.path.exists(os.path.join(NOTESPATH, '.index.sync')):
                 os.remove(os.path.join(NOTESPATH, '.index.sync'))
 
-        #Added in 2.20
+        # Added in 2.20
         if not self.config.has_option('Display', 'displayHeader'):
             self.config.set('Display', 'displayHeader', 'true')
             self._write()
 
-        #Added in 3.0
+        # Added in 3.0
         if not self.config.has_option('Keyboard', 'hideVkb'):
             self.config.add_section('Keyboard')
             self.config.set('Keyboard', 'hideVkb', 'true')
@@ -57,6 +58,10 @@ class Settings(QObject):
         if not self.config.has_option('Webdav', 'autoSync'):
             self.config.set('Webdav', 'autoSync', 'false')
             self._write()
+
+        if not self.config.has_section('Scriptogram'):
+            self.config.add_section('Scriptogram')
+            self.config.set('Scriptogram', 'userid', '')
 
     def _write_default(self):
         ''' Write the default config'''
@@ -76,6 +81,8 @@ class Settings(QObject):
         self.config.add_section('Keyboard')
         self.config.set('Keyboard', 'hideVkb', 'false')
         self.config.add_section('Favorites')
+        self.config.add_section('Scriptogram')
+        self.config.set('Scriptogram', 'userid', '')
 
         # Writing our configuration file to 'example.cfg'
         with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') \
@@ -83,7 +90,7 @@ class Settings(QObject):
             self.config.write(configfile)
 
     def _set(self, option, value):
-        #Avoid useless change due to binding
+        # Avoid useless change due to binding
         if self.get(option) == value:
             return
 
@@ -91,11 +98,13 @@ class Settings(QObject):
                       'basePath', 'autoMerge', 'remoteFolder',
                       'autoSync'):
             self.config.set('Webdav', option, value)
-            #Remove local sync index to prevent losing notes :
+            # Remove local sync index to prevent losing notes :
             if os.path.exists(os.path.join(NOTESPATH, '.index.sync')):
                 os.remove(os.path.join(NOTESPATH, '.index.sync'))
         elif option in ('hideVkb'):
             self.config.set('Keyboard', option, value)
+        elif option in ('userid'):
+            self.config.set('Scriptogram', option, value)
         else:
             self.config.set('Display', option, value)
 
@@ -138,7 +147,10 @@ class Settings(QObject):
                 try:
                     return self.config.get('Webdav', option)
                 except:
-                    return ''
+                    try:
+                        return self.config.get('Scriptogram', option)
+                    except:
+                        return ''
 
     def _get_fontSize(self, ):
         return int(self.get('fontsize'))
@@ -205,6 +217,12 @@ class Settings(QObject):
     def _set_autoSync(self, b):
         return self._set('autoSync', 'true' if b else 'false')
 
+    def _get_scriptogramuserid(self,):
+        return self.get('userid')
+
+    def _set_scriptogramuserid(self, value):
+        return self._set('userid', value)
+
     on_fontSize = Signal()
     on_fontFamily = Signal()
     on_webdavHost = Signal()
@@ -216,9 +234,14 @@ class Settings(QObject):
     on_displayHeader = Signal()
     on_hideVkb = Signal()
     on_autoSync = Signal()
+    on_scriptogramUserId = Signal()
 
+    scriptogramUserId = Property(unicode,
+                                 _get_scriptogramuserid,
+                                 _set_scriptogramuserid,
+                                 notify=on_scriptogramUserId)
     autoSync = Property(bool, _get_autoSync,
-                       _set_autoSync, notify=on_autoSync)
+                        _set_autoSync, notify=on_autoSync)
     hideVkb = Property(bool, _get_hideVkb,
                        _set_hideVkb, notify=on_hideVkb)
     fontSize = Property(int, _get_fontSize,
@@ -238,4 +261,4 @@ class Settings(QObject):
     displayHeader = Property(bool, _get_displayHeader, _set_displayHeader,
                              notify=on_displayHeader)
     remoteFolder = Property(unicode, _get_remoteFolder, _set_remoteFolder,
-                            notify=on_remoteFolder) 
+                            notify=on_remoteFolder)

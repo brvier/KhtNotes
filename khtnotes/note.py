@@ -4,14 +4,14 @@
 # Copyright (c) 2011 Benoit HERVIER <khertan@khertan.net>
 # Licenced under GPLv3
 
-## This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published
-## by the Free Software Foundation; version 3 only.
-##
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation; version 3 only.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
 from PySide.QtCore import Slot, QObject, Signal, Property
 
@@ -22,6 +22,7 @@ import codecs
 from markdown import markdown
 import htmlentitydefs
 from settings import Settings, NOTESPATH
+import time
 
 INVALID_FILENAME_CHARS = '\/:*?"<>|'
 STRIPTAGS = re.compile(r'<[^>]+>')
@@ -81,7 +82,7 @@ def _colorize(text):
     )
     for regex, cb in regexs:
         text = re.sub(regex, cb, text)
-    #text = text.replace('\n', '</p><p>').replace('<p></p>', '<br />')
+    # text = text.replace('\n', '</p><p>').replace('<p></p>', '<br />')
     text = text.replace('\r\n', '\n')
     text = text.replace('\n', '<br />')
     text = text.replace('\r', '')
@@ -138,6 +139,7 @@ def _uncolorize(text):
 
 
 class Note(QObject):
+
     ''' A class representing a note '''
 
     NOTESPATH = NOTESPATH
@@ -176,9 +178,9 @@ class Note(QObject):
     def write(self, data):
         ''' Write the document to a file '''
 
-        #Deleted content
+        # Deleted content
         if data == '':
-            #if exist only
+            # if exist only
             if self._uuid:
                 self.rm(os.path.join(self._uuid))
             return True
@@ -198,7 +200,7 @@ class Note(QObject):
         else:
             title = _title
         if (title != self._title) and self._title:
-            #It s a rename of the note
+            # It s a rename of the note
             new_path = os.path.join(self.NOTESPATH,
                                     self._category,
                                     title + '.txt')
@@ -208,7 +210,7 @@ class Note(QObject):
                 return False
             if self._uuid:
                 os.rename(os.path.join(self.NOTESPATH,
-                                       #self._category,
+                                       # self._category,
                                        self._uuid),
                           new_path)
             self._uuid = os.path.join(self._category,
@@ -293,8 +295,8 @@ class Note(QObject):
                     try:
                         text = fh.read()
                         if text.find('\0') > 0:
-                            #Probably utf-16 ... decode it to utf-8
-                            #as qml didn t support it well'
+                            # Probably utf-16 ... decode it to utf-8
+                            # as qml didn t support it well'
                             text = text.decode('utf-16')
                         title = os.path.splitext(
                             os.path.basename(self._uuid))[0]
@@ -339,6 +341,56 @@ class Note(QObject):
         except Exception, e:
             print type(e), ':', e
             return text
+
+    @Slot()
+    def exportWithShareUI(self):
+        import dbus
+        import shutil
+        if not os.path.exists(os.path.join(os.path.expanduser('~'),
+                                           'MyDocs', 'Temp')):
+            os.makedirs(os.path.join(os.path.expanduser('~'),
+                                     'MyDocs', 'Temp'))
+
+        shutil.copyfile(os.path.join(self.NOTESPATH, self._uuid),
+                        os.path.join(os.path.expanduser('~'),
+                        'MyDocs', 'Temp',
+                        self._title + '.md'))
+        bus = dbus.SessionBus()
+        shareService = bus.get_object('com.nokia.ShareUi', '/')
+        share = shareService.get_dbus_method(
+            'share', 'com.nokia.maemo.meegotouch.ShareUiInterface')
+        # description = urllib.quote('BitPurse Wallet')
+        # title = urllib.quote('BitPurse Wallet')
+        link = os.path.join(os.path.expanduser('~'),
+                            'MyDocs', 'Temp',
+                            self._title + '.md')
+        item = '%s' % link
+        os.system('/usr/bin/tracker-info "%s"' % link)
+        time.sleep(1)
+        share([item, ])
+
+    @Slot(unicode)
+    def publishToScriptogram(self, text):
+        try:
+            from scriptogram import Scriptogram
+
+            data = _uncolorize(text)
+            try:
+                _title, _content = data.split('\n', 1)
+            except ValueError:
+                _title = data.split('\n', 1)[0]
+                _content = ''
+
+            Scriptogram().publish(path=os.path.join(self.NOTESPATH,
+                                                    self._uuid),
+                                  title=_title,
+                                  user_id=self._settings.scriptogramUserId,
+                                  text=_content)
+
+        except Exception, err:
+            import traceback
+            print traceback.format_exc()
+            self.on_error.emit(str(err))
 
     def _get_text(self):
         return self._data

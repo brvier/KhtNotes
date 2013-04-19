@@ -236,6 +236,25 @@ Page {
             }
 
             TitleLabel {
+                text: qsTr("<b>Scriptogr.am</b>")
+            }
+            
+            Label {
+                text: qsTr("User ID")
+            }
+
+            TextField {
+                id: scriptogramUserId
+                text:Settings.scriptogramUserId
+                width: parent.width
+                Binding {
+                    target: Settings
+                    property: "scriptogramUserId"
+                    value: scriptogramUserId.text
+                }
+            }
+
+            TitleLabel {
                 text: qsTr("<b>Import</b>")
             }
             

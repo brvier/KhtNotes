@@ -150,6 +150,10 @@ Page {
             MenuItem { text: qsTr("MarkDown Preview"); 
                                     onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_PreviewPage.qml")), {html:Note.previewMarkdown(textEditor.text)}); }
             MenuItem { text: qsTr("ReStructuredText Preview"); onClicked: pageStack.push(Qt.createComponent(Qt.resolvedUrl("Harmattan_PreviewPage.qml")), {html:Note.previewReStructuredText(textEditor.text)}); }
+            MenuItem { text: qsTr("Publish to Scriptogr.am"); 
+                       onClicked: {Note.publishToScriptogram(textEditor.text); }}
+            MenuItem { text: qsTr("Share"); 
+                       onClicked: {saveFile(); Note.exportWithShareUI(); }}
           
         }
     }
