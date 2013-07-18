@@ -46,7 +46,7 @@ if __name__ == "__main__":
     p.maintainer = __author__
     p.email = __mail__
     p.depends = "python, python-pyside.qtgui, python-pyside.qtdeclarative," \
-        + " python-pyside.qtcore, python-pyside.qtopengl"
+        + " python-pyside.qtcore, python-pyside.qtopengl, python-dbus"
     p.rpm_depends = "python, python-pyside"
     p.suggests = ""
     p.section = "user/office"
@@ -93,4 +93,4 @@ exit 0'''
     p['/usr/share/applications'] = ['khtnotes.desktop', ]
     p["/opt"] = files
 
-    print p.generate(('debian_source', 'rpm_source', 'debian_binary'))
+    print p.generate(('debian_source', 'rpm_source', 'debian_binary')) 

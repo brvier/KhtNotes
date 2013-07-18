@@ -142,6 +142,7 @@ Page {
     SectionScroller {
             id:sectionScroller
             listView: notesView
+            z:4
         }
         
     ScrollDecorator {
@@ -152,4 +153,4 @@ Page {
         }
     }
 
-}
+} 
