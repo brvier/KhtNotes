@@ -51,7 +51,7 @@ class Sync(QObject):
         QObject.__init__(self)
         self._running = False
         self._lock = None
-        #logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
+        # logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
         self.logger = logger.getDefaultLogger()
         self._localDataFolder = Note.NOTESPATH
         if not os.path.exists(self._localDataFolder):
@@ -82,7 +82,7 @@ class Sync(QObject):
             self.logger.error('%s:%s' % (unicode(type(err)), unicode(err)))
 
     def readSettings(self,):
-        #Read Settings
+        # Read Settings
         settings = Settings()
         self.webdavHost = settings.webdavHost
         self.webdavBasePath = settings.webdavBasePath
@@ -95,7 +95,7 @@ class Sync(QObject):
     def createConnection(self, webdavLogin, webdavPasswd):
         from webdav.WebdavClient import CollectionStorer, AuthorizationError, \
             parseDigestAuthInfo
-        #from webdav.logger import _defaultLoggerName
+        # from webdav.logger import _defaultLoggerName
 
         isConnected = False
         webdavConnection = CollectionStorer(self.webdavHost
@@ -105,14 +105,14 @@ class Sync(QObject):
 
         time_delta = None
 
-        #Test KhtNotes folder and authenticate
+        # Test KhtNotes folder and authenticate
         authFailures = 0
         while authFailures < 4:
             try:
                 webdavConnection.validate()
                 response = webdavConnection.getSpecificOption('date')
                 local_datetime = int(time.time())
-                #print response
+                # print response
                 try:
                     import rfc822
                     self.logger.debug('Timezone: %f, Timealtzone: %f',
@@ -162,7 +162,7 @@ class Sync(QObject):
         '''Sync the notes with a webdav server'''
         webdavLogin, webdavPasswd, useAutoMerge = self.readSettings()
 
-        #Create Connection
+        # Create Connection
         isConnected, webdavConnection, time_delta = \
             self.createConnection(webdavLogin, webdavPasswd)
 
@@ -174,34 +174,34 @@ class Sync(QObject):
     def _sync_files(self, webdavConnection, time_delta, useAutoMerge):
             try:
 
-                #Reset webdav path
+                # Reset webdav path
                 webdavConnection.path = self.webdavBasePath
 
-                #Check that KhtNotes folder exists at root or create it and
-                #and lock Collections
+                # Check that KhtNotes folder exists at root or create it and
+                # and lock Collections
                 self._check_khtnotes_folder_and_lock(webdavConnection)
 
-                #Get remote filenames and timestamps
+                # Get remote filenames and timestamps
                 remote_filenames = \
                     self._get_remote_filenames(webdavConnection)
 
-                #Get local filenames and timestamps
+                # Get local filenames and timestamps
                 local_filenames = self._get_local_filenames()
 
-                #Compare with last sync index
+                # Compare with last sync index
                 lastsync_remote_filenames, \
                     lastsync_local_filenames = self._get_lastsync_filenames()
-                #Sync intelligency (or not)
-                #It use a local index with timestamp of the server files
-                #1/ As most webdav server didn t support setting
+                # Sync intelligency (or not)
+                # It use a local index with timestamp of the server files
+                # 1/ As most webdav server didn t support setting
                 #   modification datetime on ressources
-                #2/ Main target is owncloud where webdavserver didn't
+                # 2/ Main target is owncloud where webdavserver didn't
                 #   implent delta-v versionning
-                #3/ Notes should be editable in the owncloud interface
+                # 3/ Notes should be editable in the owncloud interface
                 #   but i would like to support other webdav server
                 #   so an owncloud apps isn t acceptable
 
-                #Delete remote file deleted
+                # Delete remote file deleted
                 for filename in set(lastsync_remote_filenames) \
                         - set(remote_filenames):
                     if filename in local_filenames.keys():
@@ -210,8 +210,8 @@ class Sync(QObject):
                                 - int(local_filenames[filename]) >= -1:
                             self._local_delete(filename)
                         else:
-                            #Else we have a conflict local file is newer than
-                            #deleted one
+                            # Else we have a conflict local file is newer than
+                            # deleted one
                             self.logger.debug('Delete conflictServer: '
                                               '%s : %s >= %s'
                                               % (filename,
@@ -225,7 +225,7 @@ class Sync(QObject):
                             self._upload(webdavConnection, filename,
                                          None, time_delta)
 
-                #Delete local file deleted
+                # Delete local file deleted
                 for filename in set(lastsync_local_filenames) \
                         - set(local_filenames):
                     if filename in remote_filenames:
@@ -234,57 +234,43 @@ class Sync(QObject):
                         if lastsync_remote_filenames[filename] == mtime:
                             self._remote_delete(webdavConnection, filename)
                         else:
-                            #We have a conflict remote file was modifyed since last
-                            #last sync
+                            # We have a conflict remote file was modifyed
+                            # since last sync
                             self.logger.debug('Delete conflictLocal: '
                                               '%s : %s >= %s'
                                               % (filename,
-                                                 lastsync_remote_filenames[filename],
+                                                 lastsync_remote_filenames[
+                                                     filename],
                                                  mtime))
                             self._download(webdavConnection, filename,
                                            None, time_delta)
 
-                #What to do with new remote file
+                # What to do with new remote file
                 for filename in set(remote_filenames) \
                         - set(lastsync_remote_filenames):
                     if filename not in local_filenames.keys():
                         self._download(webdavConnection, filename,
                                        None, time_delta)
                     else:
-                        #Conflict : it s a new file so we haven't sync it yet
+                        # Conflict : it s a new file so we haven't sync it yet
                         self.logger.debug('New conflictServer: %s' % filename)
                         self._conflictServer(webdavConnection,
                                              filename, time_delta,
                                              useAutoMerge)
 
-                #What to do with new local file
+                # What to do with new local file
                 for filename in set(local_filenames) \
                         - set(lastsync_local_filenames):
                     if filename not in remote_filenames.keys():
                         self._upload(webdavConnection, filename,
                                      None, time_delta)
                     else:
-                        #Conflict : it s a new file so we haven't sync it yet
+                        # Conflict : it s a new file so we haven't sync it yet
                         self.logger.debug('New conflictLocal: %s' % filename)
                         self._conflictLocal(webdavConnection,
                                             filename, time_delta, useAutoMerge)
 
-                #What to do with file not really new
-                #but not really deleted
-                #for filename in set(local_filenames)\
-                #        .intersection(lastsync_local_filenames) \
-                #        - set(remote_filenames) \
-                #        .union(lastsync_remote_filenames):
-                #    self._upload(webdavConnection, filename,
-                #                 None, time_delta)
-
-                #for filename in set(remote_filenames) \
-                #        .intersection(lastsync_remote_filenames) \
-                #        - set(local_filenames).union(lastsync_local_filenames):
-                #    self._download(webdavConnection, filename,
-                #                   None, time_delta)
-
-                #Check what's updated remotly
+                # Check what's updated remotly
                 rupdated = [filename for filename
                             in (set(remote_filenames).
                             intersection(lastsync_remote_filenames))
@@ -302,7 +288,7 @@ class Sync(QObject):
                     self._upload(webdavConnection, filename,
                                  None, time_delta)
                 for filename in set(lupdated).intersection(rupdated):
-                    #todo
+                    # todo
                     if abs(local2utc(remote_filenames[filename]
                            - time_delta) - local_filenames[filename]) == 0:
 
@@ -325,16 +311,18 @@ class Sync(QObject):
                     else:
                         self.logger.debug('Ignored %s' % filename)
 
-                #Build and write index
+                # Build and write index
                 self._write_index(webdavConnection, time_delta)
 
-                #Un_lock the collection
+                # Un_lock the collection
                 self._unlock(webdavConnection)
                 self.logger.debug('Sync end')
             except Exception, err:
                 self.logger.debug('Global sync error : %s' % unicode(err))
                 if (type(err) == WebdavError) and (unicode(err) == u'Locked'):
-                    self.on_error.emit(u'The server resources are locked, there is probably an other sync running on server. Please wait.')
+                    self.on_error.emit(
+                        u'The server resources are locked, there is probably'
+                        u' an other sync running on server. Please wait.')
                 else:
                     import traceback
                     print traceback.format_exc()
@@ -354,8 +342,10 @@ class Sync(QObject):
                        os.path.splitext(filename)[0] + '.Conflict.txt',
                        time_delta)
 
-        #Test if it s a real conflict
-        if md5util.md5sum(lpath) == md5util.md5sum(cpath):
+        # Test if it s a real conflict
+        if os.path.getsize(cpath) == 0:  # Test size to avoid ownCloud Bug
+            os.remove(cpath)
+        elif md5util.md5sum(lpath) == md5util.md5sum(cpath):
             os.remove(cpath)
         else:
             if useAutoMerge and os.path.exists(bpath):
@@ -364,7 +354,7 @@ class Sync(QObject):
                 self._upload(webdavConnection,
                              filename, filename, time_delta)
             else:
-                #Else duplicate
+                # Else duplicate
                 self._upload(webdavConnection, os.path.splitext(
                              filename)[0] + '.Conflict.txt', None, time_delta)
 
@@ -397,8 +387,11 @@ class Sync(QObject):
                        filename,
                        time_delta)
 
-        #Test if it s a real conflict
-        if md5util.md5sum(lpath) == md5util.md5sum(cpath):
+        # Test if it s a real conflict
+        if os.path.getsize(lpath) == 0:  # Test size to avoid ownCloud Bug
+            os.remove(lpath)
+            os.rename(cpath, lpath)
+        elif md5util.md5sum(lpath) == md5util.md5sum(cpath):
             os.remove(cpath)
         else:
             if useAutoMerge and os.path.exists(bpath):
@@ -472,7 +465,7 @@ class Sync(QObject):
 
     def _upload(self, webdavConnection, local_filename,
                 remote_filename, time_delta):
-        #TODO set modification time on local file as
+        # TODO set modification time on local file as
         #"it s not possible on remote
         try:
             if not remote_filename:
@@ -493,7 +486,8 @@ class Sync(QObject):
                                                        rdirname, '')
 
             print webdavConnection.path
-            resource = webdavConnection.addResource(rfilename, lockToken=self._lock)
+            resource = webdavConnection.addResource(
+                rfilename, lockToken=self._lock)
             lpath = os.path.join(self._localDataFolder, local_filename)
 
             with open(lpath, 'rb') as fh:
@@ -550,7 +544,7 @@ class Sync(QObject):
         self.logger.debug('local_delete: %s' % filename)
 
     def _unlock(self, webdavConnection):
-        #TODO
+        # TODO
         webdavConnection.path = self._get_notes_path()
         webdavConnection.unlock(self._lock)
         self._lock = None
@@ -570,16 +564,19 @@ class Sync(QObject):
                               % webdavConnection.path)
             if not khtnotesPath in webdavConnection.listResources().keys():
                 if self._lock:
-                    webdavConnection.addCollection(self._remoteDataFolder + '/', lockToken=self._lock)
+                    webdavConnection.addCollection(
+                        self._remoteDataFolder + '/', lockToken=self._lock)
                 else:
-                    webdavConnection.addCollection(self._remoteDataFolder + '/')
-                #So here it s a new share, and if have old index file
-                #locally notes will be lose
+                    webdavConnection.addCollection(
+                        self._remoteDataFolder + '/')
+                # So here it s a new share, and if have old index file
+                # locally notes will be lose
                 self._rm_remote_index()
-            #TODO : Lock
+            # TODO : Lock
             if self._lock is None:
                 webdavConnection.path = self._get_notes_path()
-                self._lock = webdavConnection.lockAll('KhtNotes', timeout='Second-300')
+                self._lock = webdavConnection.lockAll(
+                    'KhtNotes', timeout='Second-300')
         except Exception, err:
             self.logger.error(unicode(err))
             import traceback
@@ -633,7 +630,7 @@ class Sync(QObject):
         except KeyError:
             pass
 
-        #self.logger.debug('_get_local_filenames: %s' % unicode(index))
+        # self.logger.debug('_get_local_filenames: %s' % unicode(index))
         return index
 
     def _write(self, uid, data, timestamp=None):
@@ -657,4 +654,4 @@ class Sync(QObject):
 
 if __name__ == '__main__':
     s = Sync()
-    s.launch() 
+    s.launch()
