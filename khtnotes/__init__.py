@@ -87,7 +87,8 @@ __upgrade__ = '''1.1: First public release
 3.5 : Fix a bug where notes with just a title aren't saved
 3.6 : Add harmattan share ui export feature
       Add http://scriptogr.am post feature
-3.7 : Add missing dependency python-dbus'''
+3.7 : Add missing dependency python-dbus
+      Test size file on conflict merge to avoid a bug in ownCloud webdav'''
 
 
 class NotesModel(QAbstractListModel):
@@ -304,4 +305,4 @@ class KhtNotes(QApplication):
         self.conboyImporter.on_finished.connect(self.notesModel.reload)
 
 if __name__ == '__main__':
-    sys.exit(KhtNotes().exec_())  
+    sys.exit(KhtNotes().exec_())   
