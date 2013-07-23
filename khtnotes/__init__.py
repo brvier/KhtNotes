@@ -88,7 +88,8 @@ __upgrade__ = '''1.1: First public release
 3.6 : Add harmattan share ui export feature
       Add http://scriptogr.am post feature
 3.7 : Add missing dependency python-dbus
-      Test size file on conflict merge to avoid a bug in ownCloud webdav'''
+      Test size file on conflict merge to avoid a bug in ownCloud webdav
+      Fix a mistake which can prevent sync of new created file'''
 
 
 class NotesModel(QAbstractListModel):

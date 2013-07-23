@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -a*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2011 Benoit HERVIER <khertan@khertan.net>
 # Licenced under GPLv3
@@ -247,28 +247,15 @@ class Sync(QObject):
 
                 # What to do with new remote file
                 for filename in set(remote_filenames) \
-                        - set(lastsync_remote_filenames):
-                    if filename not in local_filenames.keys():
-                        self._download(webdavConnection, filename,
-                                       None, time_delta)
-                    else:
-                        # Conflict : it s a new file so we haven't sync it yet
-                        self.logger.debug('New conflictServer: %s' % filename)
-                        self._conflictServer(webdavConnection,
-                                             filename, time_delta,
-                                             useAutoMerge)
+                        - set(local_filenames):
+                    self._download(webdavConnection, filename,
+                                   None, time_delta)
 
                 # What to do with new local file
                 for filename in set(local_filenames) \
-                        - set(lastsync_local_filenames):
-                    if filename not in remote_filenames.keys():
-                        self._upload(webdavConnection, filename,
-                                     None, time_delta)
-                    else:
-                        # Conflict : it s a new file so we haven't sync it yet
-                        self.logger.debug('New conflictLocal: %s' % filename)
-                        self._conflictLocal(webdavConnection,
-                                            filename, time_delta, useAutoMerge)
+                        - set(remote_filenames):
+                    self._upload(webdavConnection, filename,
+                                 None, time_delta)
 
                 # Check what's updated remotly
                 rupdated = [filename for filename
@@ -418,6 +405,7 @@ class Sync(QObject):
                 'First sync detected or error: %s' % unicode(err))
         if type(index) == list:
             return index  # for compatibility with older release
+        self.logger.debug('Last sync filenames %s' % unicode(index))
         return (index['remote'], index['local'])
 
     def _write_index(self, webdavConnection, time_delta):
@@ -630,7 +618,7 @@ class Sync(QObject):
         except KeyError:
             pass
 
-        # self.logger.debug('_get_local_filenames: %s' % unicode(index))
+        self.logger.debug('_get_local_filenames: %s' % unicode(index))
         return index
 
     def _write(self, uid, data, timestamp=None):
