@@ -21,8 +21,8 @@ from note import Note, getValidFilename
 from settings import Settings
 import time
 import json
-import logger
 import logging
+import logging.handlers
 import md5util
 import sys
 from webdav.Connection import WebdavError
@@ -51,8 +51,23 @@ class Sync(QObject):
         QObject.__init__(self)
         self._running = False
         self._lock = None
-        # logging.getLogger(_defaultLoggerName).setLevel(logging.WARNING)
-        self.logger = logger.getDefaultLogger()
+        
+        # Logging sync
+        self.logger = logging.getLogger('KhtNotes')
+        self.logger.setLevel(logging.DEBUG)
+        handler = logging.handlers.RotatingFileHandler(
+            os.path.expanduser('~/.khtnotes.sync.log'),
+            maxBytes=500 * 1024,
+            backupCount=1)
+        formatter = \
+            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+        streamHandler = logging.StreamHandler()
+        streamHandler.setLevel(logging.DEBUG)
+        streamHandler.setFormatter(formatter)
+        self.logger.addHandler(streamHandler)
+
         self._localDataFolder = Note.NOTESPATH
         if not os.path.exists(self._localDataFolder):
             os.mkdir(self._localDataFolder)
@@ -102,7 +117,6 @@ class Sync(QObject):
                                             + self.webdavBasePath,
                                             validateResourceNames=False)
         webdavConnection.connection.logger.setLevel(logging.WARNING)
-
         time_delta = None
 
         # Test KhtNotes folder and authenticate
@@ -152,6 +166,7 @@ class Sync(QObject):
                     self.on_error.emit(unicode(err) + ':' + unicode(err))
 
             except Exception, err2:
+                print "Hug"
                 self.on_error.emit(unicode(type(err2)) + ':' + unicode(err2))
                 self.logger.error(unicode(type(err2)) + ':' + unicode(err2))
                 print unicode(type(err2)) + ':' + unicode(err2)
@@ -209,6 +224,7 @@ class Sync(QObject):
                                          time_delta))  \
                                 - int(local_filenames[filename]) >= -1:
                             self._local_delete(filename)
+                            del local_filenames[filename]
                         else:
                             # Else we have a conflict local file is newer than
                             # deleted one
@@ -233,6 +249,7 @@ class Sync(QObject):
                                                 filename)
                         if lastsync_remote_filenames[filename] == mtime:
                             self._remote_delete(webdavConnection, filename)
+                            del remote_filenames[filename]
                         else:
                             # We have a conflict remote file was modifyed
                             # since last sync

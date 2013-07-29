@@ -77,12 +77,16 @@ def _colorize(text):
             r'^#(.+)#$',
             re.UNICODE | re.MULTILINE), _titleify),
         (re.compile(
+            r'^(.+)\n.*',
+            re.UNICODE), _titleify),
+        (re.compile(
             r'^##(.+)##$',
             re.UNICODE | re.MULTILINE), _undertitleify),
     )
     for regex, cb in regexs:
         text = re.sub(regex, cb, text)
     # text = text.replace('\n', '</p><p>').replace('<p></p>', '<br />')
+    
     text = text.replace('\r\n', '\n')
     text = text.replace('\n', '<br />')
     text = text.replace('\r', '')
@@ -370,6 +374,36 @@ class Note(QObject):
         share([item, ])
 
     @Slot(unicode)
+    def publishAsPageToKhtCMS(self, text):
+        return self.publishToKhtCMS(text, 'page')
+
+    @Slot(unicode)
+    def publishAsPostToKhtCMS(self, text):
+        return self.publishToKhtCMS(text, 'blog')
+
+    def publishToKhtCMS(self, text, type):
+        try:
+            from khtcms import KhtCMS
+            data = _uncolorize(text)
+            try:
+                _title, _content = data.split('\n', 1)
+            except ValueError:
+                _title = data.split('\n', 1)[0]
+                _content = ''
+
+            KhtCMS().publish(type=type,
+                                  title=_title,
+                                  apikey=self._settings.khtcmsApiKey,
+                                  url=self._settings.khtcmsPath,
+                                  text=_content,
+                                  verify_ssl=self._settings.khtcmsVerifySsl)
+
+        except Exception, err:
+            import traceback
+            print traceback.format_exc()
+            self.on_error.emit(str(err))
+
+    @Slot(unicode)
     def publishToScriptogram(self, text):
         try:
             from scriptogram import Scriptogram
@@ -510,4 +544,4 @@ if __name__ == '__main__':
                     ' hahaha test__test__test and an other *test* '
                     '[link](http://khertan.net/)'
                     '\ntest under title\n-------\ntest'
-                    '\n## test ##\n# test #\ntest')
+                    '\n## test ##\n# test #\ntest')     

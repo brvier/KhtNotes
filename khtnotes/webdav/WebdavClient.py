@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # pylint: disable-msg=R0904,W0142,W0511,W0104,C0321,E1103,W0212
 #
 # Copyright 2008 German Aerospace Center (DLR)
@@ -70,6 +73,7 @@ def parseDigestAuthInfo(authInfo):
 
 
 class ResourceStorer(object):
+
     """
     This class provides client access to a WebDAV resource
     identified by an URI. It provides all WebDAV class 2 features which include
@@ -81,7 +85,8 @@ class ResourceStorer(object):
     """
 
     # Instance properties
-    url = property(lambda self: str(self.connection) + self.path, None, None, "Resource's URL")
+    url = property(lambda self: self.connection.protocol +
+                   "://" + self.connection.host + self.path, None, None)
 
     def __init__(self, url, connection=None, validateResourceNames=True):
         """
@@ -120,11 +125,12 @@ class ResourceStorer(object):
         else:
             conn = parts[1].split(":")
             if len(conn) == 1:
-                self.connection = Connection(conn[0], protocol = parts[0])  # host and protocol
+                self.connection = Connection(
+                    conn[0], protocol=parts[0])  # host and protocol
             else:
-                self.connection = Connection(conn[0], int(conn[1]), protocol = parts[0])  # host and port and protocol
+                self.connection = Connection(
+                    conn[0], int(conn[1]), protocol=parts[0])  # host and port and protocol
         self.versionHandler = VersionHandler(self.connection, self.path)
-
 
     def validate(self):
         """
@@ -133,7 +139,7 @@ class ResourceStorer(object):
 
         @raise WebdavError: L{WebdavError} if URL does not contain a WebDAV resource
         """
-        #davHeader = response.getheader(HTTP_HEADER_DAV)
+        # davHeader = response.getheader(HTTP_HEADER_DAV)
         davHeader = self.getSpecificOption(Constants.HTTP_HEADER_DAV)
         self.connection.logger.debug("HEADER DAV: %s" % davHeader)
         if not(davHeader) or davHeader.find("2") < 0:   # DAV class 2 supported ?
@@ -180,7 +186,8 @@ class ResourceStorer(object):
         else:
             return True
 
-    daslBasicsearchSupportAvailable = property(_getDaslBasicsearchSupportAvailable)
+    daslBasicsearchSupportAvailable = property(
+        _getDaslBasicsearchSupportAvailable)
 
     def isConnectedToCatacombServer(self):
         """
@@ -213,7 +220,7 @@ class ResourceStorer(object):
             return options
         return options
 
-    ### delegate some method invocations
+    # delegate some method invocations
     def __getattr__(self, name):
         """
         Build-in method:
@@ -239,7 +246,8 @@ class ResourceStorer(object):
         else:
             response = self.connection.copy(self.path, toUrl, 0)
         if  response.status == Constants.CODE_MULTISTATUS and response.msr.errorCount > 0:
-            raise WebdavError("Request failed: " + response.msr.reason, response.msr.code)
+            raise WebdavError(
+                "Request failed: " + response.msr.reason, response.msr.code)
 
     def delete(self, lockToken=None):
         """
@@ -249,13 +257,14 @@ class ResourceStorer(object):
         @type  lockToken: L{LockToken}
         """
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         header = {}
         if lockToken:
             header = lockToken.toHeader()
         response = self.connection.delete(self.path, header)
         if  response.status == Constants.CODE_MULTISTATUS and response.msr.errorCount > 0:
-            raise WebdavError("Request failed: " + response.msr.reason, response.msr.code)
+            raise WebdavError(
+                "Request failed: " + response.msr.reason, response.msr.code)
 
     def move(self, toUrl):
         """
@@ -267,8 +276,8 @@ class ResourceStorer(object):
         _checkUrl(toUrl)
         response = self.connection.move(self.path, toUrl)
         if  response.status == Constants.CODE_MULTISTATUS and response.msr.errorCount > 0:
-            raise WebdavError("Request failed: " + response.msr.reason, response.msr.code)
-
+            raise WebdavError(
+                "Request failed: " + response.msr.reason, response.msr.code)
 
     def lock(self, owner):
         """
@@ -282,7 +291,8 @@ class ResourceStorer(object):
         """
         response = self.connection.lock(self.path, owner)
         if  response.status == Constants.CODE_MULTISTATUS and response.msr.errorCount > 0:
-            raise WebdavError("Request failed: " + response.msr.reason, response.msr.code)
+            raise WebdavError(
+                "Request failed: " + response.msr.reason, response.msr.code)
         return LockToken(self.url, response.locktoken)
 
     def unlock(self, lockToken):
@@ -294,7 +304,6 @@ class ResourceStorer(object):
         """
         self.connection.unlock(self.path, lockToken.token)
 
-
     def deleteContent(self, lockToken=None):
         """
         Delete binary data at permanent storage.
@@ -303,7 +312,7 @@ class ResourceStorer(object):
         @type  lockToken: L{LockToken}
         """
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         header = {}
         if lockToken:
             header = lockToken.toHeader()
@@ -318,9 +327,10 @@ class ResourceStorer(object):
         @type  lockToken: L{LockToken}
         """
         assert not content or isinstance(content, types.UnicodeType) or\
-                isinstance(content, types.StringType), "Content is not a string: " + content.__class__.__name__
+            isinstance(content, types.StringType), "Content is not a string: " + \
+            content.__class__.__name__
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         header = {}
         if lockToken:
             header = lockToken.toHeader()
@@ -331,7 +341,8 @@ class ResourceStorer(object):
             header["Content-length"] = "0"
         header.update(extra_hdrs)
         try:
-            response = self.connection.put(self.path, content, extra_hdrs=header)
+            response = self.connection.put(
+                self.path, content, extra_hdrs=header)
         finally:
             if response:
                 self.connection.logger.debug(response.read())
@@ -345,9 +356,10 @@ class ResourceStorer(object):
         @param lockToken: None or lock token from last lock request
         @type  lockToken: L{LockToken}
         """
-        assert isinstance(newFile, types.FileType), "Argument is no file: " + file.__class__.__name__
+        assert isinstance(
+            newFile, types.FileType), "Argument is no file: " + file.__class__.__name__
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         header = {}
         if lockToken:
             header = lockToken.toHeader()
@@ -387,10 +399,24 @@ class ResourceStorer(object):
         ignore404 = kwargs.pop('ignore404', False)
         body = createFindBody(names, self.defaultNamespace)
         response = self.connection.propfind(self.path, body, depth=0)
-        properties = response.msr.values()[0]
-        if  not ignore404 and properties.errorCount > 0 :
-            raise WebdavError("Property is missing on '%s': %s" % (self.path, properties.reason), properties.code)
+        properties = self._filter_property_response(response)
+        if not ignore404 and properties.errorCount > 0:
+            raise WebdavError("Property is missing on '%s': %s" %
+                              (self.path, properties.reason), properties.code)
         return properties
+
+    def _filter_property_response(self, response):
+        """ This is a workaround for servers which do not
+        correctly handle the depth header.
+        I.e., we simply try to identify the matching
+        response for the resource. """
+
+        for key in [self.path, self.path[:-1], self.url]: # Server may return path or URL
+            try:
+                return response.msr[key]
+            except KeyError:
+                continue
+        raise WebdavError("No property result for '%s'" % self.url)
 
     def readProperty(self, nameSpace, name):
         """
@@ -404,9 +430,9 @@ class ResourceStorer(object):
         @return: a map from property names to DOM Element or String values.
         """
         results = self.readProperties((nameSpace, name))
-        if  len(results) == 0:
+        if not (nameSpace, name) in results:
             raise WebdavError("Property is missing: " + results.reason)
-        return results.values()[0]
+        return results[(nameSpace, name)]
 
     def readAllProperties(self):
         """
@@ -415,7 +441,7 @@ class ResourceStorer(object):
         @return: a map from property names to DOM Element or String values.
         """
         response = self.connection.allprops(self.path, depth=0)
-        return response.msr.values()[0]
+        return self._filter_property_response(response)
 
     def readAllPropertyNames(self):
         """
@@ -424,7 +450,7 @@ class ResourceStorer(object):
         @return: List of property names
         """
         response = self.connection.propnames(self.path, depth=0)
-        return response.msr.values()[0]
+        return self._filter_property_response(response)
 
     def readStandardProperties(self):
         """
@@ -434,7 +460,7 @@ class ResourceStorer(object):
         """
         body = createFindBody(LiveProperties.NAMES, Constants.NS_DAV)
         response = self.connection.propfind(self.path, body, depth=0)
-        properties = response.msr.values()[0]
+        properties = self._filter_property_response(response)
         return LiveProperties(properties)
 
     def writeProperties(self, properties, lockToken=None):
@@ -448,14 +474,15 @@ class ResourceStorer(object):
         """
         assert isinstance(properties, types.DictType)
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         header = {}
         if lockToken:
             header = lockToken.toHeader()
         body = createUpdateBody(properties, self.defaultNamespace)
         response = self.connection.proppatch(self.path, body, header)
-        if  response.msr.errorCount > 0:
-            raise WebdavError("Request failed: " + response.msr.reason, response.msr.code)
+        if response.msr.errorCount > 0:
+            raise WebdavError(
+                "Request failed: " + response.msr.reason, response.msr.code)
 
     def deleteProperties(self, lockToken=None, *names):
         """
@@ -467,14 +494,15 @@ class ResourceStorer(object):
                A property name is a (XmlNameSpace, propertyName) tuple.
         """
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         header = {}
         if lockToken:
             header = lockToken.toHeader()
         body = createDeleteBody(names, self.defaultNamespace)
         response = self.connection.proppatch(self.path, body, header)
-        if  response.msr.errorCount > 0:
-            raise WebdavError("Request failed: " + response.msr.reason, response.msr.code)
+        if response.msr.errorCount > 0:
+            raise WebdavError(
+                "Request failed: " + response.msr.reason, response.msr.code)
 
     # ACP extension
     def setAcl(self, acl, lockToken=None):
@@ -487,15 +515,15 @@ class ResourceStorer(object):
         @type  lockToken: L{LockToken}
         """
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         headers = {}
         if lockToken:
             headers = lockToken.toHeader()
         headers['Content-Type'] = XML_CONTENT_TYPE
-        body                    = acl.toXML()
+        body = acl.toXML()
         response = self.connection._request('ACL', self.path, body, headers)
         return response
-        ## TODO: parse DAV:error response
+        # TODO: parse DAV:error response
 
     def getAcl(self):
         """
@@ -514,7 +542,8 @@ class ResourceStorer(object):
         @return: list of Privilege instances
         @rtype: list of L{Privilege<webdav.acp.Privilege.Privilege>}
         """
-        privileges = self.readProperty(Constants.NS_DAV, Constants.PROP_CURRENT_USER_PRIVILEGE_SET)
+        privileges = self.readProperty(
+            Constants.NS_DAV, Constants.PROP_CURRENT_USER_PRIVILEGE_SET)
         result = []
         for child in privileges.children:
             result.append(Privilege(domroot=child))
@@ -527,7 +556,8 @@ class ResourceStorer(object):
         @return: list of principal collection URLs
         @rtype: C{list} of C{unicode} elements
         """
-        webdavQueryResult = self.readProperty(Constants.NS_DAV, Constants.PROP_PRINCIPAL_COLLECTION_SET)
+        webdavQueryResult = self.readProperty(
+            Constants.NS_DAV, Constants.PROP_PRINCIPAL_COLLECTION_SET)
         principalCollectionList = []
         for child in webdavQueryResult.children:
             principalCollectionList.append(child.first_cdata)
@@ -541,7 +571,9 @@ class ResourceStorer(object):
             return result.children[0].textof()
         return None
 
+
 class CollectionStorer(ResourceStorer):
+
     """
     This class provides client access to a WebDAV collection resource identified by an URI.
     This class does not cache resource data. This has to be performed by its clients.
@@ -559,7 +591,7 @@ class CollectionStorer(ResourceStorer):
         @param connection: this optional parameter contains a Connection object for the host part
             of the given URL. Passing a connection saves memory by sharing this connection.
         """
-        if  url[-1] != '/':     # Collection URL must end with slash
+        if url[-1] != '/':     # Collection URL must end with slash
             url += '/'
         ResourceStorer.__init__(self, url, connection, validateResourceNames)
 
@@ -570,7 +602,8 @@ class CollectionStorer(ResourceStorer):
         @param name: leaf name of child resource
         @return: L{ResourceStorer} instance
         """
-        assert isinstance(name, types.StringType) or isinstance(name, types.UnicodeType)
+        assert isinstance(name, types.StringType) or isinstance(
+            name, types.UnicodeType)
         return ResourceStorer(self.url + name, self.connection, self.validateResourceNames)
 
     def validate(self):
@@ -581,9 +614,10 @@ class CollectionStorer(ResourceStorer):
         @raise WebdavError: L{WebdavError} if URL does not contain a WebDAV collection resource.
         """
         super(CollectionStorer, self).validate()
-        isCollection = self.readProperty(Constants.NS_DAV, Constants.PROP_RESOURCE_TYPE)
+        isCollection = self.readProperty(
+            Constants.NS_DAV, Constants.PROP_RESOURCE_TYPE)
         if not (isCollection and isCollection.children):
-            raise WebdavError("Not a collection URL.", 0)
+            raise WebdavError("'%s' not a collection!" % self.url, 0)
 
     def addCollection(self, name, lockToken=None):
         """
@@ -593,18 +627,19 @@ class CollectionStorer(ResourceStorer):
         @param lockToken: None or token returned by last lock operation
         @type  lockToken: L{LockToken}
         """
-        assert isinstance(name, types.StringType) or isinstance(name, types.UnicodeType)
+        assert isinstance(name, types.StringType) or isinstance(
+            name, types.UnicodeType)
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         header = {}
         if lockToken:
             header = lockToken.toHeader()
         if self.validateResourceNames:
             validateResourceName(name)
-        if  name[-1] != '/':     # Collection URL must end with slash
+        if name[-1] != '/':     # Collection URL must end with slash
             name += '/'
         self.connection.mkcol(self.path + name, header)
-        return CollectionStorer(self.url + name, self.connection, self.validateResourceNames)
+        return CollectionStorer(self.url + name, self.connection, self.validateResourceNames) 
 
     def addResource(self, name, content=None, properties=None, lockToken=None):
         """
@@ -617,12 +652,14 @@ class CollectionStorer(ResourceStorer):
         @param lockToken: None or token returned by last lock operation
         @type  lockToken: L{LockToken}
         """
-        assert isinstance(name, types.StringType) or isinstance(name, types.UnicodeType)
+        assert isinstance(name, types.StringType) or isinstance(
+            name, types.UnicodeType)
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         if self.validateResourceNames:
-            validateResourceName(name) # check for invalid characters
-        resource_ = ResourceStorer(self.url + name, self.connection, self.validateResourceNames)
+            validateResourceName(name)  # check for invalid characters
+        resource_ = ResourceStorer(
+            self.url + name, self.connection, self.validateResourceNames)
         resource_.uploadContent(content, lockToken)
         if properties:
             resource_.writeProperties(properties, lockToken)
@@ -636,17 +673,19 @@ class CollectionStorer(ResourceStorer):
         @param lockToken: None or token returned by last lock operation
         @type  lockToken: L{LockToken}
         """
-        assert isinstance(name, types.StringType) or isinstance(name, types.UnicodeType)
+        assert isinstance(name, types.StringType) or isinstance(
+            name, types.UnicodeType)
         assert lockToken == None or isinstance(lockToken, LockToken), \
-                "Invalid lockToken argument %s" % type(lockToken)
+            "Invalid lockToken argument %s" % type(lockToken)
         header = {}
         if lockToken:
             header = lockToken.toHeader()
         if self.validateResourceNames:
             validateResourceName(name)
         response = self.connection.delete(self.path + name, header)
-        if  response.status == Constants.CODE_MULTISTATUS and response.msr.errorCount > 0:
-            raise WebdavError("Request failed: %s" % response.msr.reason, response.msr.code)
+        if response.status == Constants.CODE_MULTISTATUS and response.msr.errorCount > 0:
+            raise WebdavError("Request failed: %s" %
+                              response.msr.reason, response.msr.code)
 
     def lockAll(self, owner, timeout=None):
         """
@@ -659,8 +698,10 @@ class CollectionStorer(ResourceStorer):
         @return: Lock token string (automatically generated).
         @rtype: L{LockToken}
         """
-        assert isinstance(owner, types.StringType) or isinstance(owner, types.UnicodeType)
-        response = self.connection.lock(self.path, owner, depth=Constants.HTTP_HEADER_DEPTH_INFINITY, timeout=timeout)
+        assert isinstance(owner, types.StringType) or isinstance(
+            owner, types.UnicodeType)
+        response = self.connection.lock(
+            self.path, owner, depth=Constants.HTTP_HEADER_DEPTH_INFINITY, timeout=timeout)
         return LockToken(self.url, response.locktoken)
 
     def listResources(self):
@@ -680,7 +721,7 @@ class CollectionStorer(ResourceStorer):
         for path, properties in response.msr.items():
             if path == self.path:      # omit this collection resource
                 continue
-            ## some servers do not append a trailing slash to collection paths
+            # some servers do not append a trailing slash to collection paths
             if self.path.endswith('/') and self.path[0:-1] == path:
                 continue
             result[path] = LiveProperties(properties=properties)
@@ -699,9 +740,11 @@ class CollectionStorer(ResourceStorer):
         for url, properties_ in result.items():
             if not self.path == url:
                 if properties_.getResourceType() == 'resource':
-                    myWebDavStorer = ResourceStorer(url, self.connection, self.validateResourceNames)
+                    myWebDavStorer = ResourceStorer(
+                        url, self.connection, self.validateResourceNames)
                 else:
-                    myWebDavStorer = CollectionStorer(url, self.connection, self.validateResourceNames)
+                    myWebDavStorer = CollectionStorer(
+                        url, self.connection, self.validateResourceNames)
                 collectionContents.append((myWebDavStorer, properties_))
         return collectionContents
 
@@ -713,7 +756,7 @@ class CollectionStorer(ResourceStorer):
         @return: a map from resource URI to a map from property name to value.
         """
         assert isinstance(names, types.ListType) or isinstance(names, types.TupleType), \
-                "Argument name has type %s" % str(type(names))
+            "Argument name has type %s" % str(type(names))
         body = createFindBody(names, self.defaultNamespace)
         response = self.connection.propfind(self.path, body, depth=1)
         return response.msr
@@ -731,9 +774,10 @@ class CollectionStorer(ResourceStorer):
         @return: a map from resource URI to a map from property name to value.
         """
         assert isinstance(names, types.ListType.__class__) or isinstance(names, types.TupleType), \
-                "Argument name has type %s" % str(type(names))
+            "Argument name has type %s" % str(type(names))
         body = createFindBody(names, self.defaultNamespace)
-        response = self.connection.propfind(self.path, body, depth=Constants.HTTP_HEADER_DEPTH_INFINITY)
+        response = self.connection.propfind(
+            self.path, body, depth=Constants.HTTP_HEADER_DEPTH_INFINITY)
         return response.msr
 
     def findAllProperties(self):
@@ -745,7 +789,6 @@ class CollectionStorer(ResourceStorer):
         response = self.connection.allprops(self.path, depth=1)
         return response.msr
 
-
     # DASL extension
     def search(self, conditions, selects):
         """
@@ -755,13 +798,15 @@ class CollectionStorer(ResourceStorer):
         @param selects: list of property names to retrieve for the found resources
         """
         assert isinstance(conditions, ConditionTerm)
-        headers = { 'Content-Type' : XML_CONTENT_TYPE, "depth": Constants.HTTP_HEADER_DEPTH_INFINITY}
+        headers = {'Content-Type': XML_CONTENT_TYPE,
+                   "depth": Constants.HTTP_HEADER_DEPTH_INFINITY}
         body = createSearchBody(selects, self.path, conditions)
         response = self.connection._request('SEARCH', self.path, body, headers)
         return response.msr
 
 
 class LockToken(object):
+
     """
     This class provides help on handling WebDAV lock tokens.
 
@@ -811,12 +856,13 @@ def _blockCopyFile(source, dest, blockSize):
     @param blockSize: Size of block in bytes.
     @type  blockSize: C{int}
     """
-    transferedBytes = 0
+    transferredBytes = 0
     block = source.read(blockSize)
     while len(block):
         dest.write(block)
-        transferedBytes += len(block);
+        transferredBytes += len(block)
         block = source.read(blockSize)
+
 
 def _checkUrl(url):
     """
@@ -833,12 +879,24 @@ def _checkUrl(url):
         raise ValueError("Invalid URL: " + repr(url))
 
 
-# small test
-# asks for WebDAV collection and optionally user name and password) and lists the content of the collection.
+# small test:
+# asks for WebDAV collection or file (if not passed)
+# and lists the content of the collection or downloads the file;
+# requests user name and password where required by server
 if __name__ == "__main__":
     import sys
 
-    webdavUrl = raw_input("WebDAV Collection (URL):").strip()
+    if len(sys.argv) == 1:
+        webdavUrl = raw_input("WebDAV URL:").strip()
+    elif len(sys.argv) == 2 and sys.argv[1] not in ["-h", "-?", "--help", "--usage"]:
+        webdavUrl = sys.argv[1]
+    else:
+        print(
+            "usage: %s [URL]\n"
+            "If no URL is passed, URL is prompted for.\n"
+            "If URL ends in slash, directory is listed.\n"
+            "If URL does not end in slash, file is downloaded.\n" % sys.argv[0])
+        sys.exit(1)
     username = None
     password = None
     webdavConnection = CollectionStorer(webdavUrl, validateResourceNames=False)
@@ -846,25 +904,32 @@ if __name__ == "__main__":
     authFailures = 0
     while authFailures < 2:
         try:
-            for resource, properties in webdavConnection.getCollectionContents():
-                try:
-                    print resource.path.encode(sys.getfilesystemencoding())
-                    print unicode(properties).encode(sys.getfilesystemencoding())
-                except UnicodeEncodeError:
-                    print("Cannot encode resource path or properties.")
-
-            break # break out of the authorization failure counter
+            if webdavUrl[-1] != "/":
+                webdavConnection.downloadFile(webdavUrl.split("/")[-1])
+            else:  # list collection contents
+                for resource, properties in webdavConnection.getCollectionContents():
+                    try:
+                        print("")
+                        print(resource.path.encode(
+                            sys.getfilesystemencoding()))
+                        print(unicode(properties).encode(
+                            sys.getfilesystemencoding()))
+                    except UnicodeEncodeError:
+                        print("Cannot encode resource path or properties.")
+            break  # break out of the authorization failure counter
         except AuthorizationError, e:
             if username is None or password is None:
                 username = raw_input("User Name:").strip()
                 password = raw_input("Password:").strip()
 
             if e.authType == "Basic":
-                webdavConnection.connection.addBasicAuthorization(username, password)
+                webdavConnection.connection.addBasicAuthorization(
+                    username, password)
             elif e.authType == "Digest":
                 info = parseDigestAuthInfo(e.authInfo)
-                webdavConnection.connection.addDigestAuthorization(username, password, realm=info["realm"], qop=info["qop"], nonce=info["nonce"])
+                webdavConnection.connection.addDigestAuthorization(
+                    username, password, realm=info["realm"], qop=info["qop"], nonce=info["nonce"])
             else:
                 raise
             authFailures += 1
-        print("\n")    
+        print("\n")

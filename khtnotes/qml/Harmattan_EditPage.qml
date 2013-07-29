@@ -153,6 +153,12 @@ Page {
             MenuItem { text: qsTr("Publish to Scriptogr.am"); 
                        visible: Settings.scriptogramUserId != '' ? true : false;
                        onClicked: {Note.publishToScriptogram(textEditor.text); }}
+            MenuItem { text: qsTr("Publish as Post to KhtCms"); 
+                       visible: Settings.khtcmsApiKey != '' ? true : false;
+                       onClicked: {Note.publishAsPostToKhtCMS(textEditor.text); }}
+            MenuItem { text: qsTr("Publish as Page to KhtCms"); 
+                       visible: Settings.khtcmsApiKey != '' ? true : false;
+                       onClicked: {Note.publishAsPageToKhtCMS(textEditor.text); }}
             MenuItem { text: qsTr("Share"); 
                        onClicked: {saveFile(); Note.exportWithShareUI(); }}
           
@@ -177,4 +183,4 @@ Page {
             onClicked: (editMenu.status === DialogStatus.Closed) ? editMenu.open() : editMenu.close()
         }
     }
-}  
+}   

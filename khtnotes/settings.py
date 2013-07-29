@@ -63,6 +63,12 @@ class Settings(QObject):
             self.config.add_section('Scriptogram')
             self.config.set('Scriptogram', 'userid', '')
 
+        if not self.config.has_section('KhtCMS'):
+            self.config.add_section('KhtCMS')
+            self.config.set('KhtCMS', 'apikey', '')
+            self.config.set('KhtCMS', 'path', 'https://khertan.net/')
+            self.config.set('KhtCMS', 'verifyssl', 'true')
+
     def _write_default(self):
         ''' Write the default config'''
         self.config.add_section('Display')
@@ -83,6 +89,10 @@ class Settings(QObject):
         self.config.add_section('Favorites')
         self.config.add_section('Scriptogram')
         self.config.set('Scriptogram', 'userid', '')
+        self.config.add_section('KhtCMS')
+        self.config.set('KhtCMS', 'apikey', '')
+        self.config.set('KhtCMS', 'path', 'https://khertan.net/')
+        self.config.set('KhtCMS', 'ssl', 'true')
 
         # Writing our configuration file to 'example.cfg'
         with open(os.path.expanduser('~/.khtnotes.cfg'), 'wb') \
@@ -105,6 +115,8 @@ class Settings(QObject):
             self.config.set('Keyboard', option, value)
         elif option in ('userid'):
             self.config.set('Scriptogram', option, value)
+        elif option in ('path', 'apikey', 'verifyssl'):
+            self.config.set('KhtCMS', option, value)
         else:
             self.config.set('Display', option, value)
 
@@ -141,16 +153,28 @@ class Settings(QObject):
         try:
             return self.config.get('Keyboard', option)
         except:
-            try:
-                return self.config.get('Display', option)
-            except:
-                try:
-                    return self.config.get('Webdav', option)
-                except:
-                    try:
-                        return self.config.get('Scriptogram', option)
-                    except:
-                        return ''
+            pass
+        
+        try:
+            return self.config.get('Display', option)
+        except:
+            pass
+        try:
+            return self.config.get('Webdav', option)
+        except:
+           pass
+
+        try:
+            return self.config.get('Scriptogram', option)
+        except:
+            pass             
+           
+        try:
+            return self.config.get('KhtCMS', option)
+        except:
+            pass
+ 
+        return ''
 
     def _get_fontSize(self, ):
         return int(self.get('fontsize'))
@@ -223,6 +247,24 @@ class Settings(QObject):
     def _set_scriptogramuserid(self, value):
         return self._set('userid', value)
 
+    def _set_khtcmspath(self, value):
+        return self._set('path', value)
+
+    def _get_khtcmspath(self,):
+        return self.get('path')
+
+    def _get_khtcmsapikey(self,):
+        return self.get('apikey')
+    def _set_khtcmsapikey(self, value):
+        self._set('apikey', value)
+
+    def _get_khtcmsverifyssl(self,):
+        return self.get('verifyssl') == 'true'
+
+    def _set_khtcmsverifyssl(self, b):
+        return self._set('verifyssl', 'true' if b else 'false')
+
+
     on_fontSize = Signal()
     on_fontFamily = Signal()
     on_webdavHost = Signal()
@@ -235,6 +277,22 @@ class Settings(QObject):
     on_hideVkb = Signal()
     on_autoSync = Signal()
     on_scriptogramUserId = Signal()
+    on_khtcmsPath = Signal()
+    on_khtcmsApiKey = Signal()
+    on_khtcmsVerifySsl = Signal()
+
+    khtcmsVerifySsl = Property(bool,
+                               _get_khtcmsverifyssl,
+                               _set_khtcmsverifyssl,
+                               notify=on_khtcmsVerifySsl)
+    khtcmsApiKey = Property(unicode,
+                            _get_khtcmsapikey,
+                            _set_khtcmsapikey,
+                            notify=on_khtcmsApiKey)
+    khtcmsPath = Property(unicode,
+                          _get_khtcmspath,
+                          _set_khtcmspath,
+                          notify=on_khtcmsPath)
 
     scriptogramUserId = Property(unicode,
                                  _get_scriptogramuserid,
@@ -261,4 +319,4 @@ class Settings(QObject):
     displayHeader = Property(bool, _get_displayHeader, _set_displayHeader,
                              notify=on_displayHeader)
     remoteFolder = Property(unicode, _get_remoteFolder, _set_remoteFolder,
-                            notify=on_remoteFolder)
+                            notify=on_remoteFolder) 

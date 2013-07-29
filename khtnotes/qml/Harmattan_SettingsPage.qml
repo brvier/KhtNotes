@@ -254,6 +254,41 @@ Page {
                 }
             }
 
+          TitleLabel {
+                text: qsTr("<b>KhtCMS</b>")
+            }
+            
+            Label {
+                text: qsTr("Url")
+            }
+
+            TextField {
+                id: khtcmsUrl
+                text:Settings.khtcmsPath
+                width: parent.width
+                Binding {
+                    target: Settings
+                    property: "khtcmsPath"
+                    value: khtcmsUrl.text
+                }
+            }
+
+           
+            Label {
+                text: qsTr("Api Key")
+            }
+
+            TextField {
+                id: khtcmsApiKey
+                text:Settings.khtcmsApiKey
+                width: parent.width
+                Binding {
+                    target: Settings
+                    property: "khtcmsApiKey"
+                    value: khtcmsApiKey.text
+                }
+            }
+
             TitleLabel {
                 text: qsTr("<b>Import</b>")
             }
@@ -309,6 +344,4 @@ Page {
             onClicked: (editMenu.status === DialogStatus.Closed) ? editMenu.open() : editMenu.close()
         }
     }
-}
-
-
+} 

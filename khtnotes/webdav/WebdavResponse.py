@@ -22,7 +22,8 @@ Handles WebDAV responses.
 
 from davlib import _parse_status
 import qp_xml
-from webdav import Constants
+from webdav import Constants, logger
+import sys
 import time
 import rfc822
 import urllib
@@ -41,7 +42,7 @@ __version__ = "$LastChangedRevision$"
 class HttpStatus(object):
     """
     TBD
-
+    
     @ivar code:
     @type code:
     @ivar reason:
@@ -49,11 +50,11 @@ class HttpStatus(object):
     @ivar errorCount:
     @type errorCount: int
     """
-
+    
     def __init__(self, elem):
         """
         TBD
-
+        
         @param elem: ...
         @type elem: instance of L{Element}
         """
@@ -62,11 +63,11 @@ class HttpStatus(object):
     def __str__(self):
         return "HTTP status %d: %s" % (self.code, self.reason)
 
-
+        
 class MultiStatusResponse(dict):
     """
     TBD
-
+    
     @ivar status:
     @type status:
     @ivar reason:
@@ -74,7 +75,7 @@ class MultiStatusResponse(dict):
     @ivar errorCount:
     @type errorCount:
     """
-
+    
     # restrict instance variables
     __slots__ = ('errorCount', 'reason', 'status')
 
@@ -86,7 +87,7 @@ class MultiStatusResponse(dict):
         if (domroot.ns != Constants.NS_DAV) or (domroot.name != Constants.TAG_MULTISTATUS):
             raise ResponseFormatError(domroot, 'Invalid response: <DAV:multistatus> expected.')
         self._scan(domroot)
-
+    
     def getCode(self):
         if self.errorCount == 0:
             return Constants.CODE_SUCCEEDED
@@ -99,17 +100,18 @@ class MultiStatusResponse(dict):
         for response in self.values():
             if response.code > Constants.CODE_LOWEST_ERROR:
                 result += response.reason
-        return result
-
+        return result                    
+    
     def __str__(self):
-        result = ""
+        result = u""
         for key, value in self.items():
-            if  isinstance(value, PropertyResponse):
-                result += "Resource at %s has %d properties and %d errors.\n" % (key, len(value), value.errorCount)
+            if isinstance(value, PropertyResponse):
+                result += "Resource at %s has %d properties (%s) and %d errors\n" % (
+                    key, len(value), ", ".join([prop[1] for prop in value.keys()]), value.errorCount)
             else:
-                result += "Resource at %s returned " % key + str(value)
-        return result
-
+                result += "Resource at %s returned " % key + unicode(value)
+        return result.encode(sys.stdout.encoding or "ascii", "replace")
+    
     def _scan(self, root):
         for child in root.children:
             if child.ns != Constants.NS_DAV:
@@ -119,7 +121,7 @@ class MultiStatusResponse(dict):
             elif child.name == Constants.TAG_RESPONSE:
                 self._scanResponse(child)
             ### unknown child element
-
+        
     def _scanResponse(self, elem):
         hrefs = []
         response = None
@@ -138,16 +140,16 @@ class MultiStatusResponse(dict):
                 if not response:
                     if len(hrefs) != 1:
                         raise ResponseFormatError(child, 'Invalid response: One <DAV:href> expected.')
-                    response = PropertyResponse()
-                    self[hrefs[0]] = response
+                    response = PropertyResponse()                    
+                    self[hrefs[0]] = response                    
                 response._scan(child)
             elif child.name == Constants.TAG_RESPONSEDESCRIPTION:
                 for href in hrefs:
-                    self[href].reasons.append(child.textOf())
+                    self[href].reasons.append(child.textOf())            
             ### unknown child element
         if response and response.errorCount > 0:
             self.errorCount += 1
-
+                                    
     def _scanStatus(self, elem, *hrefs):
         if  len(hrefs) == 0:
             raise ResponseFormatError(elem, 'Invalid response: <DAV:href> expected.')
@@ -165,7 +167,7 @@ class MultiStatusResponse(dict):
 class PropertyResponse(dict):
     """
     TBD
-
+    
     @ivar errors:
     @type errors: list of ...
     @ivar reasons:
@@ -189,13 +191,13 @@ class PropertyResponse(dict):
             result += value.name + '= ' + value.textof() + '\n'
         result += self.getReason()
         return result
-
+        
     def getCode(self):
         if  len(self.errors) == 0:
             return Constants.CODE_SUCCEEDED
         if  len(self) > 0:
             return Constants.CODE_MULTISTATUS
-        return self.errors[-1].code
+        return self.errors[-1].code       
 
     def getReason(self):
         result = ""
@@ -206,7 +208,7 @@ class PropertyResponse(dict):
         for reason in self.reasons:
             result += "%s.  " % reason
         return result
-
+        
     def _scan(self, element):
         status = None
         statusElement = element.find(Constants.TAG_STATUS, Constants.NS_DAV)
@@ -214,7 +216,7 @@ class PropertyResponse(dict):
             status = HttpStatus(statusElement)
             if status.errorCount:
                 self.errors.append(status)
-
+        
         propElement = element.find(Constants.TAG_PROP, Constants.NS_DAV)
         if propElement:
             for prop in propElement.children:
@@ -226,7 +228,7 @@ class PropertyResponse(dict):
         reasonElement = element.find(Constants.TAG_RESPONSEDESCRIPTION, Constants.NS_DAV)
         if reasonElement:
             self.reasons.append(reasonElement.textOf())
-
+        
     # Instance properties
     code = property(getCode, None, None, "HTTP response code")
     errorCount = property(lambda self: len(self.errors), None, None, "HTTP response code")
@@ -234,17 +236,17 @@ class PropertyResponse(dict):
 
 
 
-
+        
 class LiveProperties(object):
     """
     This class provides convenient access to the WebDAV 'live' properties of a resource.
-    WebDav 'live' properties are defined in RFC 2518, Section 13.
+    WebDav 'live' properties are defined in RFC 4918, Section 15. 
     Each property is converted from string to its natural data type.
-
+    
     @version: $Revision$
     @author: Roland Betz
     """
-
+    
     # restrict instance variables
     __slots__ = ('properties')
 
@@ -252,137 +254,146 @@ class LiveProperties(object):
              Constants.PROP_CONTENT_LENGTH, Constants.PROP_CONTENT_TYPE, Constants.PROP_ETAG,
              Constants.PROP_LAST_MODIFIED, Constants.PROP_OWNER,
              Constants.PROP_LOCK_DISCOVERY, Constants.PROP_RESOURCE_TYPE, Constants.PROP_SUPPORTED_LOCK )
-
+    _logger = logger.getDefaultLogger()
+    
     def __init__(self, properties=None, propElement=None):
         """
-        Construct <code>StandardProperties</code> from a map of properties containing
-        live properties or from a XML 'prop' element containing live properties
-
+        Construct C{LiveProperties} from a dictionary of properties containing
+        live properties or from a XML 'prop' element.
+        
         @param properties: map as implemented by class L{PropertyResponse}
-        @param propElement: an C{Element} value
+        @param propElement: C{Element} value
         """
+        
         assert isinstance(properties, PropertyResponse) or \
                isinstance(propElement, qp_xml._element), \
                 "Argument properties has type %s" % str(type(properties))
-        self.properties = {}
+        self.properties = dict()
         for name, value in properties.items():
-            if  name[0] == Constants.NS_DAV  and  name[1] in self.NAMES:
+            if name[0] == Constants.NS_DAV and name[1] in self.NAMES:
                 self.properties[name[1]] = value
 
     def getContentLanguage(self):
         """
-        Return the language of a resource's textual content or null
-
-        @return: string
+        Return the language of a resource's textual content or C{None}.
+        
+        @rtype: C{string}
         """
-
-        result = ""
-        if not self.properties.get(Constants.PROP_CONTENT_LANGUAGE, None) is None:
-            result = self.properties.get(Constants.PROP_CONTENT_LANGUAGE).textof()
-        return result
+        
+        xml = self.properties.get(Constants.PROP_CONTENT_LANGUAGE)
+        if xml:
+            return xml.textof()
 
     def getContentLength(self):
         """
-        Returns the length of the resource's content in bytes.
-
-        @return: number of bytes
+        Returns the length of the resource's content in bytes or C{None}.
+        
+        @rtype: C{int}
         """
-
-        result = 0
-        if not self.properties.get(Constants.PROP_CONTENT_LENGTH, None) is None:
-            result = int(self.properties.get(Constants.PROP_CONTENT_LENGTH).textof())
-        return result
+        
+        xml = self.properties.get(Constants.PROP_CONTENT_LENGTH)
+        if xml:
+            try:
+                return int(xml.textof())
+            except (ValueError, TypeError):
+                self._logger.debug("Cannot convert content length to a numeric value.", exc_info=True)
 
     def getContentType(self):
         """
-        Return the resource's content MIME type.
-
-        @return: MIME type string
+        Return the resource's content MIME type or C{None}.
+        
+        @rtype: C{string}
         """
-
-        result = ""
-        if not self.properties.get(Constants.PROP_CONTENT_TYPE, None) is None:
-            result = self.properties.get(Constants.PROP_CONTENT_TYPE).textof()
-        return result
+        
+        xml = self.properties.get(Constants.PROP_CONTENT_TYPE)
+        if xml:
+            return xml.textof()
 
     def getCreationDate(self):
         """
-        Return date of creation as time tuple.
-
-        @return: time tuple
+        Return the creation date as time tuple or C{None}.
+                
         @rtype: C{time.struct_time}
-
-        @raise ValueError: If string is not in the expected format (ISO 8601).
         """
-
+        
         datetimeString = None
-        if not self.properties.get(Constants.PROP_CREATION_DATE, None) is None:
-            datetimeString = self.properties.get(Constants.PROP_CREATION_DATE).textof()
+        xml = self.properties.get(Constants.PROP_CREATION_DATE)
+        if xml:
+            datetimeString = xml.textof()
+        
         if datetimeString:
-            return _parseIso8601String(datetimeString)
-        else:
-            return None
-
+            try:
+                return _parseIso8601String(datetimeString)
+            except ValueError:
+                self._logger.debug(
+                    "Invalid date format: The server must provide an ISO8601 formatted date string.", exc_info=True)
+            
     def getEntityTag(self):
         """
-        Return a entity tag which is unique for a particular version of a resource.
-        Different resources or one resource before and after modification have different etags.
-
-        @return: entity tag string
+        Return a entity tag which is unique for a particular version of a resource or C{None}.
+        Different resources or one resource before and after modification have different etags. 
+        
+        @rtype: C{string}
         """
-
-        result = ""
-        if not self.properties.get(Constants.PROP_ETAG, None) is None:
-            result = self.properties.get(Constants.PROP_ETAG).textof()
-        return result
-
+        
+        xml = self.properties.get(Constants.PROP_ETAG)
+        if xml:
+            return xml.textof()
+            
     def getDisplayName(self):
         """
-        Returns a resource's display name.
-
-        @return: string
+        Returns a resource's display name or C{None}.
+        
+        @rtype: C{string}
         """
-
-        result = ""
-        if not self.properties.get(Constants.PROP_DISPLAY_NAME, None) is None:
-            result = self.properties.get(Constants.PROP_DISPLAY_NAME).textof()
-        return result
+        
+        xml = self.properties.get(Constants.PROP_DISPLAY_NAME)
+        if xml:
+            return xml.textof()
 
     def getLastModified(self):
         """
-        Return last modification of resource as time tuple.
-
-        @return: Modification date time.
-        @rtype:  C{time.struct_time}
-
-        @raise ValueError: If the date time string is not in the expected format (RFC 822 / ISO 8601).
+        Return last modification of a resource as time tuple or C{None}.
+        
+        @rtype: C{time.struct_time}
         """
-
+        
         datetimeString = None
-        if not self.properties.get(Constants.PROP_LAST_MODIFIED, None) is None:
-            datetimeString = self.properties.get(Constants.PROP_LAST_MODIFIED).textof()
-        result = rfc822.parsedate(datetimeString)
-        if result is None:
-            result = _parseIso8601String(datetimeString)
-        return time.struct_time(result)
+        xml = self.properties.get(Constants.PROP_LAST_MODIFIED)
+        if xml:
+            datetimeString = xml.textof()
 
+        if datetimeString:
+            try:
+                result = rfc822.parsedate(datetimeString)
+                if result is None:
+                    result = _parseIso8601String(datetimeString) # Some servers like Tamino use ISO 8601
+                return time.struct_time(result)
+            except ValueError:
+                self._logger.debug(
+                    "Invalid date format: "
+                    "The server must provide a RFC822 or ISO8601 formatted date string.", exc_info=True)
+                
     def getLockDiscovery(self):
         """
-        Return all current lock's applied to a resource or null if it is not locked.
-
-        @return: a lockdiscovery DOM element according to RFC 2815
+        Return all current locks applied to a resource or C{None} if it is not locked. The lock is represented by 
+        a C{lockdiscovery} DOM element according to RFC 4918, Section 15.8.1.
+        
+        @rtype: C{string}
         """
-
+        
         xml = self.properties.get(Constants.PROP_LOCK_DISCOVERY)
-        return _scanLockDiscovery(xml)
+        if xml:
+            return _scanLockDiscovery(xml)
 
     def getResourceType(self):
         """
-        Return a resource's WebDAV type.
-
-        @return: 'collection' or 'resource'
+        Return a resource's WebDAV type:
+         * 'collection' => WebDAV Collection
+         * 'resource' => WebDAV resource
+        @rtype: C{string}
         """
-
+        
         xml = self.properties.get(Constants.PROP_RESOURCE_TYPE)
         if xml and xml.children:
             return xml.children[0].name
@@ -391,53 +402,53 @@ class LiveProperties(object):
     def getSupportedLock(self):
         """
         Return a DOM element describing all supported lock options for a resource.
-        Usually this is shared and exclusive write lock.
-
-        @return: supportedlock DOM element according to RFC 2815
+        Shared and exclusive write locks are usually supported. The supported locks are represented by       
+        a C{supportedlock} DOM element according to RFC 4918, Section 15.10.1.
+        
+        rtype: C{string}
         """
-
-        xml = self.properties.get(Constants.PROP_SUPPORTED_LOCK)
-        return xml
+        
+        return self.properties.get(Constants.PROP_SUPPORTED_LOCK)
 
     def getOwnerAsUrl(self):
         """
-        Return a resource's owner in form of a URL.
-
-        @return: string
+        Return a resource's owner represented as URL or C{None}.
+        
+        @rtype: C{string}
         """
-
+        
         xml = self.properties.get(Constants.PROP_OWNER)
-        if xml and len(xml.children):
+        if xml and xml.children:
             return xml.children[0].textof()
-        return None
 
     def __str__(self):
         result = ""
-        result += " Name=" + self.getDisplayName()
-        result += "\n Type=" + self.getResourceType()
-        result += "\n Length=" + str(self.getContentLength())
-        result += "\n Content Type="+ self.getContentType()
-        result += "\n ETag=" + self.getEntityTag()
-        try:
-            result += "\n Created=" + time.strftime("%c GMT", self.getCreationDate())
-        except TypeError,e:
-            result += "\n Created= Unknow"
-        try:
-            result += "\n Modified=" + time.strftime("%c GMT", self.getLastModified())
-        except TypeError,e:
-            result += "\n Modified= Unknow"
+        result += " Name=%s" % self.getDisplayName()
+        result += "\n Type=%s" % self.getResourceType()
+        result += "\n Length=%s" % self.getContentLength()
+        result += "\n Content Type=%s" % self.getContentType()
+        result += "\n ETag=%s" % self.getEntityTag()
+        result += "\n Created="
+        if self.getCreationDate():
+            result += time.strftime("%c GMT", self.getCreationDate())
+        else:
+            result += "None"
+        result += "\n Modified="
+        if self.getLastModified():
+            result += time.strftime("%c GMT", self.getLastModified())
+        else:
+            result += "None"
         return result
 
 
 def _parseIso8601String(date):
-    """
+    """ 
     Parses the given ISO 8601 string and returns a time tuple.
     The strings should be formatted according to RFC 3339 (see section 5.6).
     But currently there are two exceptions:
         1. Time offset is limited to "Z".
         2. Fragments of seconds are ignored.
     """
-
     if "." in date and "Z" in date: # Contains fragments of second?
         secondFragmentPos = date.rfind(".")
         timeOffsetPos = date.rfind("Z")
@@ -459,8 +470,8 @@ class ResponseFormatError(IOError):
         IOError.__init__(self, "ResponseFormatError at element %s: %s"  % (element.name, message))
         self.element = element
         self.message = message
-
-
+        
+    
 class Element(qp_xml._element):
     """
     This class improves the DOM interface (i.e. element interface) provided by the qp_xml module
@@ -470,10 +481,10 @@ class Element(qp_xml._element):
         qp_xml._element.__init__(self, ns=namespace, name=name, lang=None, parent=None,
                     children=[], ns_scope={}, attrs={},
                     first_cdata=cdata, following_cdata='')
-
+                    
     def __str__(self):
         return self.textof()
-
+        
     def __getattr__(self, name):
         if  (name == 'fullname'):
             return (self.__dict__['ns'], self.__dict__['name'])
@@ -489,7 +500,7 @@ def _scanLockDiscovery(root):
     if active:
         return _scanActivelock(active)
     return None
-
+    
 def _scanActivelock(root):
     assert root.name == Constants.TAG_ACTIVE_LOCK, "Invalid active lock XML element"
     token = _scanOrError(root, Constants.TAG_LOCK_TOKEN)
@@ -506,18 +517,18 @@ def _scanOwner(root):
             return href.textof()
         return owner.textof()
     return None
-
+    
 def _scanOrError(elem, childName):
     child = elem.find(childName, Constants.NS_DAV)
     if not child:
         raise ResponseFormatError(elem, "Invalid response: <"+childName+"> expected")
     return child
-
-
+    
+         
 def _unquoteHref(href):
     #print "*** Response HREF=", repr(href)
     if type(href) == type(u""):
-        try:
+        try: 
             href = href.encode('ascii')
         except UnicodeError:    # URL contains unescaped non-ascii character
             # handle bug in Tamino webdav server

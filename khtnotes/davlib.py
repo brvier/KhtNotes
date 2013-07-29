@@ -1,4 +1,8 @@
-# pylint: disable-msg=W0402,W0231,W0141,R0903,C0321,W0701,R0904,C0103,W0201,W0102,R0913,W0622,E1101,C0111,C0121,R0901
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# pylint: disable-msg=W0402,W0231,W0141,R0903,C0321,W0701,R0904,C0103
+# pylint: disable-msg=W0201,W0102,R0913,W0622,E1101,C0111,C0121,R0901
 # DAV client library
 #
 # Copyright (C) 1998-2000 Guido van Rossum. All Rights Reserved.
@@ -18,7 +22,9 @@ import string
 import types
 import mimetypes
 import qp_xml
-
+import socket
+import ssl
+import sys
 
 INFINITY = 'infinity'
 XML_DOC_HEADER = '<?xml version="1.0" encoding="utf-8"?>'
@@ -28,7 +34,36 @@ XML_CONTENT_TYPE = 'text/xml; charset="utf-8"'
 BLOCKSIZE = 16384
 
 
-class HTTPProtocolChooser(httplib.HTTPSConnection):
+class HTTPSConnectionV3(httplib.HTTPSConnection):
+
+    def __init__(self, *args, **kwargs):
+        httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+
+    def connect(self):
+        sock = socket.create_connection((self.host, self.port), self.timeout)
+        if sys.version_info < (2, 6, 7):
+            if hasattr(self, '_tunnel_host'):
+                if self._tunnel_host is not None:
+                    self.sock = sock
+                    self._tunnel()
+        else:
+            if self._tunnel_host:
+                self.sock = sock
+                self._tunnel()
+        try:
+            self.sock = ssl.wrap_socket(sock,
+                                        self.key_file,
+                                        self.cert_file,
+                                        ssl_version=ssl.PROTOCOL_SSLv3)
+        except ssl.SSLError:
+            self.sock = ssl.wrap_socket(sock,
+                                        self.key_file,
+                                        self.cert_file,
+                                        ssl_version=ssl.PROTOCOL_SSLv23)
+
+
+class HTTPProtocolChooser(HTTPSConnectionV3):
+
     def __init__(self, *args, **kw):
         self.protocol = kw.pop('protocol')
         if self.protocol == "https":
@@ -46,6 +81,7 @@ class HTTPProtocolChooser(httplib.HTTPSConnection):
 
 
 class HTTPConnectionAuth(HTTPProtocolChooser):
+
     def __init__(self, *args, **kw):
         apply(HTTPProtocolChooser.__init__, (self,) + args, kw)
 
@@ -62,15 +98,27 @@ class HTTPConnectionAuth(HTTPProtocolChooser):
 def _parse_status(elem):
     text = elem.textof()
     idx1 = string.find(text, ' ')
-    idx2 = string.find(text, ' ', idx1+1)
-    return int(text[idx1:idx2]), text[idx2+1:]
+    idx2 = string.find(text, ' ', idx1 + 1)
+    return int(text[idx1:idx2]), text[idx2 + 1:]
+
 
 class _blank:
+
     def __init__(self, **kw):
         self.__dict__.update(kw)
-class _propstat(_blank): pass
-class _response(_blank): pass
-class _multistatus(_blank): pass
+
+
+class _propstat(_blank):
+    pass
+
+
+class _response(_blank):
+    pass
+
+
+class _multistatus(_blank):
+    pass
+
 
 def _extract_propstat(elem):
     ps = _propstat(prop={}, status=None, responsedescription=None)
@@ -84,12 +132,14 @@ def _extract_propstat(elem):
             ps.status = _parse_status(child)
         elif child.name == 'responsedescription':
             ps.responsedescription = child.textof()
-        ### unknown element name
+        # unknown element name
 
     return ps
 
+
 def _extract_response(elem):
-    resp = _response(href=[], status=None, responsedescription=None, propstat=[])
+    resp = _response(
+        href=[], status=None, responsedescription=None, propstat=[])
     for child in elem.children:
         if child.ns != 'DAV:':
             continue
@@ -101,15 +151,16 @@ def _extract_response(elem):
             resp.responsedescription = child.textof()
         elif child.name == 'propstat':
             resp.propstat.append(_extract_propstat(child))
-        ### unknown child element
+        # unknown child element
 
     return resp
+
 
 def _extract_msr(root):
     if root.ns != 'DAV:' or root.name != 'multistatus':
         raise 'invalid response: <DAV:multistatus> expected'
 
-    msr = _multistatus(responses=[ ], responsedescription=None)
+    msr = _multistatus(responses=[], responsedescription=None)
 
     for child in root.children:
         if child.ns != 'DAV:':
@@ -118,9 +169,10 @@ def _extract_msr(root):
             msr.responsedescription = child.textof()
         elif child.name == 'response':
             msr.responses.append(_extract_response(child))
-        ### unknown child element
+        # unknown child element
 
     return msr
+
 
 def _extract_locktoken(root):
     if root.ns != 'DAV:' or root.name != 'prop':
@@ -141,6 +193,7 @@ def _extract_locktoken(root):
 
 
 class DAVResponse(httplib.HTTPResponse):
+
     def parse_multistatus(self):
         self.root = qp_xml.Parser().parse(self)
         self.msr = _extract_msr(self.root)
@@ -154,13 +207,13 @@ class DAV(HTTPConnectionAuth):
 
     response_class = DAVResponse
 
-    def get(self, url, extra_hdrs={ }):
+    def get(self, url, extra_hdrs={}):
         return self._request('GET', url, extra_hdrs=extra_hdrs)
 
-    def head(self, url, extra_hdrs={ }):
+    def head(self, url, extra_hdrs={}):
         return self._request('HEAD', url, extra_hdrs=extra_hdrs)
 
-    def post(self, url, data={ }, body=None, extra_hdrs={ }):
+    def post(self, url, data={}, body=None, extra_hdrs={}):
         headers = extra_hdrs.copy()
 
         assert body or data, "body or data must be supplied"
@@ -178,14 +231,14 @@ class DAV(HTTPConnectionAuth):
 
         return self._request('POST', url, body, headers)
 
-    def options(self, url='*', extra_hdrs={ }):
+    def options(self, url='*', extra_hdrs={}):
         return self._request('OPTIONS', url, extra_hdrs=extra_hdrs)
 
-    def trace(self, url, extra_hdrs={ }):
+    def trace(self, url, extra_hdrs={}):
         return self._request('TRACE', url, extra_hdrs=extra_hdrs)
 
     def put(self, url, contents,
-            content_type=None, content_enc=None, extra_hdrs={ }):
+            content_type=None, content_enc=None, extra_hdrs={}):
 
         if not content_type:
             content_type, content_enc = mimetypes.guess_type(url)
@@ -197,30 +250,30 @@ class DAV(HTTPConnectionAuth):
             headers['Content-Encoding'] = content_enc
         return self._request('PUT', url, contents, headers)
 
-    def delete(self, url, extra_hdrs={ }):
+    def delete(self, url, extra_hdrs={}):
         return self._request('DELETE', url, extra_hdrs=extra_hdrs)
 
-    def propfind(self, url, body=None, depth=None, extra_hdrs={ }):
+    def propfind(self, url, body=None, depth=None, extra_hdrs={}):
         headers = extra_hdrs.copy()
         headers['Content-Type'] = XML_CONTENT_TYPE
         if depth is not None:
             headers['Depth'] = str(depth)
         return self._request('PROPFIND', url, body, headers)
 
-    def proppatch(self, url, body, extra_hdrs={ }):
+    def proppatch(self, url, body, extra_hdrs={}):
         headers = extra_hdrs.copy()
         headers['Content-Type'] = XML_CONTENT_TYPE
         return self._request('PROPPATCH', url, body, headers)
 
-    def mkcol(self, url, extra_hdrs={ }):
+    def mkcol(self, url, extra_hdrs={}):
         return self._request('MKCOL', url, extra_hdrs=extra_hdrs)
 
-    def move(self, src, dst, extra_hdrs={ }):
+    def move(self, src, dst, extra_hdrs={}):
         headers = extra_hdrs.copy()
         headers['Destination'] = dst
         return self._request('MOVE', src, extra_hdrs=headers)
 
-    def copy(self, src, dst, depth=None, extra_hdrs={ }):
+    def copy(self, src, dst, depth=None, extra_hdrs={}):
         headers = extra_hdrs.copy()
         headers['Destination'] = dst
         if depth is not None:
@@ -228,7 +281,7 @@ class DAV(HTTPConnectionAuth):
         return self._request('COPY', src, extra_hdrs=headers)
 
     def lock(self, url, owner='', timeout=None, depth=None,
-             scope='exclusive', type='write', extra_hdrs={ }):
+             scope='exclusive', type='write', extra_hdrs={}):
         headers = extra_hdrs.copy()
         headers['Content-Type'] = XML_CONTENT_TYPE
         if depth is not None:
@@ -236,14 +289,14 @@ class DAV(HTTPConnectionAuth):
         if timeout is not None:
             headers['Timeout'] = timeout
         body = XML_DOC_HEADER + \
-               '<DAV:lockinfo xmlns:DAV="DAV:">' + \
-               '<DAV:lockscope><DAV:%s/></DAV:lockscope>' % scope + \
-               '<DAV:locktype><DAV:%s/></DAV:locktype>' % type + \
-               '<DAV:owner>' + owner + '</DAV:owner>' + \
-               '</DAV:lockinfo>'
+            '<DAV:lockinfo xmlns:DAV="DAV:">' + \
+            '<DAV:lockscope><DAV:%s/></DAV:lockscope>' % scope + \
+            '<DAV:locktype><DAV:%s/></DAV:locktype>' % type + \
+            '<DAV:owner>' + owner + '</DAV:owner>' + \
+            '</DAV:lockinfo>'
         return self._request('LOCK', url, body, extra_hdrs=headers)
 
-    def unlock(self, url, locktoken, extra_hdrs={ }):
+    def unlock(self, url, locktoken, extra_hdrs={}):
         headers = extra_hdrs.copy()
         if locktoken[0] != '<':
             locktoken = '<' + locktoken + '>'
@@ -256,44 +309,42 @@ class DAV(HTTPConnectionAuth):
         self.request(method, url, body, extra_hdrs)
         return self.getresponse()
 
-
     #
     # Higher-level methods for typical client use
     #
-
     def allprops(self, url, depth=None):
         body = XML_DOC_HEADER + \
-               '<DAV:propfind xmlns:DAV="DAV:"><DAV:allprop/></DAV:propfind>'
+            '<DAV:propfind xmlns:DAV="DAV:"><DAV:allprop/></DAV:propfind>'
         return self.propfind(url, body, depth=depth)
 
     def propnames(self, url, depth=None):
         body = XML_DOC_HEADER + \
-               '<DAV:propfind xmlns:DAV="DAV:"><DAV:propname/></DAV:propfind>'
+            '<DAV:propfind xmlns:DAV="DAV:"><DAV:propname/></DAV:propfind>'
         return self.propfind(url, body, depth)
 
     def getprops(self, url, *names, **kw):
         assert names, 'at least one property name must be provided'
-        if kw.has_key('ns'):
+        if 'ns' in kw:
             xmlns = ' xmlns:NS="' + kw['ns'] + '"'
             ns = 'NS:'
             del kw['ns']
         else:
             xmlns = ns = ''
-        if kw.has_key('depth'):
+        if 'depth' in kw:
             depth = kw['depth']
             del kw['depth']
         else:
             depth = 0
         assert not kw, 'unknown arguments'
         body = XML_DOC_HEADER + \
-               '<DAV:propfind xmlns:DAV="DAV:"' + xmlns + '><DAV:prop><' + ns + \
-               string.joinfields(names, '/><' + ns) + \
-               '/></DAV:prop></DAV:propfind>'
+            '<DAV:propfind xmlns:DAV="DAV:"' + xmlns + '><DAV:prop><' + ns + \
+            string.joinfields(names, '/><' + ns) + \
+            '/></DAV:prop></DAV:propfind>'
         return self.propfind(url, body, depth)
 
     def delprops(self, url, *names, **kw):
         assert names, 'at least one property name must be provided'
-        if kw.has_key('ns'):
+        if 'ns' in kw:
             xmlns = ' xmlns:NS="' + kw['ns'] + '"'
             ns = 'NS:'
             del kw['ns']
@@ -301,16 +352,16 @@ class DAV(HTTPConnectionAuth):
             xmlns = ns = ''
         assert not kw, 'unknown arguments'
         body = XML_DOC_HEADER + \
-               '<DAV:propertyupdate xmlns:DAV="DAV:"' + xmlns + \
-               '><DAV:remove><DAV:prop><' + ns + \
-               string.joinfields(names, '/><' + ns) + \
-               '/></DAV:prop></DAV:remove></DAV:propertyupdate>'
+            '<DAV:propertyupdate xmlns:DAV="DAV:"' + xmlns + \
+            '><DAV:remove><DAV:prop><' + ns + \
+            string.joinfields(names, '/><' + ns) + \
+            '/></DAV:prop></DAV:remove></DAV:propertyupdate>'
         return self.proppatch(url, body)
 
     def setprops(self, url, *xmlprops, **props):
         assert xmlprops or props, 'at least one property must be provided'
         xmlprops = list(xmlprops)
-        if props.has_key('ns'):
+        if 'ns' in props:
             xmlns = ' xmlns:NS="' + props['ns'] + '"'
             ns = 'NS:'
             del props['ns']
@@ -323,10 +374,10 @@ class DAV(HTTPConnectionAuth):
                 xmlprops.append('<%s%s/>' % (ns, key))
         elems = string.joinfields(xmlprops, '')
         body = XML_DOC_HEADER + \
-               '<DAV:propertyupdate xmlns:DAV="DAV:"' + xmlns + \
-               '><DAV:set><DAV:prop>' + \
-               elems + \
-               '</DAV:prop></DAV:set></DAV:propertyupdate>'
+            '<DAV:propertyupdate xmlns:DAV="DAV:"' + xmlns + \
+            '><DAV:set><DAV:prop>' + \
+            elems + \
+            '</DAV:prop></DAV:set></DAV:propertyupdate>'
         return self.proppatch(url, body)
 
     def get_lock(self, url, owner='', timeout=None, depth=None):

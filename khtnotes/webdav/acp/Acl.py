@@ -34,7 +34,7 @@ class ACL(object):
     """
     This class provides access to Access Control List funcionality
     as specified in the WebDAV ACP.
-
+    
     @ivar aces:          ACEs in ACL
     @type aces:          C{list} of L{ACE} objects
     @ivar withInherited: Flag indicating whether ACL contains inherited ACEs.
@@ -43,22 +43,22 @@ class ACL(object):
 
     # restrict instance variables
     __slots__ = ('aces', 'withInherited')
-
+    
     def __init__(self, domroot=None, aces=None):
         """
         Constructor should be called with either no parameters (create blank ACE),
         or one parameter (a DOM tree or ACE list).
-
+        
         @param domroot: A DOM tree (default: None).
         @type  domroot: L{webdav.WebdavResponse.Element} object
         @param aces:    ACE objects (default: None)
         @type  aces:    C{list} of L{ACE} objects
-
+        
         @raise WebdavError: When non-valid parameters are passed a L{WebdavError} is raised.
         """
         self.withInherited = None
         self.aces          = []
-
+        
         if domroot:
             for child in domroot.children:
                 if child.name == Constants.TAG_ACE and child.ns == Constants.NS_DAV:
@@ -107,11 +107,11 @@ class ACL(object):
 
     def copy(self, other):
         '''Copy an ACL object.
-
+        
         @param other: Another ACL to copy.
         @type  other: L{ACL} object
-
-        @raise WebdavError: When an object that is not an L{ACL} is passed
+        
+        @raise WebdavError: When an object that is not an L{ACL} is passed 
             a L{WebdavError} is raised.
         '''
         if not isinstance(other, ACL):
@@ -132,7 +132,7 @@ class ACL(object):
     def addAce(self, ace):
         '''
         Adds the passed ACE object to list if it's not in it, yet.
-
+        
         @param ace: An ACE.
         @type  ace: L{ACE} object
         '''
@@ -148,7 +148,7 @@ class ACL(object):
 
     def addAces(self, aces):
         '''Adds the list of passed ACE objects to list.
-
+        
         @param aces: ACEs
         @type  aces: sequence of L{ACE} objects
         '''
@@ -157,11 +157,11 @@ class ACL(object):
 
     def delAce(self, ace):
         '''Deletes the passed ACE object from list.
-
+        
         @param ace: An ACE.
         @type  ace: L{ACE} object
-
-        @raise WebdavError: When the ACE to be deleted is not within the ACL
+        
+        @raise WebdavError: When the ACE to be deleted is not within the ACL 
             a L{WebdavError} is raised.
         '''
         # find where it is and delete it ...
@@ -178,7 +178,7 @@ class ACL(object):
 
     def delAces(self, aces):
         '''Deletes the list of passed ACE objects from list.
-
+        
         @param aces: ACEs
         @type  aces: sequence of L{ACE} objects
         '''
@@ -188,7 +188,7 @@ class ACL(object):
     def delPrincipalsAces(self, principal):
         """
         Deletes all ACEs in ACL by given principal.
-
+        
         @param principal: A principal.
         @type  principal: L{Principal} object
         """
@@ -202,13 +202,13 @@ class ACL(object):
 
     def joinGrantDeny(self):
         """
-        Returns a "refined" ACL of the ACL for ease of use in the UI.
-        The purpose is to post the user an ACE that can contain both, granted
-        and denied, privileges. So possible pairs of grant and deny ACEs are joined
-        to return them in one ACE. This resulting ACE then of course IS NOT valid
-        for setting ACLs anymore. They will have to be reconverted to yield valid
+        Returns a "refined" ACL of the ACL for ease of use in the UI. 
+        The purpose is to post the user an ACE that can contain both, granted 
+        and denied, privileges. So possible pairs of grant and deny ACEs are joined 
+        to return them in one ACE. This resulting ACE then of course IS NOT valid 
+        for setting ACLs anymore. They will have to be reconverted to yield valid 
         ACLs for the ACL method.
-
+        
         @return: A (non-valid) ACL that contains both grant and deny clauses in an ACE.
         @rtype:  L{ACL} object
         """
@@ -233,13 +233,13 @@ class ACL(object):
 
     def splitGrantDeny(self):
         """
-        Returns a "refined" ACL of the ACL for ease of use in the UI.
-        The purpose is to post the user an ACE that can contain both, granted
-        and denied, privileges. So possible joined grant and deny clauses in ACEs
-        splitted to return them in separate ACEs. This resulting ACE then is valid
-        for setting ACLs again. This method is to be seen in conjunction with the
+        Returns a "refined" ACL of the ACL for ease of use in the UI. 
+        The purpose is to post the user an ACE that can contain both, granted 
+        and denied, privileges. So possible joined grant and deny clauses in ACEs 
+        splitted to return them in separate ACEs. This resulting ACE then is valid 
+        for setting ACLs again. This method is to be seen in conjunction with the 
         method joinGrantDeny as it reverts its effect.
-
+        
         @return: A valid ACL that contains only ACEs with either grant or deny clauses.
         @rtype:  L{ACL} object
         """
@@ -270,9 +270,9 @@ class ACL(object):
 
     def isValid(self):
         """
-        Returns true (1) if all contained ACE objects are valid,
+        Returns true (1) if all contained ACE objects are valid, 
         otherwise false (0) is returned.
-
+        
         @return: Validity of ACL.
         @rtype:  C{bool}
         """
@@ -285,16 +285,16 @@ class ACL(object):
 
     def stripAces(self, inherited=True, protected=True):
         """
-        Returns an ACL object with all ACEs stripped that are inherited
+        Returns an ACL object with all ACEs stripped that are inherited 
         and/or protected.
-
-        @param inherited: Flag to indicate whether inherited ACEs should
+        
+        @param inherited: Flag to indicate whether inherited ACEs should 
             be stripped (default: True).
         @type  inherited: C{bool}
-        @param protected: Flag to indicate whether protected ACEs should
+        @param protected: Flag to indicate whether protected ACEs should 
             be stripped (default: True).
         @type  protected: C{bool}
-
+        
         @return: An ACL without the stripped ACEs.
         @rtype:  L{ACL} object
         """

@@ -30,7 +30,7 @@ from importer import TomboyImporter
 
 __author__ = 'Benoit HERVIER (Khertan)'
 __email__ = 'khertan@khertan.net'
-__version__ = '3.7'
+__version__ = '3.8'
 __build__ = '1'
 __upgrade__ = '''1.1: First public release
 1.2: Fix deletion of remote file in sync, add word wrapping in markdown preview
@@ -89,7 +89,11 @@ __upgrade__ = '''1.1: First public release
       Add http://scriptogr.am post feature
 3.7 : Add missing dependency python-dbus
       Test size file on conflict merge to avoid a bug in ownCloud webdav
-      Fix a mistake which can prevent sync of new created file'''
+      Fix a mistake which can prevent sync of new created file
+3.8 : Add Publish on KhtCms feature
+      Fix bugs on sync which can recreate deleted file
+      Improve logging of sync to track problems
+      Update webdav library'''
 
 
 class NotesModel(QAbstractListModel):
